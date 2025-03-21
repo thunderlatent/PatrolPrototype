@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的紀錄 - 安全室巡檢系統</title>
+    <script>
+        // 檢查是否在 iframe 內訪問
+        if (window.self === window.top) {
+            // 直接訪問時重定向到 iPhone 框架視圖並在其底部導航欄選擇「我的紀錄」
+            window.location.href = 'iphone-view.html';
+            // 註：因為無法使用查詢參數，我們將依靠用戶點擊底部的「我的紀錄」按鈕
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -177,7 +185,7 @@
         }
 
         /* 改進的檢查點卡片樣式 */
-        .checkpoint-item {
+        .checkpoint-card {
             background-color: white;
             border-radius: 16px;
             margin-bottom: 14px;
@@ -187,50 +195,46 @@
             border: 1px solid #f0f0f0;
         }
 
-        .checkpoint-item:hover {
+        .checkpoint-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
         }
 
-        .checkpoint-item .border-green-200 {
-            border-left: 4px solid #10B981 !important;
+        .checkpoint-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .checkpoint-item .border-yellow-200 {
-            border-left: 4px solid #F59E0B !important;
+        .checkpoint-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 4px;
+            font-size: 15px;
         }
 
-        .checkpoint-item .border-gray-200 {
-            border-left: 4px solid #9CA3AF !important;
-        }
-
-        /* 改進的狀態標籤樣式 */
-        .status-badge {
+        .checkpoint-status {
             display: inline-flex;
             align-items: center;
-            padding: 6px 12px;
-            border-radius: 99px;
             font-size: 13px;
             font-weight: 500;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
 
-        .text-green-500.font-medium {
+        .status-completed {
             color: #10B981;
-            background-color: #ECFDF5;
-            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
-        .text-yellow-500.font-medium {
+        .status-pending {
             color: #F59E0B;
-            background-color: #FEF3C7;
-            border: 1px solid rgba(245, 158, 11, 0.2);
         }
 
-        .text-gray-500.font-medium {
+        .status-unable {
             color: #6B7280;
-            background-color: #F3F4F6;
-            border: 1px solid rgba(107, 114, 128, 0.2);
+        }
+
+        .checkpoint-info {
+            padding: 14px 16px;
         }
         
         /* 空間間距類 */
@@ -458,6 +462,345 @@
     <script>
         // 打卡記錄數據
         const recordsByDate = {
+            '2025-03-21': {
+                date: '2025年3月21日（週五）',
+                stats: {
+                    completed: 5,
+                    pending: 2,
+                    rate: '71%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '08:30',
+                            route: 'A棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常，所有門禁系統正常運作',
+                            images: ['https://via.placeholder.com/100?text=A棟照片1', 'https://via.placeholder.com/100?text=A棟照片2']
+                        },
+                        {
+                            time: '10:15',
+                            route: 'B棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '發現B2停車場有一台車未熄火，已通知管理處',
+                            images: ['https://via.placeholder.com/100?text=B棟照片']
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '13:45',
+                            route: 'C棟下午巡邏路線',
+                            status: 'unable',
+                            notes: 'C棟5樓施工中無法完成巡邏，已拍照記錄',
+                            images: ['https://via.placeholder.com/100?text=C棟施工']
+                        },
+                        {
+                            time: '15:30',
+                            route: 'D棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '一切正常',
+                            images: []
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '19:00',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '23樓有人員加班，已確認身份',
+                            images: []
+                        },
+                        {
+                            time: '20:45',
+                            route: 'B棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常，已確認所有出口安全門關閉',
+                            images: []
+                        },
+                        {
+                            time: '22:00',
+                            route: 'E棟晚間巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ]
+                }
+            },
+            '2025-03-22': {
+                date: '2025年3月22日（週六）',
+                stats: {
+                    completed: 3,
+                    pending: 4,
+                    rate: '43%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '09:00',
+                            route: 'A棟週末巡邏路線',
+                            status: 'completed',
+                            notes: '週末人員較少，巡邏順利',
+                            images: []
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '14:00',
+                            route: 'B棟週末巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        },
+                        {
+                            time: '16:30',
+                            route: 'C棟週末巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '19:30',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '特別檢查停車場和各大門',
+                            images: ['https://via.placeholder.com/100?text=停車場檢查']
+                        },
+                        {
+                            time: '21:00',
+                            route: 'D棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '22:30',
+                            route: 'E棟晚間巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ]
+                }
+            },
+            '2025-03-20': {
+                date: '2025年3月20日（週四）',
+                stats: {
+                    completed: 8,
+                    pending: 0,
+                    rate: '100%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '08:15',
+                            route: 'A棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常，所有設備運作良好',
+                            images: []
+                        },
+                        {
+                            time: '10:00',
+                            route: 'B棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '13:30',
+                            route: 'C棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '15:15',
+                            route: 'D棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '發現D棟3樓茶水間漏水，已通知維修',
+                            images: ['https://via.placeholder.com/100?text=漏水照片']
+                        },
+                        {
+                            time: '16:45',
+                            route: 'E棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '19:15',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '20:30',
+                            route: 'B棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '21:45',
+                            route: 'E棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常，所有門窗已確認鎖好',
+                            images: []
+                        }
+                    ]
+                }
+            },
+            '2025-03-19': {
+                date: '2025年3月19日（週三）',
+                stats: {
+                    completed: 6,
+                    pending: 1,
+                    rate: '86%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '08:45',
+                            route: 'A棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '10:30',
+                            route: 'B棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '有訪客參觀，協助引導',
+                            images: []
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '14:15',
+                            route: 'C棟下午巡邏路線',
+                            status: 'unable',
+                            notes: 'C棟電梯維修，無法到達部分樓層',
+                            images: ['https://via.placeholder.com/100?text=電梯維修']
+                        },
+                        {
+                            time: '15:45',
+                            route: 'D棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '18:30',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常，部分區域有加班人員',
+                            images: []
+                        },
+                        {
+                            time: '20:00',
+                            route: 'B棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '22:15',
+                            route: 'E棟晚間巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ]
+                }
+            },
+            '2025-03-18': {
+                date: '2025年3月18日（週二）',
+                stats: {
+                    completed: 7,
+                    pending: 2,
+                    rate: '78%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '08:20',
+                            route: 'A棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '發現A棟1樓走廊有垃圾未清理，已通知清潔人員',
+                            images: ['https://via.placeholder.com/100?text=垃圾照片']
+                        },
+                        {
+                            time: '09:45',
+                            route: 'B棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '13:15',
+                            route: 'C棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '14:50',
+                            route: 'D棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '16:30',
+                            route: 'E棟下午巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '18:50',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常，檢查防火門運作正常',
+                            images: []
+                        },
+                        {
+                            time: '20:15',
+                            route: 'B棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '巡邏正常',
+                            images: []
+                        },
+                        {
+                            time: '21:30',
+                            route: 'E棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '注意到E棟後門鎖有些松動，已記錄並通知維修',
+                            images: ['https://via.placeholder.com/100?text=門鎖照片']
+                        },
+                        {
+                            time: '22:45',
+                            route: 'F棟晚間巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ]
+                }
+            },
             '2025-03-17': {
                 date: '2025年3月17日（週一）',
                 stats: {
@@ -549,7 +892,7 @@
         };
         
         // 當前選中日期
-        let currentDate = '2025-03-17';
+        let currentDate = '2025-03-21';
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -563,7 +906,7 @@
             document.getElementById('todayBtn').addEventListener('click', function() {
                 // 在實際應用中，這裡會獲取今天的日期
                 // 這裡使用預設日期作為演示
-                currentDate = '2025-03-17';
+                currentDate = '2025-03-21';  // 更新為當前模擬日期
                 updateCalendar();
                 updateRecords(currentDate);
             });
@@ -651,7 +994,8 @@
         
         // 更新記錄
         function updateRecords(date) {
-            const dateKey = date.toISOString().split('T')[0];
+            // 修正：直接使用 date 參數作為 key，不需要調用 toISOString
+            const dateKey = date;
             const records = recordsByDate[dateKey];
             
             if (!records) {

@@ -891,7 +891,7 @@
         
         <!-- 確認按鈕 -->
         <button id="confirmRoutes" class="confirm-button" disabled>
-            確認選擇 (0/8)
+            確認選擇 (0/7)
         </button>
     </div>
 
@@ -1153,35 +1153,7 @@
 
         // 全局函數 - 獲取打卡點數據
         function getRouteCheckpoints(route) {
-            // 首先嘗試從 localStorage 中獲取路線狀態
-            const routeStatuses = localStorage.getItem('routeStatuses');
-            if (routeStatuses) {
-                const parsedStatuses = JSON.parse(routeStatuses);
-                if (parsedStatuses[route] && parsedStatuses[route].checkpoints) {
-                    console.log(`從 localStorage 獲取路線 ${route} 的打卡點數據`);
-                    // 將 localStorage 中的對象格式轉換為數組格式
-                    const checkpoints = [];
-                    const cpData = parsedStatuses[route].checkpoints;
-                    
-                    for (const name in cpData) {
-                        const cp = cpData[name];
-                        checkpoints.push({
-                            name: name,
-                            status: cp.status,
-                            checkTime: cp.checkTime || '',
-                            reason: cp.reason || '',
-                            note: cp.note || '',
-                            images: cp.images || [],
-                            time: getTimeForCheckpoint(route, name) // 根據路線和名稱獲取時間
-                        });
-                    }
-                    
-                    return checkpoints;
-                }
-            }
-            
-            // 如果沒有在 localStorage 中找到數據，則使用默認數據
-            console.log(`使用默認數據獲取路線 ${route} 的打卡點數據`);
+            // 檢查點映射 - 定義每個路線的檢查點
             const checkpointsMap = {
                 'morning-a': [
                     { name: '大廳', time: '09:00-09:15', status: 'pending' },
@@ -1221,13 +1193,8 @@
                 'evening-b': [
                     { name: '正門', time: '21:00-21:30', status: 'pending' },
                     { name: '機房', time: '21:30-22:00', status: 'pending' }
-                ],
-                'evening-c': [
-                    { name: '大廳', time: '20:00-20:15', status: 'pending' },
-                    { name: '電梯', time: '20:15-20:30', status: 'pending' },
-                    { name: '走廊', time: '20:30-20:45', status: 'pending' },
-                    { name: '配電室', time: '20:45-21:00', status: 'pending' }
                 ]
+                // 移除 evening-c 路線，因為HTML中沒有這個路線的實際元素
             };
             
             return checkpointsMap[route] || [];
@@ -1274,13 +1241,8 @@
                 'evening-b': {
                     '正門': '21:00-21:30',
                     '機房': '21:30-22:00'
-                },
-                'evening-c': {
-                    '大廳': '20:00-20:15',
-                    '電梯': '20:15-20:30',
-                    '走廊': '20:30-20:45',
-                    '配電室': '20:45-21:00'
                 }
+                // 移除 evening-c 路線
             };
             
             return (timeMap[route] && timeMap[route][name]) ? timeMap[route][name] : '未指定時間';
@@ -1292,6 +1254,7 @@
             const checkpoint = routeData.find(cp => cp.name === checkpointName);
             
             if (checkpoint) {
+                // 更新內存中的數據
                 checkpoint.status = status;
                 if (note) checkpoint.note = note;
                 if (images.length > 0) checkpoint.images = images;
@@ -1301,6 +1264,55 @@
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 checkpoint.checkTime = `${hours}:${minutes}`;
+                
+                // 更新 localStorage 中的路線狀態
+                let routeStatuses = {};
+                try {
+                    const savedRouteStatuses = localStorage.getItem('routeStatuses');
+                    if (savedRouteStatuses) {
+                        routeStatuses = JSON.parse(savedRouteStatuses);
+                    }
+                    
+                    // 確保路線存在於狀態對象中
+                    if (!routeStatuses[route]) {
+                        routeStatuses[route] = {
+                            status: 'incomplete',
+                            checkpoints: {}
+                        };
+                    }
+                    
+                    // 確保檢查點存在於路線狀態中
+                    if (!routeStatuses[route].checkpoints) {
+                        routeStatuses[route].checkpoints = {};
+                    }
+                    
+                    // 更新檢查點狀態
+                    routeStatuses[route].checkpoints[checkpointName] = {
+                        status: status,
+                        checkTime: checkpoint.checkTime
+                    };
+                    
+                    // 添加可選屬性
+                    if (note) routeStatuses[route].checkpoints[checkpointName].note = note;
+                    if (status === 'unable' && note) routeStatuses[route].checkpoints[checkpointName].reason = note;
+                    if (images.length > 0) routeStatuses[route].checkpoints[checkpointName].images = images;
+                    
+                    // 檢查路線的完成狀態
+                    const allCheckpoints = getRouteCheckpoints(route);
+                    const isCompleted = allCheckpoints.every(cp => {
+                        // 在 routeStatuses 中查找檢查點的狀態
+                        const checkpointStatus = routeStatuses[route].checkpoints[cp.name]?.status || cp.status;
+                        return checkpointStatus === 'completed' || checkpointStatus === 'unable';
+                    });
+                    
+                    // 更新路線的整體狀態
+                    routeStatuses[route].status = isCompleted ? 'completed' : 'incomplete';
+                    
+                    // 保存更新後的狀態
+                    localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                } catch (e) {
+                    console.error("更新路線狀態時出錯:", e);
+                }
                 
                 // 更新 UI
                 showPatrolPage();
@@ -1332,10 +1344,14 @@
                     const parsedRoutes = JSON.parse(savedRoutes);
                     if (Array.isArray(parsedRoutes)) {
                         selectedRoutesArray = parsedRoutes;
+                        // 過濾掉 evening-c 路線（如果有）
+                        selectedRoutesArray = selectedRoutesArray.filter(route => route !== 'evening-c');
                         console.log("從 localStorage 讀取路線 (數組格式):", selectedRoutesArray);
                     } else if (parsedRoutes.routes && Array.isArray(parsedRoutes.routes)) {
                         // 兼容舊格式
                         selectedRoutesArray = parsedRoutes.routes;
+                        // 過濾掉 evening-c 路線（如果有）
+                        selectedRoutesArray = selectedRoutesArray.filter(route => route !== 'evening-c');
                         console.log("從 localStorage 讀取路線 (對象格式):", selectedRoutesArray);
                     }
                 } catch (e) {
@@ -1343,30 +1359,49 @@
                 }
             }
             
-            // 如果沒有選中的路線，使用默認值
+            // 如果沒有選中的路線，顯示提示信息
             if (selectedRoutesArray.length === 0) {
-                selectedRoutesArray = [
-                    'morning-a', 'morning-b', 'morning-c',
-                    'afternoon-b', 'afternoon-d',
-                    'evening-a', 'evening-b', 'evening-c'
-                ];
-                console.log("使用默認路線列表:", selectedRoutesArray);
+                patrolRoutes.innerHTML = `
+                    <div class="bg-white p-4 rounded-lg text-center shadow-sm">
+                        <i class="fas fa-exclamation-circle text-yellow-500 text-3xl mb-2"></i>
+                        <p class="text-gray-700 mb-2">您尚未選擇任何巡邏路線</p>
+                        <p class="text-sm text-gray-500 mb-4">請返回上一頁選擇需要巡邏的路線</p>
+                        <button id="goBackToSelection" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-arrow-left mr-2"></i>返回選擇路線
+                        </button>
+                    </div>
+                `;
+                
+                // 添加返回按鈕事件
+                document.getElementById('goBackToSelection').addEventListener('click', function() {
+                    const patrolPage = document.getElementById('patrolPage');
+                    const routeSelectionPage = document.querySelector('.page-container');
+                    patrolPage.style.display = 'none';
+                    routeSelectionPage.style.display = 'block';
+                });
+                
+                // 更新進度顯示為0
+                document.getElementById('totalProgressBar').style.width = '0%';
+                document.getElementById('totalProgressPercentage').textContent = '0%';
+                document.getElementById('totalProgressPercentage2').textContent = '0%';
+                document.getElementById('completedRoutesCount').textContent = '0';
+                document.getElementById('totalRoutesCount').textContent = '0';
+                
+                return;
             }
             
-            // 更新全局變量
-            selectedRoutes = new Set(selectedRoutesArray);
+            // 更新全局變量，過濾掉 evening-c 路線
+            selectedRoutes = new Set(selectedRoutesArray.filter(route => route !== 'evening-c'));
             
             console.log("將顯示以下路線:", Array.from(selectedRoutes));
             
-            // 確保 morning-b 路線被包含在內
-            if (!selectedRoutes.has('morning-b')) {
-                selectedRoutes.add('morning-b');
-                console.log("添加 morning-b 路線到顯示列表");
-            }
-            
-            // 為每個路線生成卡片
-            selectedRoutesArray.forEach(route => {
-                patrolRoutes.innerHTML += generatePatrolRouteCard(route);
+            // 為每個選擇的路線生成卡片
+            Array.from(selectedRoutes).forEach(route => {
+                // 確保路線有對應的檢查點資料
+                const checkpoints = getRouteCheckpoints(route);
+                if (checkpoints && checkpoints.length > 0) {
+                    patrolRoutes.innerHTML += generatePatrolRouteCard(route);
+                }
             });
             
             updateTotalProgress();
@@ -1383,8 +1418,45 @@
             const [timeSlot, building] = route.split('-');
             const timeText = timeSlotMap[timeSlot];
             
-            // 獲取路線的打卡點
-            const checkpoints = getRouteCheckpoints(route);
+            // 獲取路線的基本打卡點信息
+            const baseCheckpoints = getRouteCheckpoints(route);
+            
+            // 從 localStorage 獲取路線狀態
+            let savedRouteStatus = null;
+            const savedRouteStatuses = localStorage.getItem('routeStatuses');
+            if (savedRouteStatuses) {
+                try {
+                    const routeStatuses = JSON.parse(savedRouteStatuses);
+                    savedRouteStatus = routeStatuses[route];
+                } catch (e) {
+                    console.error("解析路線狀態時出錯:", e);
+                }
+            }
+            
+            // 合併基本檢查點信息和已保存的狀態
+            let checkpoints = [];
+            if (baseCheckpoints) {
+                checkpoints = baseCheckpoints.map(cp => {
+                    // 創建檢查點基本信息的副本
+                    const checkpoint = { ...cp };
+                    
+                    // 如果存在已保存的狀態，合併狀態信息
+                    if (savedRouteStatus && savedRouteStatus.checkpoints && savedRouteStatus.checkpoints[cp.name]) {
+                        const savedCheckpoint = savedRouteStatus.checkpoints[cp.name];
+                        
+                        // 合併屬性
+                        checkpoint.status = savedCheckpoint.status || checkpoint.status;
+                        checkpoint.checkTime = savedCheckpoint.checkTime;
+                        checkpoint.note = savedCheckpoint.note;
+                        checkpoint.reason = savedCheckpoint.reason;
+                        checkpoint.images = savedCheckpoint.images;
+                    }
+                    
+                    return checkpoint;
+                });
+            }
+            
+            // 計算完成和無法完成的檢查點數
             const completedCount = checkpoints.filter(cp => cp.status === 'completed').length;
             const unableCount = checkpoints.filter(cp => cp.status === 'unable').length;
             const progress = ((completedCount + unableCount) / checkpoints.length * 100).toFixed(0);
@@ -1483,7 +1555,7 @@
                                                         備註：${cp.note}
                                                     </div>
                                                 ` : ''}
-                                                ${cp.images ? `
+                                                ${cp.images && cp.images.length > 0 ? `
                                                     <div class="flex flex-wrap gap-2 mt-2">
                                                         ${cp.images.map(img => `
                                                             <div class="relative w-20 h-20 cursor-pointer" onclick="showFullScreenImage('${img}')">
@@ -1580,7 +1652,7 @@
 
             // 更新確認按鈕狀態
             function updateConfirmButton() {
-                const totalRoutes = routeCards.length;
+                const totalRoutes = 7; // 固定為 7 條路線，與 HTML 中的實際路線數量一致
                 const selectedCount = selectedRoutes.size;
                 confirmButton.textContent = `確認選擇 (${selectedCount}/${totalRoutes})`;
                 confirmButton.disabled = selectedCount === 0;
@@ -1613,12 +1685,8 @@
 
             // 確認按鈕點擊事件
             confirmButton.addEventListener('click', function() {
-                // 將選擇的路線保存到 localStorage
-                const selectedRoutesData = {
-                    routes: Array.from(selectedRoutes),
-                    timestamp: new Date().toISOString()
-                };
-                localStorage.setItem('selectedRoutes', JSON.stringify(selectedRoutesData));
+                // 將選擇的路線保存到 localStorage，直接存儲為數組
+                localStorage.setItem('selectedRoutes', JSON.stringify(Array.from(selectedRoutes)));
                 
                 // 顯示巡邏頁面
                 showPatrolPage();
@@ -1627,20 +1695,41 @@
             // 檢查是否已有選擇的路線
             const savedRoutes = localStorage.getItem('selectedRoutes');
             if (savedRoutes) {
-                const savedRoutesData = JSON.parse(savedRoutes);
-                selectedRoutes = new Set(savedRoutesData.routes);
-                
-                // 更新UI顯示
-                routeCards.forEach(card => {
-                    if (selectedRoutes.has(card.dataset.routeId)) {
-                        card.classList.add('selected');
+                try {
+                    const parsedRoutes = JSON.parse(savedRoutes);
+                    
+                    // 如果是數組格式
+                    if (Array.isArray(parsedRoutes)) {
+                        selectedRoutes = new Set(parsedRoutes);
+                    } 
+                    // 如果是對象格式（兼容舊版）
+                    else if (parsedRoutes.routes && Array.isArray(parsedRoutes.routes)) {
+                        selectedRoutes = new Set(parsedRoutes.routes);
                     }
-                });
-                
+                    
+                    // 更新UI顯示
+                    routeCards.forEach(card => {
+                        if (selectedRoutes.has(card.dataset.routeId)) {
+                            card.classList.add('selected');
+                        }
+                    });
+                    
+                    updateConfirmButton();
+                    
+                    // 只在有實際選擇路線時才顯示巡邏頁面
+                    if (selectedRoutes.size > 0) {
+                        showPatrolPage();
+                    }
+                } catch (e) {
+                    console.error("解析已保存的路線時出錯:", e);
+                    // 初始化為空集合
+                    selectedRoutes = new Set();
+                    updateConfirmButton();
+                }
+            } else {
+                // 首次載入，初始化為空集合
+                selectedRoutes = new Set();
                 updateConfirmButton();
-                
-                // 如果有已選擇的路線，直接顯示巡邏頁面
-                showPatrolPage();
             }
         });
 
@@ -1674,9 +1763,9 @@
                 patrolPageUserRole.textContent = userRoleText;
             }
             
-            // 清除現有的 localStorage 項目
+            // 清除並初始化 localStorage
+            const existingSelectedRoutes = localStorage.getItem('selectedRoutes');
             localStorage.removeItem('uploadedRoutes');
-            localStorage.removeItem('selectedRoutes');
             localStorage.removeItem('routeStatuses');
             
             // 設置已上傳的路線
@@ -1688,29 +1777,58 @@
                 localStorage.setItem(`route_uploaded_${route}`, 'true');
             });
             
-            // 設置預設選中路線
-            localStorage.setItem('selectedRoutes', JSON.stringify([
-                'morning-a', // 已上傳
-                'morning-b', // 部分完成，未上傳
-                'morning-c', // 全部完成，未上傳
-                'afternoon-b', // 部分完成，未上傳
-                'afternoon-d', // 已上傳
-                'evening-a', // 全部完成，未上傳
-                'evening-b', // 已上傳
-                'evening-c'  // 部分完成，未上傳
-            ]));
+            // 不再預設選中路線，讓用戶可以自由選擇
+            // 只在用戶尚未選擇路線時才清除 selectedRoutes
+            if (!existingSelectedRoutes) {
+                console.log('初始化：用戶尚未選擇任何路線');
+                // 初始化為空數組
+                localStorage.setItem('selectedRoutes', JSON.stringify([]));
+            } else {
+                // 確保不含 evening-c 路線
+                try {
+                    const existingRoutes = JSON.parse(existingSelectedRoutes);
+                    if (Array.isArray(existingRoutes)) {
+                        const filteredRoutes = existingRoutes.filter(route => route !== 'evening-c');
+                        localStorage.setItem('selectedRoutes', JSON.stringify(filteredRoutes));
+                    }
+                } catch (e) {
+                    console.error("解析 selectedRoutes 時出錯:", e);
+                }
+            }
             
             // 設置路線狀態 - 包含不同狀態的路線
             const routeStatuses = {
-                // 已上傳路線 - morning-a
+                // 已完成且已上傳路線 - morning-a
                 'morning-a': {
                     status: 'completed',
                     checkpoints: {
-                        '大廳': { status: 'completed', checkTime: '09:05', note: '大廳環境整齊' },
-                        '電梯間': { status: 'completed', checkTime: '09:18', note: '電梯正常運作中' },
-                        '安全門': { status: 'completed', checkTime: '09:32', note: '安全門警報系統正常' },
-                        '後門': { status: 'completed', checkTime: '09:47', note: '後門已鎖好' },
-                        '頂樓': { status: 'completed', checkTime: '10:05', note: '頂樓無異常狀況' }
+                        '大廳': { 
+                            status: 'completed', 
+                            checkTime: '09:05', 
+                            note: '大廳環境整齊，訪客登記簿已更新',
+                            images: ['https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80']
+                        },
+                        '電梯間': { 
+                            status: 'completed', 
+                            checkTime: '09:18', 
+                            note: '電梯正常運作中，已測試緊急按鈕功能' 
+                        },
+                        '安全門': { 
+                            status: 'completed', 
+                            checkTime: '09:32', 
+                            note: '安全門警報系統正常，門鉸鏈需要上油保養',
+                            images: ['https://images.unsplash.com/photo-1558424071-7369115d0c46?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        },
+                        '後門': { 
+                            status: 'completed', 
+                            checkTime: '09:47', 
+                            note: '後門已鎖好，周圍無可疑物品' 
+                        },
+                        '頂樓': { 
+                            status: 'completed', 
+                            checkTime: '10:05', 
+                            note: '頂樓無異常狀況，水塔蓋已確認鎖緊' 
+                        }
                     }
                 },
                 
@@ -1718,11 +1836,29 @@
                 'morning-b': {
                     status: 'incomplete',
                     checkpoints: {
-                        '前廳': { status: 'completed', checkTime: '09:38', note: '前廳燈光正常運作中' },
-                        '閱覽室': { status: 'completed', checkTime: '09:55', note: '閱覽室已整理完畢' },
-                        '會議廳': { status: 'pending' },
-                        '安全出口': { status: 'pending' },
-                        '中庭': { status: 'pending' }
+                        '前廳': { 
+                            status: 'completed', 
+                            checkTime: '09:38', 
+                            note: '前廳燈光正常運作中，地板剛清潔完畢，已放置警告標示',
+                            images: ['https://images.unsplash.com/photo-1504275107627-0c2ba7a43dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        },
+                        '閱覽室': { 
+                            status: 'completed', 
+                            checkTime: '09:55', 
+                            note: '閱覽室已整理完畢，書籍歸位，空調運作正常' 
+                        },
+                        '會議廳': { 
+                            status: 'unable', 
+                            checkTime: '10:12', 
+                            reason: '會議進行中', 
+                            note: '高階主管會議中，不便打擾，稍後回來檢查' 
+                        },
+                        '安全出口': { 
+                            status: 'pending' 
+                        },
+                        '中庭': { 
+                            status: 'pending' 
+                        }
                     }
                 },
                 
@@ -1730,9 +1866,23 @@
                 'morning-c': {
                     status: 'completed',
                     checkpoints: {
-                        '入口': { status: 'completed', checkTime: '10:42', note: '入口門禁系統正常' },
-                        '樓梯': { status: 'completed', checkTime: '10:58', note: '樓梯間照明正常' },
-                        '屋頂': { status: 'completed', checkTime: '11:10', note: '屋頂無漏水現象' }
+                        '入口': { 
+                            status: 'completed', 
+                            checkTime: '10:42', 
+                            note: '入口門禁系統正常，訪客識別系統運作良好' 
+                        },
+                        '樓梯': { 
+                            status: 'completed', 
+                            checkTime: '10:58', 
+                            note: '樓梯間照明正常，已檢查各樓層消防設備，2F滅火器即將到期，已報備' ,
+                            images: ['https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80']
+                        },
+                        '屋頂': { 
+                            status: 'completed', 
+                            checkTime: '11:10', 
+                            note: '屋頂無漏水現象，太陽能板已清潔',
+                            images: ['https://images.unsplash.com/photo-1520694478166-daaaaec95b69?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        }
                     }
                 },
                 
@@ -1740,54 +1890,96 @@
                 'afternoon-b': {
                     status: 'incomplete',
                     checkpoints: {
-                        '正門': { status: 'completed', checkTime: '13:10', note: '正門門禁系統正常' },
-                        '側門': { status: 'unable', checkTime: '13:25', reason: '施工中', note: '因施工暫時封閉' },
-                        '機房': { status: 'pending' },
-                        '監控室': { status: 'pending' }
+                        '正門': { 
+                            status: 'completed', 
+                            checkTime: '13:10', 
+                            note: '正門門禁系統正常，訪客識別設備已清潔' 
+                        },
+                        '側門': { 
+                            status: 'unable', 
+                            checkTime: '13:25', 
+                            reason: '施工中', 
+                            note: '因電線管線施工暫時封閉，預計下週完工',
+                            images: ['https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        },
+                        '機房': { 
+                            status: 'completed', 
+                            checkTime: '13:40', 
+                            note: '機房溫度正常 (22°C)，濕度55%，空調運作正常',
+                            images: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        },
+                        '監控室': { 
+                            status: 'pending' 
+                        }
                     }
                 },
                 
-                // 已上傳 - afternoon-d
+                // 已完成且已上傳 - afternoon-d
                 'afternoon-d': {
                     status: 'completed',
                     checkpoints: {
-                        '大門': { status: 'completed', checkTime: '15:15', note: '大門安全鎖正常' },
-                        '倉庫': { status: 'completed', checkTime: '15:32', note: '倉庫已上鎖' },
-                        '停車場': { status: 'completed', checkTime: '15:48', note: '停車場照明正常' }
+                        '大門': { 
+                            status: 'completed', 
+                            checkTime: '15:15', 
+                            note: '大門安全鎖正常，訪客登記程序已確認' 
+                        },
+                        '倉庫': { 
+                            status: 'completed', 
+                            checkTime: '15:32', 
+                            note: '倉庫已上鎖，物品整齊排放，無違規品',
+                            images: ['https://images.unsplash.com/photo-1581092921461-39b21884e7ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        },
+                        '停車場': { 
+                            status: 'completed', 
+                            checkTime: '15:48', 
+                            note: '停車場照明正常，無可疑車輛，發現B3-127車位有漏油，已通知車主' 
+                        }
                     }
                 },
                 
-                // 全部完成但未上傳 - evening-a
+                // 部分完成，錯誤多樣化 - evening-a
                 'evening-a': {
-                    status: 'completed',
+                    status: 'incomplete',
                     checkpoints: {
-                        '大廳': { status: 'completed', checkTime: '19:15', note: '大廳已清潔完畢' },
-                        '電梯間': { status: 'completed', checkTime: '19:35', note: '電梯間環境良好' },
-                        '安全門': { status: 'completed', checkTime: '19:52', note: '安全門正常關閉' }
+                        '大廳': { 
+                            status: 'completed', 
+                            checkTime: '19:15', 
+                            note: '大廳已清潔完畢，花瓶已更換鮮花' 
+                        },
+                        '電梯間': { 
+                            status: 'unable', 
+                            checkTime: '19:35', 
+                            reason: '設備故障', 
+                            note: '3號電梯維修中，已用警示帶圍起',
+                            images: ['https://images.unsplash.com/photo-1562537560-65f8d0643864?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        },
+                        '安全門': { 
+                            status: 'pending'
+                        }
                     }
                 },
                 
-                // 已上傳 - evening-b
+                // 已完成且已上傳 - evening-b
                 'evening-b': {
                     status: 'completed',
                     checkpoints: {
-                        '正門': { status: 'completed', checkTime: '21:18', note: '正門已鎖好' },
-                        '機房': { status: 'completed', checkTime: '21:45', note: '機房設備運行正常' }
-                    }
-                },
-                
-                // 部分完成，未上傳 - evening-c
-                'evening-c': {
-                    status: 'incomplete',
-                    checkpoints: {
-                        '大廳': { status: 'completed', checkTime: '20:10', note: '大廳照明檢查完畢' },
-                        '電梯': { status: 'completed', checkTime: '20:25', note: '電梯運行正常' },
-                        '走廊': { status: 'pending' },
-                        '配電室': { status: 'pending' }
+                        '正門': { 
+                            status: 'completed', 
+                            checkTime: '21:18', 
+                            note: '正門已鎖好，保全系統已啟動，監視器運作正常' 
+                        },
+                        '機房': { 
+                            status: 'completed', 
+                            checkTime: '21:45', 
+                            note: '機房設備運行正常，UPS電源正常運作，備用發電機已確認油量充足',
+                            images: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                        }
                     }
                 }
+                // 確保沒有 evening-c 路線的資料
             };
             
+            // 存儲路線狀態（不包含 evening-c）
             localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
         }
 

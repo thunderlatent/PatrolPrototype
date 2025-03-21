@@ -184,6 +184,13 @@
         .page-button i {
             margin-right: 6px;
         }
+        
+        /* 活動按鈕樣式 */
+        .active-button {
+            background-color: #2563eb;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -245,6 +252,39 @@
             const bottomNav = document.getElementById('bottom-nav');
             const pageButtons = document.querySelectorAll('.page-button');
             const tabItems = document.querySelectorAll('.tab-item');
+            
+            // 檢查URL參數以確定要載入的頁面
+            const urlParams = new URLSearchParams(window.location.search);
+            const pageName = urlParams.get('page');
+            
+            if (pageName) {
+                // 載入參數指定的頁面
+                contentFrame.src = pageName;
+                
+                // 處理底部導航欄顯示
+                if (pageName === 'login.html') {
+                    bottomNav.style.display = 'none';
+                } else {
+                    bottomNav.style.display = 'flex';
+                    
+                    // 更新導航欄和按鈕激活狀態
+                    tabItems.forEach(item => {
+                        if (item.getAttribute('data-target') === pageName) {
+                            item.classList.add('active');
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                    
+                    pageButtons.forEach(button => {
+                        if (button.getAttribute('data-page') === pageName) {
+                            button.classList.add('active-button');
+                        } else {
+                            button.classList.remove('active-button');
+                        }
+                    });
+                }
+            }
             
             // 頁面選擇按鈕點擊事件
             pageButtons.forEach(button => {

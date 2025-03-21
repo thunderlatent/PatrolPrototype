@@ -9,12 +9,10 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            background-color: #f5f5f7;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background-color: #ffffff;
             margin: 0;
+            padding: 0;
+            height: 100vh;
         }
         
         /* 適配動態島的登入頁面樣式 */
@@ -25,76 +23,57 @@
             height: 100%;
             overflow-y: auto;
         }
-        
-        /* 確保內容在 iPhone 框架內正確顯示 */
-        .login-page::-webkit-scrollbar {
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <!-- iPhone 16 Pro Max 容器 -->
-    <div class="iphone-container">
-        <div class="iphone-frame">
-            <!-- 動態島 -->
-            <div class="dynamic-island">
-                <div class="dynamic-island-capsule">
-                    <div class="dynamic-island-camera"></div>
-                    <div class="dynamic-island-sensor"></div>
-                </div>
+    <div class="login-page">
+        <div class="pt-10 pb-6 text-center">
+            <div class="mx-auto w-24 h-24 rounded-2xl bg-blue-500 flex items-center justify-center mb-4">
+                <i class="fas fa-shield-alt text-white text-4xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold">安全室巡捕系統</h1>
+            <p class="text-gray-500 mt-2">請登入以繼續</p>
+        </div>
+        
+        <div class="mt-8">
+            <!-- 登入錯誤提示 -->
+            <div id="loginError" class="mb-4 bg-red-50 text-red-600 p-3 rounded-lg flex items-center" style="display: none;">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <span id="errorMessage">帳號或密碼錯誤，請重新輸入</span>
             </div>
             
-            <!-- 內容區域 -->
-            <div class="screen-content">
-                <div class="login-page">
-                    <div class="pt-10 pb-6 text-center">
-                        <div class="mx-auto w-24 h-24 rounded-2xl bg-blue-500 flex items-center justify-center mb-4">
-                            <i class="fas fa-shield-alt text-white text-4xl"></i>
-                        </div>
-                        <h1 class="text-2xl font-bold">安全室巡捕系統</h1>
-                        <p class="text-gray-500 mt-2">請登入以繼續</p>
-                    </div>
-                    
-                    <div class="mt-8">
-                        <!-- 登入錯誤提示 -->
-                        <div id="loginError" class="mb-4 bg-red-50 text-red-600 p-3 rounded-lg flex items-center" style="display: none;">
-                            <i class="fas fa-exclamation-circle mr-2"></i>
-                            <span id="errorMessage">帳號或密碼錯誤，請重新輸入</span>
-                        </div>
-                        
-                        <form id="loginForm">
-                            <div class="mb-4">
-                                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">帳號</label>
-                                <input type="text" id="username" name="username" class="input" placeholder="請輸入您的帳號">
-                            </div>
-                            
-                            <div class="mb-6">
-                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
-                                <input type="password" id="password" name="password" class="input" placeholder="請輸入您的密碼">
-                            </div>
-                            
-                            <div class="network-status bg-yellow-50 p-3 rounded-lg mb-6 flex items-center" id="offlineWarning" style="display: none;">
-                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                                <span class="text-sm text-yellow-700">您目前處於離線狀態，部分功能可能受限</span>
-                            </div>
-                            
-                            <button type="submit" id="loginBtn" class="btn w-full">
-                                <span class="mr-2">登入系統</span>
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </form>
-                        
-                        <div class="mt-6 text-center">
-                            <button id="guestLoginBtn" class="text-blue-500 text-sm">
-                                <i class="fas fa-user mr-1"></i> 訪客模式
-                            </button>
-                        </div>
-                    </div>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">帳號</label>
+                    <input type="text" id="username" name="username" class="input" placeholder="請輸入您的帳號">
                 </div>
+                
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
+                    <input type="password" id="password" name="password" class="input" placeholder="請輸入您的密碼">
+                </div>
+                
+                <div class="network-status bg-yellow-50 p-3 rounded-lg mb-6 flex items-center" id="offlineWarning" style="display: none;">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                    <span class="text-sm text-yellow-700">您目前處於離線狀態，部分功能可能受限</span>
+                </div>
+                
+                <button type="submit" id="loginBtn" class="btn w-full">
+                    <span class="mr-2">登入系統</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <button id="guestLoginBtn" class="text-blue-500 text-sm">
+                    <i class="fas fa-user mr-1"></i> 訪客模式
+                </button>
             </div>
             
-            <!-- Home Indicator -->
-            <div class="home-indicator"></div>
+            <div class="mt-5 text-center text-xs text-gray-500">
+                <p>測試帳號：admin / admin123</p>
+                <p>警衛帳號：guard / guard123</p>
+            </div>
         </div>
     </div>
 
