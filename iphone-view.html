@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全室巡捕系統 - iPhone 16 Pro Max 視圖</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            color: #000;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* iPhone 16 Pro Max 樣式 */
+        .iphone-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .iphone-frame {
+            width: 430px; /* iPhone 16 Pro Max 寬度 */
+            height: 932px; /* iPhone 16 Pro Max 高度 */
+            background-color: #f5f5f7;
+            border-radius: 55px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 14px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 動態島樣式 */
+        .dynamic-island {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 125px;
+            height: 37px;
+            background-color: #000;
+            border-radius: 20px;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .dynamic-island-capsule {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90px;
+        }
+
+        .dynamic-island-camera {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #222;
+            border: 3px solid #333;
+        }
+
+        .dynamic-island-sensor {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #444;
+        }
+
+        /* 內容區域 */
+        .screen-content {
+            flex: 1;
+            overflow: hidden;
+            background-color: #ffffff;
+            margin-top: 60px; /* 為動態島留出空間 */
+        }
+
+        .screen-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* iOS Tab Bar 風格 */
+        .ios-tab-bar {
+            height: 83px;
+            background-color: rgba(248, 248, 248, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 70px;
+            height: 49px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .tab-item.active {
+            color: #3b82f6;
+        }
+
+        .tab-item.active i {
+            transform: translateY(-2px);
+        }
+
+        .tab-item:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        /* Home Indicator */
+        .home-indicator {
+            height: 5px;
+            background-color: #000;
+            width: 134px;
+            border-radius: 3px;
+            margin: 8px auto;
+            opacity: 0.3;
+        }
+
+        /* 頁面選擇器 */
+        .page-selector {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 600px;
+            justify-content: center;
+        }
+
+        .page-button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        .page-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+        }
+
+        .page-button i {
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-container">
+        <div class="iphone-frame">
+            <!-- 動態島 -->
+            <div class="dynamic-island">
+                <div class="dynamic-island-capsule">
+                    <div class="dynamic-island-camera"></div>
+                    <div class="dynamic-island-sensor"></div>
+                </div>
+            </div>
+            
+            <!-- 內容區域 -->
+            <div class="screen-content">
+                <iframe id="content-frame" src="login.html" frameborder="0"></iframe>
+            </div>
+            
+            <!-- 底部導航欄 - iOS UITabBarController 風格 -->
+            <div class="ios-tab-bar" id="bottom-nav" style="display: none;">
+                <div class="tab-item active" data-target="home.html">
+                    <i class="fas fa-route"></i>
+                    <span>巡邏</span>
+                </div>
+                <div class="tab-item" data-target="profile.html">
+                    <i class="fas fa-history"></i>
+                    <span>我的紀錄</span>
+                </div>
+                <div class="tab-item" data-target="admin.html">
+                    <i class="fas fa-user-shield"></i>
+                    <span>管理</span>
+                </div>
+            </div>
+            
+            <!-- Home Indicator -->
+            <div class="home-indicator"></div>
+        </div>
+        
+        <!-- 頁面選擇器 -->
+        <div class="page-selector">
+            <button class="page-button" data-page="login.html">
+                <i class="fas fa-sign-in-alt"></i> 登入
+            </button>
+            <button class="page-button" data-page="home.html">
+                <i class="fas fa-route"></i> 巡邏
+            </button>
+            <button class="page-button" data-page="profile.html">
+                <i class="fas fa-history"></i> 我的紀錄
+            </button>
+            <button class="page-button" data-page="admin.html">
+                <i class="fas fa-user-shield"></i> 管理
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentFrame = document.getElementById('content-frame');
+            const bottomNav = document.getElementById('bottom-nav');
+            const pageButtons = document.querySelectorAll('.page-button');
+            const tabItems = document.querySelectorAll('.tab-item');
+            
+            // 頁面選擇按鈕點擊事件
+            pageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    contentFrame.src = page;
+                    
+                    // 處理底部導航欄顯示
+                    if (page === 'login.html') {
+                        bottomNav.style.display = 'none';
+                    } else {
+                        bottomNav.style.display = 'flex';
+                        
+                        // 更新導航欄激活狀態
+                        tabItems.forEach(item => {
+                            if (item.getAttribute('data-target') === page) {
+                                item.classList.add('active');
+                            } else {
+                                item.classList.remove('active');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // 底部導航欄點擊事件
+            tabItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.getAttribute('data-target');
+                    contentFrame.src = page;
+                    
+                    // 更新激活狀態
+                    tabItems.forEach(tab => tab.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 監聽來自 iframe 的消息
+            window.addEventListener('message', function(event) {
+                // 處理登入成功的消息
+                if (event.data && event.data.type === 'login_success') {
+                    const userRole = event.data.userRole;
+                    const redirectPage = event.data.redirect || 'home.html';
+                    
+                    // 導航到指定頁面
+                    contentFrame.src = redirectPage;
+                    
+                    // 顯示底部導航欄
+                    bottomNav.style.display = 'flex';
+                    
+                    // 更新導航欄激活狀態
+                    tabItems.forEach(item => {
+                        if (item.getAttribute('data-target') === redirectPage) {
+                            item.classList.add('active');
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                    
+                    // 如果是訪客用戶，隱藏管理選項
+                    if (userRole === 'guest') {
+                        const adminTab = bottomNav.querySelector('[data-target="admin.html"]');
+                        if (adminTab) {
+                            adminTab.style.display = 'none';
+                        }
+                    }
+                }
+                
+                // 處理登出消息
+                if (event.data && event.data.type === 'logout') {
+                    // 導航到登入頁面
+                    contentFrame.src = 'login.html';
+                    
+                    // 隱藏底部導航欄
+                    bottomNav.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

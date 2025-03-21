@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡邏 - 安全室巡捕系統</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 適配 iPhone 16 Pro Max 的內容區域樣式 */
+        .page-container {
+            width: 100%;
+            margin: 0 auto;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 60px 20px 100px 20px; /* 上方增加間距避開動態島 */
+            box-sizing: border-box;
+        }
+        
+        /* 隱藏滾動條但保持功能 */
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 改進的路線卡片樣式 */
+        .route-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+        
+        .route-card.selected {
+            border-color: #3b82f6;
+            background-color: #f0f7ff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        
+        .route-card .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .route-card.selected .checkbox {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        /* 改進的時段標題樣式 */
+        .time-slot-header {
+            background-color: #f0f7ff;
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+        
+        .time-slot-header .font-medium {
+            font-size: 16px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        
+        .time-slot-header .text-gray-500 {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        /* 確認按鈕樣式 */
+        .confirm-button {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 350px;
+            background-color: #3b82f6;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-button:disabled {
+            background-color: #9ca3af;
+            box-shadow: none;
+        }
+        
+        /* NFC 感應動畫 */
+        .nfc-animation {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .nfc-animation.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .nfc-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+        
+        .nfc-phone {
+            width: 80px;
+            height: 140px;
+            background-color: #333;
+            border-radius: 12px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nfc-card {
+            width: 60px;
+            height: 90px;
+            background-color: white;
+            border-radius: 6px;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nfc-waves {
+            position: absolute;
+            left: 30px;
+            top: 50px;
+            width: 40px;
+            height: 40px;
+            z-index: 3;
+        }
+        
+        .nfc-wave {
+            position: absolute;
+            border: 2px solid #007AFF;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            animation: wave-animation 2s ease-out infinite;
+        }
+        
+        /* 失敗的波浪動畫 */
+        .nfc-wave.error {
+            border-color: #FF3B30;
+        }
+        
+        .nfc-wave:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .nfc-wave:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        .nfc-success,
+        .nfc-error {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nfc-success.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: success-appear 0.3s ease-out;
+        }
+        
+        .nfc-error.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: error-appear 0.3s ease-out;
+        }
+        
+        .nfc-success i {
+            font-size: 50px;
+            color: #4CD964;
+        }
+        
+        .nfc-error i {
+            font-size: 50px;
+            color: #FF3B30;
+        }
+        
+        @keyframes wave-animation {
+            0% {
+                opacity: 1;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.5);
+            }
+        }
+        
+        @keyframes success-appear {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        @keyframes error-appear {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        /* 巡邏點卡片樣式 */
+        .checkpoint-card {
+            background-color: white;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .checkpoint-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
+        }
+        
+        .checkpoint-header {
+            padding: 18px 18px 10px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .checkpoint-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1c1c1e;
+            margin-bottom: 6px;
+        }
+        
+        .checkpoint-info {
+            font-size: 14px;
+            color: #6b7280;
+            padding: 0 18px 18px 18px;
+        }
+        
+        /* 改進的狀態標籤樣式 */
+        .checkpoint-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-completed {
+            background-color: #ECFDF5;
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .status-unable {
+            background-color: #FEF3C7;
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .status-pending {
+            background-color: #F3F4F6;
+            color: #6B7280;
+            border: 1px solid rgba(107, 114, 128, 0.2);
+        }
+        
+        /* 統計卡片美化 */
+        .stats-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 進度條美化 */
+        .bg-gray-200 {
+            background-color: #f3f4f6;
+            height: 6px;
+            border-radius: 99px;
+        }
+        
+        .bg-blue-500 {
+            background-color: #3b82f6;
+            border-radius: 99px;
+            transition: width 0.5s ease;
+        }
+        
+        /* 改進的上傳按鈕樣式 */
+        .upload-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
+        }
+        
+        .upload-button:hover:not(:disabled) {
+            background-color: #2563eb;
+            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.2);
+        }
+        
+        .upload-button:disabled {
+            background-color: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .upload-button.uploaded {
+            background-color: #10B981;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.15);
+        }
+        
+        /* 表單樣式 */
+        .form-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            animation: fade-in 0.2s ease;
+        }
+        
+        .form-container {
+            width: 90%;
+            max-width: 360px;
+            background-color: white;
+            border-radius: 16px;
+            padding: 20px;
+            animation: slide-up 0.3s ease;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1c1c1e;
+        }
+        
+        .form-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f2f2f7;
+            color: #8e8e93;
+            border: none;
+        }
+        
+        .form-input {
+            width: 100%;
+            min-height: 100px;
+            border: 1px solid #e5e5ea;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            resize: none;
+        }
+        
+        .form-input:focus {
+            border-color: #007AFF;
+            outline: none;
+        }
+        
+        .upload-area {
+            border: 2px dashed #e5e5ea;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .upload-area:hover {
+            border-color: #007AFF;
+        }
+        
+        .upload-icon {
+            font-size: 24px;
+            color: #8e8e93;
+            margin-bottom: 8px;
+        }
+        
+        .upload-text {
+            color: #3c3c43;
+            font-size: 14px;
+        }
+        
+        .image-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            border: none;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .form-btn {
+            flex: 1;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+        }
+        
+        .btn-cancel {
+            background-color: #f2f2f7;
+            color: #3c3c43;
+        }
+        
+        .btn-submit {
+            background-color: #007AFF;
+            color: white;
+        }
+        
+        .btn-unable {
+            background-color: #FF9500;
+            color: white;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 旋轉動畫 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spin-animation {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* 路線上傳狀態標籤 */
+        .upload-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        
+        .status-uploaded {
+            background-color: #f0fdf4;
+            color: #16a34a;
+            border: 1px solid #dcfce7;
+        }
+        
+        .status-not-uploaded {
+            background-color: #f9fafb;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .status-incomplete {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fee2e2;
+        }
+        
+        /* Toast 提示訊息 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            min-width: 280px;
+            max-width: 90%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 12px 16px;
+            z-index: 9999;
+            animation: slideUp 0.3s ease-out forwards;
+        }
+        
+        .toast-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        .toast-success .toast-icon {
+            color: #10b981;
+        }
+        
+        .toast-error .toast-icon {
+            color: #ef4444;
+        }
+        
+        .toast-info .toast-icon {
+            color: #3b82f6;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .toast-message {
+            font-size: 13px;
+            color: #64748b;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 4px;
+            font-size: 12px;
+        }
+        
+        .toast-close:hover {
+            color: #64748b;
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.3s ease-in forwards;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- NFC 感應動畫 -->
+    <div id="nfcAnimation" class="nfc-animation">
+        <div class="nfc-container">
+            <div class="nfc-phone"></div>
+            <div class="nfc-card"></div>
+            <div class="nfc-waves">
+                <div class="nfc-wave"></div>
+                <div class="nfc-wave"></div>
+                <div class="nfc-wave"></div>
+            </div>
+            <div id="nfcSuccess" class="nfc-success">
+                <i class="fas fa-check"></i>
+            </div>
+            <div id="nfcError" class="nfc-error">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-container">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">選擇巡邏路線</h1>
+                <div class="text-sm text-gray-600 mt-1">
+                    <i class="fas fa-user mr-1"></i> <span id="currentUserName">訪客</span> - <span id="currentUserRole">警衛編號</span>
+                </div>
+            </div>
+            <div id="syncStatus" class="text-sm text-gray-500 flex items-center">
+                <i class="fas fa-sync-alt mr-1"></i>
+                <span>同步於 9:30</span>
+            </div>
+        </div>
+        
+        <!-- 網路離線提示 -->
+        <div class="network-status bg-yellow-50 p-3 rounded-lg mb-4 flex items-center" id="offlineWarning" style="display: none;">
+            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+            <span class="text-sm text-yellow-700">您目前處於離線狀態，將自動儲存選擇的路線</span>
+        </div>
+        
+        <!-- NFC 測試按鈕 -->
+        <div class="mb-4">
+            <button id="testNfcBtn" class="w-full bg-blue-100 text-blue-700 py-2 px-4 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors">
+                <i class="fas fa-rss mr-2"></i>
+                測試 NFC 功能
+            </button>
+            <div class="flex justify-end mt-1">
+                <label class="text-xs text-gray-500 inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="nfcTestFailMode" class="mr-1 h-3 w-3"> 模擬失敗情況
+                </label>
+            </div>
+        </div>
+        
+        <!-- 時段選擇區域 -->
+        <div class="time-slots">
+            <!-- 上午時段 -->
+            <div class="time-slot mb-6">
+                <div class="time-slot-header bg-blue-50 p-3 rounded-lg mb-3">
+                    <div class="font-medium">上午巡邏路線 (09:00-12:00)</div>
+                    <div class="text-sm text-gray-500">可選擇多條路線</div>
+                </div>
+                
+                <div class="route-cards">
+                    <!-- A 棟路線 -->
+                    <div class="route-card" data-route-id="morning-a" data-time-slot="morning">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">A 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">09:00-10:00 | 5 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    大廳、電梯間、安全門、後門、頂樓
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- B 棟路線 -->
+                    <div class="route-card" data-route-id="morning-b" data-time-slot="morning">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">B 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">09:30-10:45 | 5 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    前廳、閱覽室、會議廳、安全出口、中庭
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- C 棟路線 -->
+                    <div class="route-card" data-route-id="morning-c" data-time-slot="morning">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">C 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">10:30-11:30 | 3 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    入口、樓梯、屋頂
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 下午時段 -->
+            <div class="time-slot mb-6">
+                <div class="time-slot-header bg-blue-50 p-3 rounded-lg mb-3">
+                    <div class="font-medium">下午巡邏路線 (13:00-17:00)</div>
+                    <div class="text-sm text-gray-500">可選擇多條路線</div>
+                </div>
+                
+                <div class="route-cards">
+                    <!-- B 棟路線 -->
+                    <div class="route-card" data-route-id="afternoon-b" data-time-slot="afternoon">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">B 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">13:00-14:00 | 4 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    正門、側門、機房、監控室
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- D 棟路線 -->
+                    <div class="route-card" data-route-id="afternoon-d" data-time-slot="afternoon">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">D 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">15:00-16:00 | 3 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    大門、倉庫、停車場
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 晚間時段 -->
+            <div class="time-slot">
+                <div class="time-slot-header bg-blue-50 p-3 rounded-lg mb-3">
+                    <div class="font-medium">晚間巡邏路線 (19:00-22:00)</div>
+                    <div class="text-sm text-gray-500">可選擇多條路線</div>
+                </div>
+                
+                <div class="route-cards">
+                    <!-- A 棟路線 -->
+                    <div class="route-card" data-route-id="evening-a" data-time-slot="evening">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">A 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">19:00-20:00 | 3 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    大廳、電梯間、安全門
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- B 棟路線 -->
+                    <div class="route-card" data-route-id="evening-b" data-time-slot="evening">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="font-medium">B 棟巡邏路線</div>
+                                <div class="text-sm text-gray-500 mt-1">21:00-22:00 | 2 個打卡點</div>
+                                <div class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    正門、機房
+                                </div>
+                            </div>
+                            <div class="checkbox ml-4">
+                                <i class="fas fa-check text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 確認按鈕 -->
+        <button id="confirmRoutes" class="confirm-button" disabled>
+            確認選擇 (0/8)
+        </button>
+    </div>
+
+    <!-- 巡邏頁面 -->
+    <div id="patrolPage" class="page-container" style="display: none;">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">今日巡邏任務</h1>
+                <div class="text-sm text-gray-600 mt-1">
+                    <i class="fas fa-user mr-1"></i> <span id="patrolPageUserName">訪客</span> - <span id="patrolPageUserRole">警衛編號</span>
+                </div>
+            </div>
+            <button id="backToSelection" class="bg-blue-500 text-white text-sm px-3 py-1 rounded-lg">
+                <i class="fas fa-edit mr-1"></i>重新選擇
+            </button>
+        </div>
+
+        <!-- NFC 測試按鈕 - 巡邏頁面 -->
+        <div class="mb-4">
+            <button id="patrolPageTestNfcBtn" class="w-full bg-blue-100 text-blue-700 py-2 px-4 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors">
+                <i class="fas fa-rss mr-2"></i>
+                測試 NFC 功能
+            </button>
+            <div class="flex justify-end mt-1">
+                <label class="text-xs text-gray-500 inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="patrolPageNfcTestFailMode" class="mr-1 h-3 w-3"> 模擬失敗情況
+                </label>
+            </div>
+        </div>
+        
+        <!-- 巡邏進度 -->
+        <div class="stats-card mb-6">
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-gray-600">總體完成進度</div>
+                <div class="font-bold" id="totalProgressPercentage">0%</div>
+            </div>
+            <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-blue-500 h-full" id="totalProgressBar" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-500 mt-2">
+                <div>已完成 <span id="completedRoutesCount">0</span>/<span id="totalRoutesCount">0</span> 條路線</div>
+                <div>總進度: <span id="totalProgressPercentage2">0%</span></div>
+            </div>
+        </div>
+
+        <!-- 巡邏路線列表 -->
+        <div id="patrolRoutes" class="space-y-4">
+            <!-- 路線卡片由 JavaScript 動態生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 監聽網路狀態
+        function updateNetworkStatus() {
+            const offlineWarning = document.getElementById('offlineWarning');
+            const syncStatus = document.getElementById('syncStatus');
+            
+            if (!navigator.onLine) {
+                offlineWarning.style.display = 'flex';
+                syncStatus.innerHTML = '<i class="fas fa-exclamation-circle mr-1 text-yellow-500"></i><span>離線模式</span>';
+            } else {
+                offlineWarning.style.display = 'none';
+                syncStatus.innerHTML = '<i class="fas fa-sync-alt mr-1"></i><span>同步於 9:30</span>';
+            }
+        }
+        
+        // 頁面載入時檢查網路狀態
+        window.addEventListener('load', function() {
+            updateNetworkStatus();
+            updateUserInfo(); // 更新用戶資訊
+            
+            // 添加 NFC 測試按鈕事件
+            document.getElementById('testNfcBtn').addEventListener('click', function() {
+                showNfcTestInstructions(false);
+            });
+            
+            // 巡邏頁面的 NFC 測試按鈕事件（當按鈕存在時）
+            const patrolPageTestNfcBtn = document.getElementById('patrolPageTestNfcBtn');
+            if (patrolPageTestNfcBtn) {
+                patrolPageTestNfcBtn.addEventListener('click', function() {
+                    showNfcTestInstructions(true);
+                });
+            }
+        });
+        
+        // 網路狀態變化時更新提示
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        
+        // 全局變數
+        let selectedRoutes = new Set();
+        
+        // 全局函數 - 打卡處理
+        function handleCheckin(route, checkpointName) {
+            // 顯示 NFC 感應動畫
+            const animation = document.getElementById('nfcAnimation');
+            const success = document.getElementById('nfcSuccess');
+            animation.classList.add('active');
+            
+            // 延遲顯示成功狀態
+            setTimeout(() => {
+                success.classList.add('active');
+                
+                // 2秒後關閉動畫並更新狀態
+                setTimeout(() => {
+                    animation.classList.remove('active');
+                    success.classList.remove('active');
+                    
+                    // 更新打卡狀態
+                    updateCheckpointStatus(route, checkpointName, 'completed');
+                }, 1500);
+            }, 2000);
+        }
+
+        // 全局函數 - 顯示無法打卡表單
+        function showUnableForm(route, checkpointName) {
+            const formHtml = `
+                <div class="form-overlay">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <div class="form-title">無法打卡原因</div>
+                            <button class="form-close" onclick="closeForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <textarea id="reasonInput" class="form-input" placeholder="請輸入無法打卡的原因..."></textarea>
+                        <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="upload-text">點擊上傳照片</div>
+                            <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div id="imagePreview" class="image-preview"></div>
+                        <div class="form-actions">
+                            <button class="form-btn btn-cancel" onclick="closeForm()">取消</button>
+                            <button class="form-btn btn-unable" onclick="submitUnableForm('${route}', '${checkpointName}')">確認</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+            setupImageUpload();
+        }
+
+        // 全局函數 - 顯示備註表單
+        function showNoteForm(route, checkpointName) {
+            const formHtml = `
+                <div class="form-overlay">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <div class="form-title">添加備註</div>
+                            <button class="form-close" onclick="closeForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <textarea id="noteInput" class="form-input" placeholder="請輸入備註內容..."></textarea>
+                        <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="upload-text">點擊上傳照片</div>
+                            <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div id="imagePreview" class="image-preview"></div>
+                        <div class="form-actions">
+                            <button class="form-btn btn-cancel" onclick="closeForm()">取消</button>
+                            <button class="form-btn btn-submit" onclick="submitNoteForm('${route}', '${checkpointName}')">確認</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+            setupImageUpload();
+        }
+
+        // 全局函數 - 設置圖片上傳
+        function setupImageUpload() {
+            const imageInput = document.getElementById('imageInput');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            imageInput.addEventListener('change', function(e) {
+                imagePreview.innerHTML = '';
+                Array.from(e.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="預覽圖片">
+                            <button class="remove-btn" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        imagePreview.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        // 全局函數 - 提交無法打卡表單
+        function submitUnableForm(route, checkpointName) {
+            const reason = document.getElementById('reasonInput').value;
+            if (!reason.trim()) {
+                alert('請輸入無法打卡的原因');
+                return;
+            }
+            
+            // 獲取圖片
+            const images = [];
+            document.querySelectorAll('#imagePreview img').forEach(img => {
+                images.push(img.src);
+            });
+            
+            // 更新狀態
+            updateCheckpointStatus(route, checkpointName, 'unable', reason, images);
+            closeForm();
+        }
+
+        // 全局函數 - 提交備註表單
+        function submitNoteForm(route, checkpointName) {
+            const note = document.getElementById('noteInput').value;
+            if (!note.trim()) {
+                alert('請輸入備註內容');
+                return;
+            }
+            
+            // 獲取圖片
+            const images = [];
+            document.querySelectorAll('#imagePreview img').forEach(img => {
+                images.push(img.src);
+            });
+            
+            // 更新狀態
+            updateCheckpointStatus(route, checkpointName, 'completed', note, images);
+            closeForm();
+        }
+
+        // 全局函數 - 關閉表單
+        function closeForm() {
+            const form = document.querySelector('.form-overlay');
+            if (form) {
+                form.remove();
+            }
+        }
+
+        // 全局函數 - 顯示全屏圖片
+        function showFullScreenImage(imgSrc) {
+            const viewer = `
+                <div class="form-overlay" onclick="this.remove()">
+                    <img src="${imgSrc}" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', viewer);
+        }
+
+        // 全局函數 - 獲取打卡點數據
+        function getRouteCheckpoints(route) {
+            // 首先嘗試從 localStorage 中獲取路線狀態
+            const routeStatuses = localStorage.getItem('routeStatuses');
+            if (routeStatuses) {
+                const parsedStatuses = JSON.parse(routeStatuses);
+                if (parsedStatuses[route] && parsedStatuses[route].checkpoints) {
+                    console.log(`從 localStorage 獲取路線 ${route} 的打卡點數據`);
+                    // 將 localStorage 中的對象格式轉換為數組格式
+                    const checkpoints = [];
+                    const cpData = parsedStatuses[route].checkpoints;
+                    
+                    for (const name in cpData) {
+                        const cp = cpData[name];
+                        checkpoints.push({
+                            name: name,
+                            status: cp.status,
+                            checkTime: cp.checkTime || '',
+                            reason: cp.reason || '',
+                            note: cp.note || '',
+                            images: cp.images || [],
+                            time: getTimeForCheckpoint(route, name) // 根據路線和名稱獲取時間
+                        });
+                    }
+                    
+                    return checkpoints;
+                }
+            }
+            
+            // 如果沒有在 localStorage 中找到數據，則使用默認數據
+            console.log(`使用默認數據獲取路線 ${route} 的打卡點數據`);
+            const checkpointsMap = {
+                'morning-a': [
+                    { name: '大廳', time: '09:00-09:15', status: 'pending' },
+                    { name: '電梯間', time: '09:15-09:30', status: 'pending' },
+                    { name: '安全門', time: '09:30-09:45', status: 'pending' },
+                    { name: '後門', time: '09:45-10:00', status: 'pending' },
+                    { name: '頂樓', time: '10:00-10:15', status: 'pending' }
+                ],
+                'morning-b': [
+                    { name: '前廳', time: '09:30-09:45', status: 'pending' },
+                    { name: '閱覽室', time: '09:45-10:00', status: 'pending' },
+                    { name: '會議廳', time: '10:00-10:15', status: 'pending' },
+                    { name: '安全出口', time: '10:15-10:30', status: 'pending' },
+                    { name: '中庭', time: '10:30-10:45', status: 'pending' }
+                ],
+                'morning-c': [
+                    { name: '入口', time: '10:30-10:45', status: 'pending' },
+                    { name: '樓梯', time: '10:45-11:00', status: 'pending' },
+                    { name: '屋頂', time: '11:00-11:15', status: 'pending' }
+                ],
+                'afternoon-b': [
+                    { name: '正門', time: '13:00-13:15', status: 'pending' },
+                    { name: '側門', time: '13:15-13:30', status: 'pending' },
+                    { name: '機房', time: '13:30-13:45', status: 'pending' },
+                    { name: '監控室', time: '13:45-14:00', status: 'pending' }
+                ],
+                'afternoon-d': [
+                    { name: '大門', time: '15:00-15:20', status: 'pending' },
+                    { name: '倉庫', time: '15:20-15:40', status: 'pending' },
+                    { name: '停車場', time: '15:40-16:00', status: 'pending' }
+                ],
+                'evening-a': [
+                    { name: '大廳', time: '19:00-19:20', status: 'pending' },
+                    { name: '電梯間', time: '19:20-19:40', status: 'pending' },
+                    { name: '安全門', time: '19:40-20:00', status: 'pending' }
+                ],
+                'evening-b': [
+                    { name: '正門', time: '21:00-21:30', status: 'pending' },
+                    { name: '機房', time: '21:30-22:00', status: 'pending' }
+                ],
+                'evening-c': [
+                    { name: '大廳', time: '20:00-20:15', status: 'pending' },
+                    { name: '電梯', time: '20:15-20:30', status: 'pending' },
+                    { name: '走廊', time: '20:30-20:45', status: 'pending' },
+                    { name: '配電室', time: '20:45-21:00', status: 'pending' }
+                ]
+            };
+            
+            return checkpointsMap[route] || [];
+        }
+        
+        // 幫助函數 - 根據路線和名稱獲取時間範圍
+        function getTimeForCheckpoint(route, name) {
+            const timeMap = {
+                'morning-a': {
+                    '大廳': '09:00-09:15',
+                    '電梯間': '09:15-09:30',
+                    '安全門': '09:30-09:45',
+                    '後門': '09:45-10:00',
+                    '頂樓': '10:00-10:15'
+                },
+                'morning-b': {
+                    '前廳': '09:30-09:45',
+                    '閱覽室': '09:45-10:00',
+                    '會議廳': '10:00-10:15',
+                    '安全出口': '10:15-10:30',
+                    '中庭': '10:30-10:45'
+                },
+                'morning-c': {
+                    '入口': '10:30-10:45',
+                    '樓梯': '10:45-11:00',
+                    '屋頂': '11:00-11:15'
+                },
+                'afternoon-b': {
+                    '正門': '13:00-13:15',
+                    '側門': '13:15-13:30',
+                    '機房': '13:30-13:45',
+                    '監控室': '13:45-14:00'
+                },
+                'afternoon-d': {
+                    '大門': '15:00-15:20',
+                    '倉庫': '15:20-15:40',
+                    '停車場': '15:40-16:00'
+                },
+                'evening-a': {
+                    '大廳': '19:00-19:20',
+                    '電梯間': '19:20-19:40',
+                    '安全門': '19:40-20:00'
+                },
+                'evening-b': {
+                    '正門': '21:00-21:30',
+                    '機房': '21:30-22:00'
+                },
+                'evening-c': {
+                    '大廳': '20:00-20:15',
+                    '電梯': '20:15-20:30',
+                    '走廊': '20:30-20:45',
+                    '配電室': '20:45-21:00'
+                }
+            };
+            
+            return (timeMap[route] && timeMap[route][name]) ? timeMap[route][name] : '未指定時間';
+        }
+
+        // 全局函數 - 更新打卡點狀態
+        function updateCheckpointStatus(route, checkpointName, status, note = '', images = []) {
+            const routeData = getRouteCheckpoints(route);
+            const checkpoint = routeData.find(cp => cp.name === checkpointName);
+            
+            if (checkpoint) {
+                checkpoint.status = status;
+                if (note) checkpoint.note = note;
+                if (images.length > 0) checkpoint.images = images;
+                
+                // 添加當前時間作為打卡時間
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                checkpoint.checkTime = `${hours}:${minutes}`;
+                
+                // 更新 UI
+                showPatrolPage();
+            }
+        }
+
+        // 全局函數 - 顯示巡邏頁面
+        function showPatrolPage() {
+            const routeSelectionPage = document.querySelector('.page-container');
+            const patrolPage = document.getElementById('patrolPage');
+            
+            routeSelectionPage.style.display = 'none';
+            patrolPage.style.display = 'block';
+            
+            // 更新巡邏頁面的用戶信息
+            document.getElementById('patrolPageUserName').textContent = document.getElementById('currentUserName').textContent;
+            document.getElementById('patrolPageUserRole').textContent = document.getElementById('currentUserRole').textContent;
+            
+            const patrolRoutes = document.getElementById('patrolRoutes');
+            patrolRoutes.innerHTML = '';
+            
+            // 從 localStorage 讀取已選擇的路線
+            let selectedRoutesArray = [];
+            const savedRoutes = localStorage.getItem('selectedRoutes');
+            
+            if (savedRoutes) {
+                try {
+                    // 嘗試解析為數組
+                    const parsedRoutes = JSON.parse(savedRoutes);
+                    if (Array.isArray(parsedRoutes)) {
+                        selectedRoutesArray = parsedRoutes;
+                        console.log("從 localStorage 讀取路線 (數組格式):", selectedRoutesArray);
+                    } else if (parsedRoutes.routes && Array.isArray(parsedRoutes.routes)) {
+                        // 兼容舊格式
+                        selectedRoutesArray = parsedRoutes.routes;
+                        console.log("從 localStorage 讀取路線 (對象格式):", selectedRoutesArray);
+                    }
+                } catch (e) {
+                    console.error("解析 localStorage 中的路線數據時出錯:", e);
+                }
+            }
+            
+            // 如果沒有選中的路線，使用默認值
+            if (selectedRoutesArray.length === 0) {
+                selectedRoutesArray = [
+                    'morning-a', 'morning-b', 'morning-c',
+                    'afternoon-b', 'afternoon-d',
+                    'evening-a', 'evening-b', 'evening-c'
+                ];
+                console.log("使用默認路線列表:", selectedRoutesArray);
+            }
+            
+            // 更新全局變量
+            selectedRoutes = new Set(selectedRoutesArray);
+            
+            console.log("將顯示以下路線:", Array.from(selectedRoutes));
+            
+            // 確保 morning-b 路線被包含在內
+            if (!selectedRoutes.has('morning-b')) {
+                selectedRoutes.add('morning-b');
+                console.log("添加 morning-b 路線到顯示列表");
+            }
+            
+            // 為每個路線生成卡片
+            selectedRoutesArray.forEach(route => {
+                patrolRoutes.innerHTML += generatePatrolRouteCard(route);
+            });
+            
+            updateTotalProgress();
+        }
+
+        // 全局函數 - 生成巡邏路線卡片
+        function generatePatrolRouteCard(route) {
+            const timeSlotMap = {
+                'morning': '上午',
+                'afternoon': '下午',
+                'evening': '晚間'
+            };
+            
+            const [timeSlot, building] = route.split('-');
+            const timeText = timeSlotMap[timeSlot];
+            
+            // 獲取路線的打卡點
+            const checkpoints = getRouteCheckpoints(route);
+            const completedCount = checkpoints.filter(cp => cp.status === 'completed').length;
+            const unableCount = checkpoints.filter(cp => cp.status === 'unable').length;
+            const progress = ((completedCount + unableCount) / checkpoints.length * 100).toFixed(0);
+            
+            // 檢查是否所有打卡點都已處理（已打卡或無法打卡）
+            const isRouteCompleted = completedCount + unableCount === checkpoints.length;
+            
+            // 檢查路線是否已上傳
+            const routeUploaded = localStorage.getItem(`route_uploaded_${route}`) === 'true';
+            
+            let html = `
+                <div class="route-card" data-route-id="${route}">
+                    <div class="p-4 bg-white rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="font-medium text-lg">${building.toUpperCase()} 棟巡邏路線</div>
+                                    <div class="text-gray-500 text-sm">${timeText}</div>
+                                </div>
+                                
+                                <!-- 顯示上傳狀態標籤（已上傳/未上傳/未完成） -->
+                                ${routeUploaded ? 
+                                    `<div class="upload-status status-uploaded">
+                                        <i class="fas fa-check-circle mr-1"></i> 已上傳
+                                    </div>` : 
+                                    isRouteCompleted ?
+                                    `<div class="upload-status status-not-uploaded">
+                                        <i class="fas fa-cloud-upload-alt mr-1"></i> 可上傳
+                                    </div>` : 
+                                    `<div class="upload-status status-incomplete">
+                                        <i class="fas fa-clock mr-1"></i> 未完成
+                                    </div>`
+                                }
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium ${progress === '100' ? 'text-green-500' : 'text-blue-500'}">
+                                    ${progress}%
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    已打卡 ${completedCount + unableCount}/${checkpoints.length}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-200 h-2 rounded-full overflow-hidden mb-4">
+                            <div class="h-full ${progress === '100' ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${progress}%"></div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            ${checkpoints.map(cp => `
+                                <div class="checkpoint-item bg-gray-50 rounded-lg overflow-hidden border ${cp.status === 'completed' ? 'border-green-200' : cp.status === 'unable' ? 'border-yellow-200' : 'border-gray-200'}" data-checkpoint-id="${route}-${cp.name}">
+                                    <div class="p-4">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                                            <div class="flex items-center space-x-3 mb-2 sm:mb-0">
+                                                <div class="w-2 h-2 rounded-full ${cp.status === 'completed' ? 'bg-green-500' : cp.status === 'unable' ? 'bg-yellow-500' : 'bg-gray-300'}"></div>
+                                                <div class="font-medium text-base">${cp.name}</div>
+                                                ${cp.status !== 'pending' ? `
+                                                    <div class="status-badge ml-2 ${cp.status === 'completed' ? 'text-green-500' : 'text-yellow-500'} font-medium">
+                                                        <i class="fas ${cp.status === 'completed' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-1"></i>
+                                                        ${cp.status === 'completed' ? '已完成' : '無法打卡'}
+                                                        ${cp.checkTime ? `<span class="ml-1 text-xs text-gray-500">(${cp.checkTime})</span>` : ''}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                            <div class="flex flex-wrap gap-2 justify-end">
+                                                ${cp.status === 'pending' ? `
+                                                    <button class="action-checkin flex-1 bg-blue-500 text-white px-3 py-2 rounded text-sm" onclick="handleCheckin('${route}', '${cp.name}')">
+                                                        打卡
+                                                    </button>
+                                                    <button class="action-unable flex-1 bg-yellow-500 text-white px-3 py-2 rounded text-sm" onclick="showUnableForm('${route}', '${cp.name}')">
+                                                        無法打卡
+                                                    </button>
+                                                    <button class="action-note flex-1 bg-gray-500 text-white px-3 py-2 rounded text-sm" onclick="showNoteForm('${route}', '${cp.name}')">
+                                                        備註
+                                                    </button>
+                                                ` : cp.status === 'unable' ? `
+                                                    <button class="action-note flex-1 bg-gray-500 text-white px-3 py-2 rounded text-sm" onclick="showNoteForm('${route}', '${cp.name}')">
+                                                        備註
+                                                    </button>
+                                                ` : `
+                                                    <button class="action-note flex-1 bg-gray-500 text-white px-3 py-2 rounded text-sm" onclick="showNoteForm('${route}', '${cp.name}')">
+                                                        備註
+                                                    </button>
+                                                `}
+                                            </div>
+                                        </div>
+                                        ${(cp.reason || cp.note || cp.images) ? `
+                                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                                ${cp.reason ? `
+                                                    <div class="text-sm text-yellow-600 mb-2">
+                                                        原因：${cp.reason}
+                                                    </div>
+                                                ` : ''}
+                                                ${cp.note ? `
+                                                    <div class="text-sm text-gray-600 mb-2">
+                                                        備註：${cp.note}
+                                                    </div>
+                                                ` : ''}
+                                                ${cp.images ? `
+                                                    <div class="flex flex-wrap gap-2 mt-2">
+                                                        ${cp.images.map(img => `
+                                                            <div class="relative w-20 h-20 cursor-pointer" onclick="showFullScreenImage('${img}')">
+                                                                <img src="${img}" alt="現場照片" class="w-full h-full object-cover rounded-lg shadow-sm">
+                                                            </div>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- 上傳打卡紀錄按鈕 - 始終顯示但根據狀態有不同的樣式和功能 -->
+                        <button 
+                            id="uploadBtn-${route}" 
+                            class="upload-button ${routeUploaded ? 'uploaded' : isRouteCompleted ? '' : 'text-gray-500 bg-gray-100'}" 
+                            onclick="uploadPatrolRecord('${route}')" 
+                            ${isRouteCompleted ? routeUploaded ? 'disabled' : '' : 'disabled'}
+                            title="${!isRouteCompleted ? '完成所有打卡點後才能上傳' : routeUploaded ? '已上傳' : '點擊上傳打卡紀錄'}"
+                        >
+                            ${routeUploaded ? 
+                                `<i class="fas fa-check-circle mr-2"></i> 已上傳` : 
+                                isRouteCompleted ?
+                                `<i id="uploadIcon-${route}" class="fas fa-cloud-upload-alt mr-2"></i> 
+                                 <span id="uploadText-${route}">上傳打卡紀錄</span>` :
+                                `<i class="fas fa-lock mr-2"></i> 
+                                 <span id="uploadText-${route}">完成所有打卡點後可上傳</span>`
+                            }
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        // 計算並更新總進度
+        function updateTotalProgress() {
+            const totalProgressBar = document.getElementById('totalProgressBar');
+            const totalProgressText = document.getElementById('totalProgressPercentage');
+            const totalProgressText2 = document.getElementById('totalProgressPercentage2');
+            
+            let totalCompleted = 0;
+            let totalCheckpoints = 0;
+            
+            // 從 localStorage 獲取路線狀態
+            let routeStatuses = {};
+            const savedRouteStatuses = localStorage.getItem('routeStatuses');
+            if (savedRouteStatuses) {
+                try {
+                    routeStatuses = JSON.parse(savedRouteStatuses);
+                } catch (e) {
+                    console.error("解析路線狀態時出錯:", e);
+                }
+            }
+            
+            // 遍歷每個選定的路線
+            selectedRoutes.forEach(route => {
+                // 從 localStorage 獲取該路線的檢查點信息
+                const checkpoints = getRouteCheckpoints(route);
+                
+                checkpoints.forEach(checkpoint => {
+                    totalCheckpoints++;
+                    if (checkpoint.status === 'completed' || checkpoint.status === 'unable') {
+                        totalCompleted++;
+                    }
+                });
+            });
+            
+            const progressPercentage = totalCheckpoints > 0 ? Math.round((totalCompleted / totalCheckpoints) * 100) : 0;
+            
+            totalProgressBar.style.width = `${progressPercentage}%`;
+            totalProgressText.textContent = `${progressPercentage}%`;
+            totalProgressText2.textContent = `${progressPercentage}%`;
+            
+            // 更新完成狀態的路線數量
+            const completedRoutes = Array.from(selectedRoutes).filter(route => {
+                const checkpoints = getRouteCheckpoints(route);
+                return checkpoints.every(cp => cp.status === 'completed' || cp.status === 'unable');
+            }).length;
+            
+            document.getElementById('completedRoutesCount').textContent = completedRoutes;
+            document.getElementById('totalRoutesCount').textContent = selectedRoutes.size;
+        }
+        
+        // 路線選擇功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const routeCards = document.querySelectorAll('.route-card');
+            const confirmButton = document.getElementById('confirmRoutes');
+            const backToSelectionButton = document.getElementById('backToSelection');
+
+            // 更新確認按鈕狀態
+            function updateConfirmButton() {
+                const totalRoutes = routeCards.length;
+                const selectedCount = selectedRoutes.size;
+                confirmButton.textContent = `確認選擇 (${selectedCount}/${totalRoutes})`;
+                confirmButton.disabled = selectedCount === 0;
+            }
+
+            // 返回路線選擇頁面
+            backToSelectionButton.addEventListener('click', function() {
+                const patrolPage = document.getElementById('patrolPage');
+                const routeSelectionPage = document.querySelector('.page-container');
+                patrolPage.style.display = 'none';
+                routeSelectionPage.style.display = 'block';
+            });
+
+            // 為每個路線卡片添加點擊事件
+            routeCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const routeId = this.dataset.routeId;
+                    
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        selectedRoutes.delete(routeId);
+                    } else {
+                        this.classList.add('selected');
+                        selectedRoutes.add(routeId);
+                    }
+                    
+                    updateConfirmButton();
+                });
+            });
+
+            // 確認按鈕點擊事件
+            confirmButton.addEventListener('click', function() {
+                // 將選擇的路線保存到 localStorage
+                const selectedRoutesData = {
+                    routes: Array.from(selectedRoutes),
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('selectedRoutes', JSON.stringify(selectedRoutesData));
+                
+                // 顯示巡邏頁面
+                showPatrolPage();
+            });
+
+            // 檢查是否已有選擇的路線
+            const savedRoutes = localStorage.getItem('selectedRoutes');
+            if (savedRoutes) {
+                const savedRoutesData = JSON.parse(savedRoutes);
+                selectedRoutes = new Set(savedRoutesData.routes);
+                
+                // 更新UI顯示
+                routeCards.forEach(card => {
+                    if (selectedRoutes.has(card.dataset.routeId)) {
+                        card.classList.add('selected');
+                    }
+                });
+                
+                updateConfirmButton();
+                
+                // 如果有已選擇的路線，直接顯示巡邏頁面
+                showPatrolPage();
+            }
+        });
+
+        // 更新用戶信息
+        function updateUserInfo() {
+            // 從 localStorage 中獲取用戶角色
+            const userRole = localStorage.getItem('userRole') || 'guest';
+            const username = localStorage.getItem('username') || '訪客';
+            
+            // 根據用戶角色設置不同的顯示文字
+            let userRoleText = '';
+            let userName = '';
+            
+            if (userRole === 'admin') {
+                userRoleText = '管理員 A001';
+                userName = username === 'admin' ? '管理員' : username;
+            } else {
+                userRoleText = '警衛編號 G001';
+                userName = username === 'guest' ? '張小明' : username;
+            }
+            
+            // 更新兩個頁面的用戶信息顯示
+            document.getElementById('currentUserName').textContent = userName;
+            document.getElementById('currentUserRole').textContent = userRoleText;
+            
+            // 巡邏頁面的用戶信息
+            const patrolPageUserName = document.getElementById('patrolPageUserName');
+            const patrolPageUserRole = document.getElementById('patrolPageUserRole');
+            if (patrolPageUserName && patrolPageUserRole) {
+                patrolPageUserName.textContent = userName;
+                patrolPageUserRole.textContent = userRoleText;
+            }
+            
+            // 清除現有的 localStorage 項目
+            localStorage.removeItem('uploadedRoutes');
+            localStorage.removeItem('selectedRoutes');
+            localStorage.removeItem('routeStatuses');
+            
+            // 設置已上傳的路線
+            const uploadedRoutes = ['morning-a', 'afternoon-d', 'evening-b'];
+            localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
+            
+            // 直接設置已上傳的路線標記
+            uploadedRoutes.forEach(route => {
+                localStorage.setItem(`route_uploaded_${route}`, 'true');
+            });
+            
+            // 設置預設選中路線
+            localStorage.setItem('selectedRoutes', JSON.stringify([
+                'morning-a', // 已上傳
+                'morning-b', // 部分完成，未上傳
+                'morning-c', // 全部完成，未上傳
+                'afternoon-b', // 部分完成，未上傳
+                'afternoon-d', // 已上傳
+                'evening-a', // 全部完成，未上傳
+                'evening-b', // 已上傳
+                'evening-c'  // 部分完成，未上傳
+            ]));
+            
+            // 設置路線狀態 - 包含不同狀態的路線
+            const routeStatuses = {
+                // 已上傳路線 - morning-a
+                'morning-a': {
+                    status: 'completed',
+                    checkpoints: {
+                        '大廳': { status: 'completed', checkTime: '09:05', note: '大廳環境整齊' },
+                        '電梯間': { status: 'completed', checkTime: '09:18', note: '電梯正常運作中' },
+                        '安全門': { status: 'completed', checkTime: '09:32', note: '安全門警報系統正常' },
+                        '後門': { status: 'completed', checkTime: '09:47', note: '後門已鎖好' },
+                        '頂樓': { status: 'completed', checkTime: '10:05', note: '頂樓無異常狀況' }
+                    }
+                },
+                
+                // 部分完成，未上傳 - morning-b
+                'morning-b': {
+                    status: 'incomplete',
+                    checkpoints: {
+                        '前廳': { status: 'completed', checkTime: '09:38', note: '前廳燈光正常運作中' },
+                        '閱覽室': { status: 'completed', checkTime: '09:55', note: '閱覽室已整理完畢' },
+                        '會議廳': { status: 'pending' },
+                        '安全出口': { status: 'pending' },
+                        '中庭': { status: 'pending' }
+                    }
+                },
+                
+                // 全部完成但未上傳 - morning-c
+                'morning-c': {
+                    status: 'completed',
+                    checkpoints: {
+                        '入口': { status: 'completed', checkTime: '10:42', note: '入口門禁系統正常' },
+                        '樓梯': { status: 'completed', checkTime: '10:58', note: '樓梯間照明正常' },
+                        '屋頂': { status: 'completed', checkTime: '11:10', note: '屋頂無漏水現象' }
+                    }
+                },
+                
+                // 部分完成，未上傳 - afternoon-b
+                'afternoon-b': {
+                    status: 'incomplete',
+                    checkpoints: {
+                        '正門': { status: 'completed', checkTime: '13:10', note: '正門門禁系統正常' },
+                        '側門': { status: 'unable', checkTime: '13:25', reason: '施工中', note: '因施工暫時封閉' },
+                        '機房': { status: 'pending' },
+                        '監控室': { status: 'pending' }
+                    }
+                },
+                
+                // 已上傳 - afternoon-d
+                'afternoon-d': {
+                    status: 'completed',
+                    checkpoints: {
+                        '大門': { status: 'completed', checkTime: '15:15', note: '大門安全鎖正常' },
+                        '倉庫': { status: 'completed', checkTime: '15:32', note: '倉庫已上鎖' },
+                        '停車場': { status: 'completed', checkTime: '15:48', note: '停車場照明正常' }
+                    }
+                },
+                
+                // 全部完成但未上傳 - evening-a
+                'evening-a': {
+                    status: 'completed',
+                    checkpoints: {
+                        '大廳': { status: 'completed', checkTime: '19:15', note: '大廳已清潔完畢' },
+                        '電梯間': { status: 'completed', checkTime: '19:35', note: '電梯間環境良好' },
+                        '安全門': { status: 'completed', checkTime: '19:52', note: '安全門正常關閉' }
+                    }
+                },
+                
+                // 已上傳 - evening-b
+                'evening-b': {
+                    status: 'completed',
+                    checkpoints: {
+                        '正門': { status: 'completed', checkTime: '21:18', note: '正門已鎖好' },
+                        '機房': { status: 'completed', checkTime: '21:45', note: '機房設備運行正常' }
+                    }
+                },
+                
+                // 部分完成，未上傳 - evening-c
+                'evening-c': {
+                    status: 'incomplete',
+                    checkpoints: {
+                        '大廳': { status: 'completed', checkTime: '20:10', note: '大廳照明檢查完畢' },
+                        '電梯': { status: 'completed', checkTime: '20:25', note: '電梯運行正常' },
+                        '走廊': { status: 'pending' },
+                        '配電室': { status: 'pending' }
+                    }
+                }
+            };
+            
+            localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+        }
+
+        // 全局函數 - NFC 測試功能
+        function testNfcFunction(isPagePatrol = false) {
+            // 獲取失敗模式複選框狀態
+            const failModeCheckbox = isPagePatrol ? 
+                document.getElementById('patrolPageNfcTestFailMode') : 
+                document.getElementById('nfcTestFailMode');
+            const shouldFail = failModeCheckbox.checked;
+            
+            // 顯示 NFC 感應動畫
+            const animation = document.getElementById('nfcAnimation');
+            const success = document.getElementById('nfcSuccess');
+            const error = document.getElementById('nfcError');
+            const waves = document.querySelectorAll('.nfc-wave');
+            
+            // 重置波浪顏色
+            waves.forEach(wave => {
+                wave.classList.remove('error');
+            });
+            
+            animation.classList.add('active');
+            
+            if (shouldFail) {
+                // 在 1.5 秒後改變波浪顏色為錯誤紅色
+                setTimeout(() => {
+                    waves.forEach(wave => {
+                        wave.classList.add('error');
+                    });
+                    
+                    // 再等 1.5 秒顯示錯誤圖示
+                    setTimeout(() => {
+                        error.classList.add('active');
+                        
+                        // 1.5 秒後關閉動畫
+                        setTimeout(() => {
+                            animation.classList.remove('active');
+                            error.classList.remove('active');
+                            waves.forEach(wave => {
+                                wave.classList.remove('error');
+                            });
+                            
+                            // 顯示測試結果對話框
+                            showNfcTestResult(false);
+                        }, 1500);
+                    }, 1500);
+                }, 1500);
+            } else {
+                // 延遲顯示成功狀態
+                setTimeout(() => {
+                    success.classList.add('active');
+                    
+                    // 2秒後關閉動畫
+                    setTimeout(() => {
+                        animation.classList.remove('active');
+                        success.classList.remove('active');
+                        
+                        // 顯示測試結果對話框
+                        showNfcTestResult(true);
+                    }, 1500);
+                }, 2000);
+            }
+        }
+        
+        // 顯示 NFC 測試結果
+        function showNfcTestResult(isSuccess) {
+            // 建立結果對話框
+            const resultDialog = document.createElement('div');
+            resultDialog.className = 'form-overlay';
+            resultDialog.innerHTML = `
+                <div class="form-container">
+                    <div class="form-header">
+                        <div class="form-title">NFC 測試結果</div>
+                        <button class="form-close" onclick="this.closest('.form-overlay').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="py-4 text-center">
+                        ${isSuccess 
+                            ? `<div class="text-green-500 mb-2"><i class="fas fa-check-circle text-4xl"></i></div>
+                               <div class="text-lg font-medium mb-1">NFC 功能正常</div>
+                               <div class="text-gray-500 text-sm mb-3">您可以開始巡邏任務</div>
+                               <div class="bg-gray-50 p-3 rounded-lg text-left text-xs text-gray-600 mb-2">
+                                   <p class="mb-1"><i class="fas fa-lightbulb text-yellow-400 mr-1"></i> <b>使用 NFC 提示：</b></p>
+                                   <p class="mb-1">1. 請確保手機背面貼近 NFC 感應點（通常在打卡點有標記）</p>
+                                   <p class="mb-1">2. 保持手機與感應點的距離在 2-5 公分內</p>
+                                   <p>3. 打卡時請勿過快移開手機，等待成功提示後再移開</p>
+                               </div>`
+                            : `<div class="text-red-500 mb-2"><i class="fas fa-times-circle text-4xl"></i></div>
+                               <div class="text-lg font-medium mb-1">NFC 功能異常</div>
+                               <div class="text-gray-500 text-sm mb-3">請檢查設備或聯繫管理員</div>
+                               <div class="bg-gray-50 p-3 rounded-lg text-left text-xs text-gray-600 mb-2">
+                                   <p class="mb-1"><i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> <b>可能的問題：</b></p>
+                                   <p class="mb-1">1. 請檢查手機的 NFC 功能是否已開啟</p>
+                                   <p class="mb-1">2. 請確認手機支援 NFC 功能</p>
+                                   <p class="mb-1">3. 如使用手機保護殼，可能會影響 NFC 感應能力</p>
+                                   <p>4. 如持續無法使用，請聯繫系統管理員</p>
+                               </div>`
+                        }
+                    </div>
+                    <div class="form-actions">
+                        <button class="form-btn btn-cancel" onclick="this.closest('.form-overlay').remove()">
+                            關閉
+                        </button>
+                        ${!isSuccess 
+                            ? `<button class="form-btn btn-submit" onclick="testNfcFunction(); this.closest('.form-overlay').remove()">
+                                 重新測試
+                               </button>`
+                            : ``
+                        }
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(resultDialog);
+        }
+        
+        // 顯示 NFC 測試開始提示
+        function showNfcTestInstructions(isPagePatrol) {
+            // 建立指導對話框
+            const instructionDialog = document.createElement('div');
+            instructionDialog.className = 'form-overlay';
+            instructionDialog.innerHTML = `
+                <div class="form-container">
+                    <div class="form-header">
+                        <div class="form-title">NFC 功能測試</div>
+                        <button class="form-close" onclick="this.closest('.form-overlay').remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="py-4 text-left">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-rss text-3xl text-blue-500"></i>
+                        </div>
+                        <p class="mb-3 text-center font-medium">測試前說明</p>
+                        <div class="text-sm text-gray-600 mb-4">
+                            <p class="mb-2">NFC 功能測試會檢查您的設備是否能正常感應 NFC 標籤，以確保您在巡邏過程中能順利打卡。</p>
+                            <p class="mb-2">點擊「開始測試」後，請將手機背面貼近任意 NFC 感應點進行測試。</p>
+                            <p class="mb-1"><b>小提示：</b></p>
+                            <ul class="list-disc pl-5 text-xs mb-2">
+                                <li class="mb-1">在實際環境中，每個打卡點都應有明確的 NFC 標誌</li>
+                                <li class="mb-1">保持手機與感應點的距離在 2-5 公分內</li>
+                                <li>如勾選「模擬失敗情況」可測試失敗時的提示效果</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="form-btn btn-cancel" onclick="this.closest('.form-overlay').remove()">
+                            取消
+                        </button>
+                        <button class="form-btn btn-submit" onclick="testNfcFunction(${isPagePatrol}); this.closest('.form-overlay').remove()">
+                            開始測試
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(instructionDialog);
+        }
+
+        // 上傳巡邏紀錄
+        function uploadPatrolRecord(route) {
+            console.log(`準備上傳路線 ${route} 的打卡紀錄`);
+            
+            // 檢查路線是否完全完成
+            const checkpoints = getRouteCheckpoints(route);
+            const isRouteCompleted = checkpoints.every(cp => cp.status === 'completed' || cp.status === 'unable');
+            
+            if (!isRouteCompleted) {
+                console.error(`路線 ${route} 未完成，無法上傳`);
+                showToast('無法上傳', '請先完成所有打卡點', 'error');
+                return;
+            }
+            
+            // 檢查路線是否已上傳
+            const isRouteUploaded = localStorage.getItem(`route_uploaded_${route}`) === 'true';
+            if (isRouteUploaded) {
+                console.log(`路線 ${route} 已上傳過，無需重複上傳`);
+                showToast('已上傳', '此路線已上傳過，無需重複上傳', 'info');
+                return;
+            }
+            
+            // 更新上傳狀態文字和圖標
+            const uploadIcon = document.getElementById(`uploadIcon-${route}`);
+            const uploadText = document.getElementById(`uploadText-${route}`);
+            
+            if (uploadIcon && uploadText) {
+                uploadIcon.className = 'fas fa-spinner fa-spin mr-2';
+                uploadText.textContent = '上傳中...';
+            }
+            
+            // 模擬上傳過程
+            setTimeout(() => {
+                // 獲取已上傳的路線
+                let uploadedRoutes = [];
+                const savedUploadedRoutes = localStorage.getItem('uploadedRoutes');
+                if (savedUploadedRoutes) {
+                    try {
+                        uploadedRoutes = JSON.parse(savedUploadedRoutes);
+                        if (!Array.isArray(uploadedRoutes)) {
+                            // 如果不是數組，將對象轉換為數組
+                            uploadedRoutes = Object.keys(uploadedRoutes).filter(key => uploadedRoutes[key]);
+                        }
+                    } catch (e) {
+                        console.error("解析已上傳路線時出錯:", e);
+                        uploadedRoutes = [];
+                    }
+                }
+                
+                // 添加路線到已上傳列表
+                if (!uploadedRoutes.includes(route)) {
+                    uploadedRoutes.push(route);
+                    localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
+                }
+                
+                // 直接設置路線已上傳標記
+                localStorage.setItem(`route_uploaded_${route}`, 'true');
+                
+                // 更新路線狀態中的上傳狀態
+                const routeStatuses = JSON.parse(localStorage.getItem('routeStatuses') || '{}');
+                if (routeStatuses[route]) {
+                    routeStatuses[route].uploaded = true;
+                    localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                }
+                
+                // 更新界面
+                const uploadButton = document.getElementById(`uploadBtn-${route}`);
+                const uploadStatus = document.querySelector(`[data-route-id="${route}"] .upload-status`);
+                
+                if (uploadButton) {
+                    uploadButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> 已上傳`;
+                    uploadButton.classList.add('uploaded');
+                    uploadButton.disabled = true;
+                    uploadButton.title = '已上傳';
+                }
+                
+                if (uploadStatus) {
+                    uploadStatus.className = 'upload-status status-uploaded';
+                    uploadStatus.innerHTML = `<i class="fas fa-check-circle mr-1"></i> 已上傳`;
+                }
+                
+                console.log(`路線 ${route} 上傳成功`);
+                
+                // 顯示成功提示
+                showToast('上傳成功', `${route.split('-')[1].toUpperCase()} 棟巡邏紀錄已成功上傳`);
+                
+                // 更新總進度
+                updateTotalProgress();
+            }, 1500);
+        }
+        
+        // 顯示提示訊息
+        function showToast(title, message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentNode.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // 自動關閉
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // 全局函數 - 渲染巡邏路線
+        function renderPatrolRoute(route, routeId) {
+            const checkpoints = getRouteCheckpoints(routeId);
+            
+            // 計算路線完成度
+            const completedCount = checkpoints.filter(cp => cp.status === 'completed' || cp.status === 'unable').length;
+            const totalCount = checkpoints.length;
+            const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            
+            // 判斷路線狀態
+            let statusClass = 'status-not-uploaded';
+            let statusText = '未上傳';
+            
+            if (isRouteUploaded(routeId)) {
+                statusClass = 'status-uploaded';
+                statusText = '已上傳';
+            } else if (completedCount > 0 && completedCount < totalCount) {
+                statusClass = 'status-incomplete';
+                statusText = '未完成';
+            }
+            
+            // 創建路線卡片
+            let routeCard = `
+                <div class="stats-card mb-4" data-route-id="${routeId}">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="font-semibold text-gray-800">${route} <span class="upload-status ${statusClass}">${statusText}</span></div>
+                        <div class="text-sm text-gray-500">${completedCount}/${totalCount}</div>
+                    </div>
+                    <div class="bg-gray-200 h-1.5 rounded-full overflow-hidden mb-3">
+                        <div class="bg-blue-500 h-full" style="width: ${progressPercentage}%;"></div>
+                    </div>
+                    <div class="checkpoints space-y-3">
+            `;
+            
+            // 添加檢查點卡片
+            checkpoints.forEach(checkpoint => {
+                let statusClass = 'status-pending';
+                let statusText = '待打卡';
+                
+                if (checkpoint.status === 'completed') {
+                    statusClass = 'status-completed';
+                    statusText = '已完成';
+                } else if (checkpoint.status === 'unable') {
+                    statusClass = 'status-unable';
+                    statusText = '無法打卡';
+                }
+                
+                routeCard += `
+                    <div class="checkpoint-card" data-checkpoint="${checkpoint.name}" data-route="${routeId}">
+                        <div class="checkpoint-header">
+                            <div>
+                                <div class="checkpoint-title">${checkpoint.name}</div>
+                                <div class="checkpoint-status ${statusClass}">
+                                    ${statusText === '已完成' ? '<i class="fas fa-check-circle mr-1"></i>' : 
+                                      statusText === '無法打卡' ? '<i class="fas fa-exclamation-circle mr-1"></i>' : 
+                                      '<i class="fas fa-clock mr-1"></i>'}
+                                    ${statusText}
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400">${checkpoint.time}</div>
+                        </div>
+                        <div class="checkpoint-info">
+                            ${checkpoint.reason ? `
+                                <div class="text-sm mb-2">
+                                    <span class="text-yellow-600 font-medium">原因：</span>${checkpoint.reason}
+                                </div>
+                            ` : ''}
+                            ${checkpoint.note ? `
+                                <div class="text-sm mb-2">
+                                    <span class="text-blue-600 font-medium">備註：</span>${checkpoint.note}
+                                </div>
+                            ` : ''}
+                            ${checkpoint.checkTime ? `
+                                <div class="text-xs text-gray-400 mt-1">
+                                    <i class="far fa-clock mr-1"></i>打卡時間: ${checkpoint.checkTime}
+                                </div>
+                            ` : ''}
+                        </div>
+                        ${checkpoint.images && checkpoint.images.length > 0 ? `
+                            <div class="flex flex-wrap gap-2 p-3 pt-0">
+                                ${checkpoint.images.map(img => `
+                                    <div class="w-1/4 relative rounded-lg overflow-hidden" onclick="showFullScreenImage('${img}')">
+                                        <img src="${img}" class="w-full h-20 object-cover" alt="照片">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        ${checkpoint.status === 'pending' ? `
+                            <div class="grid grid-cols-3 border-t border-gray-100">
+                                <button class="py-3 flex flex-col items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors" onclick="handleCheckin('${routeId}', '${checkpoint.name}')">
+                                    <i class="fas fa-qrcode mb-1 text-lg"></i>
+                                    <span class="text-xs">打卡</span>
+                                </button>
+                                <button class="py-3 flex flex-col items-center justify-center text-yellow-600 hover:bg-yellow-50 transition-colors" onclick="showUnableForm('${routeId}', '${checkpoint.name}')">
+                                    <i class="fas fa-exclamation-triangle mb-1 text-lg"></i>
+                                    <span class="text-xs">無法打卡</span>
+                                </button>
+                                <button class="py-3 flex flex-col items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors" onclick="showNoteForm('${routeId}', '${checkpoint.name}')">
+                                    <i class="fas fa-comment-alt mb-1 text-lg"></i>
+                                    <span class="text-xs">添加備註</span>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            // 添加上傳按鈕
+            const isUploaded = isRouteUploaded(routeId);
+            const allCompleted = completedCount === totalCount && totalCount > 0;
+            
+            routeCard += `
+                </div>
+                <button class="upload-button ${isUploaded ? 'uploaded' : ''}" 
+                        onclick="uploadRouteData('${routeId}')" 
+                        ${!allCompleted || isUploaded ? 'disabled' : ''}>
+                    ${isUploaded ? 
+                        '<i class="fas fa-check-circle mr-2"></i>已上傳' : 
+                        allCompleted ? 
+                            '<i class="fas fa-cloud-upload-alt mr-2"></i>上傳數據' : 
+                            '<i class="fas fa-lock mr-2"></i>完成全部打卡後上傳'}
+                </button>
+            </div>
+        `;
+        
+        return routeCard;
+    }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的紀錄 - 安全室巡檢系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .page-container {
+            max-width: 430px; /* 調整為 iPhone 16 Pro Max 寬度 */
+            margin: 0 auto;
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 60px 20px 100px 20px; /* 上方增加間距避開動態島 */
+            box-sizing: border-box;
+        }
+        
+        /* 隱藏滾動條但保持功能 */
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Calendar style fixes */
+        .calendar-overlay {
+            z-index: 50;
+        }
+        
+        /* 日曆樣式 */
+        .calendar {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            padding: 8px;
+            text-align: center;
+            background-color: #ffffff;
+        }
+        
+        .day-name {
+            font-size: 12px;
+            color: #6b7280;
+            padding: 8px 0;
+        }
+        
+        .day {
+            padding: 12px 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .day:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .day.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .day.today {
+            font-weight: bold;
+            border: 1px solid #3b82f6;
+        }
+        
+        .time-slots {
+            margin-top: 24px;
+        }
+        
+        .time-slot {
+            margin-bottom: 16px;
+        }
+        
+        /* 時段標題 */
+        .time-slot-header {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.95rem;
+        }
+        
+        .time-slot-header:before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+        }
+        
+        /* 路線標題 */
+        .route-header {
+            background-color: #f3f8ff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            position: relative;
+            padding-left: 36px;
+        }
+        
+        .route-header:before {
+            content: "";
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+        }
+        
+        .route-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 4px;
+        }
+        
+        .route-description {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        .space-y-3 > * {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        .space-x-3 > * {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        .space-x-3 > * + * {
+            margin-left: 0.75rem;
+        }
+        
+        .gap-2 {
+            gap: 0.5rem;
+        }
+        
+        /* 選中日期顯示 */
+        #selectedDate {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            padding: 5px 0;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 圖片查看器 */
+        .image-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .image-viewer.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .image-viewer img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .image-viewer .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        /* 打卡點卡片樣式 - 與巡邏頁面類似 */
+        .checkpoint-item {
+            background-color: white;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .checkpoint-header {
+            padding: 16px 16px 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .checkpoint-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1c1c1e;
+            margin-bottom: 4px;
+        }
+        
+        .checkpoint-info {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+        
+        .checkpoint-status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: #f2f2f7;
+        }
+        
+        .status-completed {
+            background-color: #ECFDF5;
+            color: #10B981;
+        }
+        
+        .status-unable {
+            background-color: #FEF3C7;
+            color: #F59E0B;
+        }
+        
+        .status-pending {
+            background-color: #F3F4F6;
+            color: #6B7280;
+        }
+        
+        .checkpoint-images {
+            padding: 0 16px 16px 16px;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .checkpoint-image-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .checkpoint-image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .checkpoint-note {
+            padding: 0 16px 16px 16px;
+            font-size: 14px;
+            color: #6b7280;
+            border-top: 1px solid #f3f4f6;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="page-container">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold">我的打卡紀錄</h1>
+                <div class="text-sm text-gray-600 mt-1">
+                    <i class="fas fa-user mr-1"></i> <span id="currentUserName">張小明</span> - <span id="currentUserRole">警衛編號 G001</span>
+                </div>
+            </div>
+            <button id="todayBtn" class="bg-blue-500 text-white text-sm px-3 py-1 rounded-lg">
+                <i class="fas fa-calendar-day mr-1"></i>今天
+            </button>
+        </div>
+        
+        <!-- 日曆選擇器 -->
+        <div class="calendar mb-6">
+            <div class="calendar-header">
+                <div class="flex justify-between items-center">
+                    <button id="prevMonth" class="text-white">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="currentMonth">2025年3月</div>
+                    <button id="nextMonth" class="text-white">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="calendar-days" id="calendarDays">
+                <!-- 日曆內容由 JavaScript 填充 -->
+            </div>
+        </div>
+        
+        <!-- 選中日期顯示 -->
+        <div id="selectedDate" class="text-lg font-bold mb-4">2025年3月17日（週一）</div>
+        
+        <!-- 打卡統計 -->
+        <div class="stats-card mb-6">
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-gray-600">當日打卡完成率</div>
+                <div class="font-bold" id="completionRate">40%</div>
+            </div>
+            <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-blue-500 h-full" style="width: 40%;" id="completionBar"></div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-500 mt-2">
+                <div id="completionStats">已完成 4/10 個打卡點</div>
+                <div id="completionPercentage">40%</div>
+            </div>
+        </div>
+        
+        <!-- 打卡時段記錄 -->
+        <div class="time-slots">
+            <!-- 將由 JavaScript 動態生成的巡邏路線記錄 -->
+            <div id="routeRecords">
+                <!-- 由 JavaScript 填充 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 圖片查看器 -->
+    <div class="image-viewer" id="imageViewer">
+        <div class="close-button" onclick="closeImageViewer()">
+            <i class="fas fa-times"></i>
+        </div>
+        <img id="viewerImage" src="" alt="圖片查看">
+    </div>
+
+    <script>
+        // 打卡記錄數據
+        const recordsByDate = {
+            '2025-03-16': {
+                date: '2025年3月16日（週日）',
+                morning: [
+                    { location: 'C 棟入口', route: 'C 棟巡邏路線', status: '已打卡', time: '10:05' },
+                    { location: 'C 棟樓梯', route: 'C 棟巡邏路線', status: '已打卡', time: '10:20', note: '樓梯濕滑，已放置警示標誌', image: 'https://images.unsplash.com/photo-1602562603409-5cb7e37a8bf1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'C 棟安全門', route: 'C 棟巡邏路線', status: '未打卡', time: '10:30-11:00' }
+                ],
+                afternoon: [
+                    { location: 'D 棟通道', route: 'D 棟巡邏路線', status: '已打卡', time: '14:00' },
+                    { location: 'D 棟安全門', route: 'D 棟巡邏路線', status: '無法打卡', time: '14:30', reason: '維修中', note: '安全門鎖更換中，預計明天完成', image: 'https://images.unsplash.com/photo-1584279551067-f539315279b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'D 棟走廊', route: 'D 棟巡邏路線', status: '未打卡', time: '14:45-15:30' }
+                ],
+                evening: [
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '已打卡', time: '19:15', note: '燈光故障，已通知維修部門' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '無法打卡', time: '19:30', reason: '地板清潔中', note: '保潔人員正在清洗地板，暫時無法通行' },
+                    { location: 'A 棟樓梯間', route: 'A 棟巡邏路線', status: '未打卡', time: '19:45-20:15' }
+                ],
+                stats: { completed: 3, pending: 6, rate: '33%' }
+            },
+            '2025-03-17': {
+                date: '2025年3月17日（週一）',
+                morning: [
+                    { location: 'A 棟大廳', route: 'A 棟巡邏路線', status: '已打卡', time: '09:05' },
+                    { location: 'A 棟電梯間', route: 'A 棟巡邏路線', status: '無法打卡', time: '09:15', reason: '設備故障', note: 'NFC 讀取器故障，無法感應', image: 'https://images.unsplash.com/photo-1563207153-f403bf289096?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '無法打卡', time: '09:30', reason: '維修中', note: '門鎖維修中，暫時無法進入' },
+                    { location: 'A 棟管理室', route: 'A 棟巡邏路線', status: '未打卡', time: '09:45-10:15' },
+                    { location: 'C 棟入口', route: 'C 棟巡邏路線', status: '已打卡', time: '10:30', note: '門口有可疑包裹，已通知安保', image: 'https://images.unsplash.com/photo-1586128743729-27949fc9d775?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' }
+                ],
+                afternoon: [
+                    { location: 'D 棟通道', route: 'D 棟巡邏路線', status: '已打卡', time: '13:10' },
+                    { location: 'B 棟後門', route: 'B 棟巡邏路線', status: '無法打卡', time: '14:15', reason: '設備故障', note: 'NFC 讀取器故障，無法感應' },
+                    { location: 'B 棟監控室', route: 'B 棟巡邏路線', status: '無法打卡', time: '14:25', reason: '維修中', note: '門鎖維修中，暫時無法進入', image: 'https://images.unsplash.com/photo-1517420879524-86d64ac2f339?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'B 棟樓梯', route: 'B 棟巡邏路線', status: '已打卡', time: '14:35' },
+                    { location: 'B 棟電梯', route: 'B 棟巡邏路線', status: '未打卡', time: '14:45-15:15' }
+                ],
+                evening: [
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '無法打卡', time: '19:05', reason: '維修中', note: '門鎖維修中，暫時無法進入' },
+                    { location: 'C 棟屋頂', route: 'C 棟巡邏路線', status: '無法打卡', time: '19:20', reason: '維修中', note: '屋頂水塔維修，暫時無法進入', image: 'https://images.unsplash.com/photo-1517490232338-06b0989dc5c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'C 棟安全門', route: 'C 棟巡邏路線', status: '已打卡', time: '19:35' },
+                    { location: 'C 棟機房', route: 'C 棟巡邏路線', status: '未打卡', time: '19:50-20:20' }
+                ],
+                stats: { completed: 5, pending: 10, rate: '33%' }
+            },
+            '2025-03-18': {
+                date: '2025年3月18日（週二）',
+                morning: [
+                    { location: 'A 棟大廳', route: 'A 棟巡邏路線', status: '已打卡', time: '09:10', note: '大廳地板濕滑，已放置警示標誌', image: 'https://images.unsplash.com/photo-1556139930-c23fa4a4f934?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'A 棟電梯間', route: 'A 棟巡邏路線', status: '無法打卡', time: '09:20', reason: '安全考量', note: '發現可疑人員，暫時封鎖該區域', image: 'https://images.unsplash.com/photo-1521214893954-a257a8bf6508?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '已打卡', time: '09:35' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '未打卡', time: '09:45-10:15' },
+                    { location: 'C 棟入口', route: 'C 棟巡邏路線', status: '已打卡', time: '10:15' }
+                ],
+                afternoon: [
+                    { location: 'D 棟通道', route: 'D 棟巡邏路線', status: '無法打卡', time: '13:45', reason: '無法進入', note: '門禁系統故障，無法開啟', image: 'https://images.unsplash.com/photo-1582771498000-8ad44e8c84e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'B 棟後門', route: 'B 棟巡邏路線', status: '已打卡', time: '14:20' },
+                    { location: 'B 棟監控室', route: 'B 棟巡邏路線', status: '已打卡', time: '14:30', note: '監控設備正常運作中', image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'B 棟樓梯', route: 'B 棟巡邏路線', status: '未打卡', time: '14:30-15:30' },
+                    { location: 'B 棟大廳', route: 'B 棟巡邏路線', status: '無法打卡', time: '15:00', reason: '活動進行中', note: '正在進行消防演習，暫時無法打卡' }
+                ],
+                evening: [
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '已打卡', time: '19:05', note: '燈光故障，已報修' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '未打卡', time: '19:15-19:45' },
+                    { location: 'C 棟屋頂', route: 'C 棟巡邏路線', status: '無法打卡', time: '19:15', reason: '其他原因', note: '天氣惡劣，暫時無法前往', image: 'https://images.unsplash.com/photo-1583329450416-bc525aabf3fe?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' }
+                ],
+                stats: { completed: 6, pending: 7, rate: '46%' }
+            },
+            '2025-03-19': {
+                date: '2025年3月19日（週三）',
+                morning: [
+                    { location: 'A 棟大廳', route: 'A 棟巡邏路線', status: '已打卡', time: '09:05' },
+                    { location: 'A 棟電梯間', route: 'A 棟巡邏路線', status: '已打卡', time: '09:20', note: '電梯運作正常' },
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '無法打卡', time: '09:40', reason: '設備故障', note: '感應器故障，已報修', image: 'https://images.unsplash.com/photo-1564069114553-7215e1ff1890?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'C 棟入口', route: 'C 棟巡邏路線', status: '未打卡', time: '10:00-11:00' }
+                ],
+                afternoon: [
+                    { location: 'D 棟通道', route: 'D 棟巡邏路線', status: '已打卡', time: '13:15' },
+                    { location: 'B 棟後門', route: 'B 棟巡邏路線', status: '無法打卡', time: '14:10', reason: '其他原因', note: '區域被臨時封閉，無法通行', image: 'https://images.unsplash.com/photo-1587123636211-23e882277936?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
+                    { location: 'B 棟監控室', route: 'B 棟巡邏路線', status: '未打卡', time: '14:30-15:30' },
+                    { location: 'B 棟樓梯', route: 'B 棟巡邏路線', status: '未打卡', time: '14:30-15:30' },
+                    { location: 'B 棟電梯', route: 'B 棟巡邏路線', status: '已打卡', time: '15:00' }
+                ],
+                evening: [
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '未打卡', time: '19:00-20:00' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '已打卡', time: '19:15' },
+                    { location: 'C 棟屋頂', route: 'C 棟巡邏路線', status: '未打卡', time: '19:00-20:00' },
+                    { location: 'C 棟安全門', route: 'C 棟巡邏路線', status: '無法打卡', time: '19:30', reason: '門禁系統故障', note: '無法通過門禁系統' }
+                ],
+                stats: { completed: 5, pending: 7, rate: '42%' }
+            },
+            '2025-03-20': {
+                date: '2025年3月20日（週四）',
+                morning: [
+                    { location: 'A 棟大廳', route: 'A 棟巡邏路線', status: '已打卡', time: '09:10' },
+                    { location: 'A 棟電梯間', route: 'A 棟巡邏路線', status: '已打卡', time: '09:25' },
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '已打卡', time: '09:40' },
+                    { location: 'A 棟機房', route: 'A 棟巡邏路線', status: '無法打卡', time: '09:55', reason: '無權限', note: '機房需要特殊權限進入' },
+                    { location: 'C 棟入口', route: 'C 棟巡邏路線', status: '已打卡', time: '10:15' },
+                    { location: 'C 棟安全門', route: 'C 棟巡邏路線', status: '未打卡', time: '10:30-11:00' }
+                ],
+                afternoon: [
+                    { location: 'D 棟通道', route: 'D 棟巡邏路線', status: '已打卡', time: '13:10' },
+                    { location: 'D 棟安全門', route: 'D 棟巡邏路線', status: '未打卡', time: '13:30-14:00' },
+                    { location: 'B 棟後門', route: 'B 棟巡邏路線', status: '已打卡', time: '14:00' },
+                    { location: 'B 棟監控室', route: 'B 棟巡邏路線', status: '已打卡', time: '14:15' },
+                    { location: 'B 棟樓梯', route: 'B 棟巡邏路線', status: '已打卡', time: '14:30' },
+                    { location: 'B 棟大廳', route: 'B 棟巡邏路線', status: '無法打卡', time: '14:45', reason: '活動進行中', note: '正在進行員工會議，暫時無法進入' }
+                ],
+                evening: [
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '未打卡', time: '19:00-20:00' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '已打卡', time: '19:15' },
+                    { location: 'C 棟屋頂', route: 'C 棟巡邏路線', status: '未打卡', time: '19:00-20:00' },
+                    { location: 'C 棟安全門', route: 'C 棟巡邏路線', status: '無法打卡', time: '19:30', reason: '時間衝突', note: '需處理緊急情況，無法按時打卡' }
+                ],
+                stats: { completed: 9, pending: 7, rate: '56%' }
+            },
+            '2025-03-21': {
+                date: '2025年3月21日（週五）',
+                morning: [
+                    { location: 'A 棟大廳', route: 'A 棟巡邏路線', status: '未打卡', time: '09:00-10:00' },
+                    { location: 'A 棟電梯間', route: 'A 棟巡邏路線', status: '未打卡', time: '09:00-10:00' },
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '未打卡', time: '09:00-10:00' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '已打卡', time: '09:15' },
+                    { location: 'A 棟機房', route: 'A 棟巡邏路線', status: '無法打卡', time: '09:30', reason: '維修中', note: '機房正在進行線路維修，暫時無法進入' },
+                    { location: 'C 棟入口', route: 'C 棟巡邏路線', status: '未打卡', time: '10:00-11:00' }
+                ],
+                afternoon: [
+                    { location: 'D 棟通道', route: 'D 棟巡邏路線', status: '未打卡', time: '13:00-14:00' },
+                    { location: 'D 棟安全門', route: 'D 棟巡邏路線', status: '已打卡', time: '13:30' },
+                    { location: 'B 棟後門', route: 'B 棟巡邏路線', status: '未打卡', time: '14:00-15:00' },
+                    { location: 'B 棟監控室', route: 'B 棟巡邏路線', status: '未打卡', time: '14:00-15:00' },
+                    { location: 'B 棟樓梯', route: 'B 棟巡邏路線', status: '未打卡', time: '14:00-15:00' },
+                    { location: 'B 棟大廳', route: 'B 棟巡邏路線', status: '無法打卡', time: '14:15', reason: '清潔維護', note: '地板打蠟中，暫時關閉' }
+                ],
+                evening: [
+                    { location: 'A 棟安全門', route: 'A 棟巡邏路線', status: '未打卡', time: '19:00-20:00' },
+                    { location: 'A 棟走廊', route: 'A 棟巡邏路線', status: '已打卡', time: '19:15' },
+                    { location: 'C 棟屋頂', route: 'C 棟巡邏路線', status: '未打卡', time: '19:00-20:00' },
+                    { location: 'C 棟安全門', route: 'C 棟巡邏路線', status: '無法打卡', time: '19:30', reason: '天氣因素', note: '暴雨導致區域積水，無法通行' }
+                ],
+                stats: { completed: 4, pending: 12, rate: '25%' }
+            }
+        };
+        
+        // 當前選中日期
+        let currentDate = '2025-03-17';
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCalendar();
+            updateRecords(currentDate);
+            
+            // 更新當前登入用戶信息
+            updateUserInfo();
+            
+            // 今天按鈕點擊
+            document.getElementById('todayBtn').addEventListener('click', function() {
+                // 在實際應用中，這裡會獲取今天的日期
+                // 這裡使用預設日期作為演示
+                currentDate = '2025-03-17';
+                updateCalendar();
+                updateRecords(currentDate);
+            });
+            
+            // 月份導航
+            document.getElementById('prevMonth').addEventListener('click', function() {
+                // 模擬月份切換，實際應用中需要真實的日期處理
+                document.getElementById('currentMonth').textContent = '2025年2月';
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', function() {
+                // 模擬月份切換，實際應用中需要真實的日期處理
+                document.getElementById('currentMonth').textContent = '2025年4月';
+            });
+        });
+        
+        // 更新日曆
+        function updateCalendar() {
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            // 添加星期標頭
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekdays.forEach(day => {
+                const dayName = document.createElement('div');
+                dayName.className = 'day-name';
+                dayName.textContent = day;
+                calendarDays.appendChild(dayName);
+            });
+            
+            // 填充日期，這裡簡化為只顯示3月份（實際應用應根據真實日曆生成）
+            const daysInMonth = 31;
+            const firstDay = 6; // 3/1/2025是星期六，所以偏移是6
+            
+            // 添加空白格
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // 填充日期
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.className = 'day';
+                day.textContent = i;
+                
+                // 判斷是否為當前選中日期
+                const dateStr = `2025-03-${i.toString().padStart(2, '0')}`;
+                if (dateStr === currentDate) {
+                    day.classList.add('active');
+                }
+                
+                // 判斷是否有記錄
+                if (recordsByDate[dateStr]) {
+                    day.style.fontWeight = 'bold';
+                }
+                
+                // 添加點擊事件
+                day.addEventListener('click', function() {
+                    // 更新選中樣式
+                    document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+                    day.classList.add('active');
+                    
+                    // 更新當前日期並刷新記錄
+                    currentDate = dateStr;
+                    updateRecords(currentDate);
+                });
+                
+                calendarDays.appendChild(day);
+            }
+        }
+        
+        // 更新記錄顯示
+        function updateRecords(dateStr) {
+            const records = recordsByDate[dateStr];
+            
+            if (!records) {
+                // 無記錄時顯示空狀態
+                document.getElementById('selectedDate').textContent = `無記錄`;
+                document.getElementById('completionRate').textContent = '0%';
+                document.getElementById('completionBar').style.width = '0%';
+                document.getElementById('completionStats').textContent = '無打卡記錄';
+                document.getElementById('completionPercentage').textContent = '0%';
+                
+                document.getElementById('routeRecords').innerHTML = '<div class="text-gray-500 text-center py-4">無記錄</div>';
+                return;
+            }
+            
+            // 更新日期和完成率
+            document.getElementById('selectedDate').textContent = records.date;
+            document.getElementById('completionRate').textContent = records.stats.rate;
+            document.getElementById('completionBar').style.width = records.stats.rate;
+            document.getElementById('completionStats').textContent = `已完成 ${records.stats.completed}/${records.stats.completed + records.stats.pending} 個打卡點`;
+            document.getElementById('completionPercentage').textContent = records.stats.rate;
+            
+            // 收集當天所有記錄並按巡邏路線分組
+            const allRecords = [...records.morning, ...records.afternoon, ...records.evening];
+            const routeGroups = {};
+            
+            // 將記錄分組到不同的路線
+            allRecords.forEach(record => {
+                if (!routeGroups[record.route]) {
+                    routeGroups[record.route] = [];
+                }
+                routeGroups[record.route].push(record);
+            });
+            
+            // 生成按路線分組的 HTML
+            const routeRecordsContainer = document.getElementById('routeRecords');
+            routeRecordsContainer.innerHTML = '';
+            
+            // 檢查是否有記錄
+            if (Object.keys(routeGroups).length === 0) {
+                routeRecordsContainer.innerHTML = '<div class="text-gray-500 text-center py-4">當日無打卡記錄</div>';
+                return;
+            }
+            
+            // 為每個路線生成區塊
+            Object.keys(routeGroups).forEach(route => {
+                const routeDiv = document.createElement('div');
+                routeDiv.className = 'time-slot mb-6';
+                
+                // 計算路線完成率
+                const totalCheckpoints = routeGroups[route].length;
+                const completedCheckpoints = routeGroups[route].filter(cp => cp.status === '已打卡').length;
+                const completionRate = Math.round((completedCheckpoints / totalCheckpoints) * 100);
+                
+                // 建立路線標題 - 使用新樣式但保留原有類別
+                const routeHeader = document.createElement('div');
+                routeHeader.className = 'time-slot-header route-header';
+                routeHeader.innerHTML = `
+                    <div class="route-title">${route}</div>
+                    <div class="route-description">${completedCheckpoints}/${totalCheckpoints} 個打卡點完成 (${completionRate}%)</div>
+                `;
+                routeDiv.appendChild(routeHeader);
+                
+                // 建立記錄容器
+                const routeRecordsDiv = document.createElement('div');
+                routeRecordsDiv.className = 'route-records';
+                
+                // 為每個檢查點創建卡片
+                routeGroups[route].forEach(checkpoint => {
+                    // 根據狀態確定樣式
+                    let statusClass = '';
+                    let statusIcon = '';
+                    
+                    if (checkpoint.status === '已打卡') {
+                        statusClass = 'status-completed';
+                        statusIcon = 'check-circle';
+                    } else if (checkpoint.status === '無法打卡') {
+                        statusClass = 'status-unable';
+                        statusIcon = 'exclamation-circle';
+                    } else {
+                        statusClass = 'status-pending';
+                        statusIcon = 'clock';
+                    }
+                    
+                    // 創建檢查點卡片 HTML
+                    const checkpointCard = document.createElement('div');
+                    checkpointCard.className = 'checkpoint-item';
+                    
+                    // 檢查點頭部
+                    let headerHTML = `
+                        <div class="checkpoint-header">
+                            <div>
+                                <div class="checkpoint-title">${checkpoint.location}</div>
+                                <div class="checkpoint-info">${checkpoint.time}</div>
+                            </div>
+                            <div class="checkpoint-status-badge ${statusClass}">
+                                <i class="fas fa-${statusIcon} mr-1"></i>
+                                ${checkpoint.status}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 如果有備註或原因，添加備註部分
+                    let noteHTML = '';
+                    if (checkpoint.reason || checkpoint.note) {
+                        noteHTML = `
+                            <div class="checkpoint-note">
+                                ${checkpoint.reason ? `<div class="mb-2"><strong>原因：</strong> ${checkpoint.reason}</div>` : ''}
+                                ${checkpoint.note ? `<div><strong>備註：</strong> ${checkpoint.note}</div>` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    // 如果有圖片，添加圖片部分
+                    let imagesHTML = '';
+                    if (checkpoint.image) {
+                        imagesHTML = `
+                            <div class="checkpoint-images">
+                                <div class="checkpoint-image-item" onclick="openImageViewer('${checkpoint.image}')">
+                                    <img src="${checkpoint.image}" alt="現場照片">
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 組合完整的檢查點卡片
+                    checkpointCard.innerHTML = headerHTML + imagesHTML + noteHTML;
+                    routeRecordsDiv.appendChild(checkpointCard);
+                });
+                
+                routeDiv.appendChild(routeRecordsDiv);
+                routeRecordsContainer.appendChild(routeDiv);
+            });
+        }
+        
+        // 更新用戶信息
+        function updateUserInfo() {
+            // 從 localStorage 中獲取用戶角色
+            const userRole = localStorage.getItem('userRole') || 'guest';
+            const username = localStorage.getItem('username') || '訪客';
+            
+            // 根據用戶角色設置不同的顯示文字
+            let userRoleText = '';
+            let userName = '';
+            
+            if (userRole === 'admin') {
+                userRoleText = '管理員 A001';
+                userName = '管理員';
+            } else {
+                userRoleText = '警衛編號 G001';
+                userName = username === '訪客' ? '張小明' : username;
+            }
+            
+            // 更新界面顯示
+            document.getElementById('currentUserName').textContent = userName;
+            document.getElementById('currentUserRole').textContent = userRoleText;
+        }
+        
+        function openImageViewer(imageSrc) {
+            const viewer = document.getElementById('imageViewer');
+            const viewerImage = document.getElementById('viewerImage');
+            
+            viewerImage.src = imageSrc;
+            viewer.classList.add('active');
+            
+            // 防止背景滾動
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeImageViewer() {
+            const viewer = document.getElementById('imageViewer');
+            viewer.classList.remove('active');
+            
+            // 恢復背景滾動
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 點擊圖片檢視器外部關閉
+        document.getElementById('imageViewer').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageViewer();
+            }
+        });
+        
+        // ESC 鍵關閉圖片檢視器
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('imageViewer').classList.contains('active')) {
+                closeImageViewer();
+            }
+        });
+    </script>
+</body>
+</html> 

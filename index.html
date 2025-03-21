@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全室巡捕系統</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #f5f5f7;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .main-title {
+            color: #1d1d1f;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+        .subtitle {
+            color: #6e6e73;
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .prototype-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+        .page-btn {
+            transition: all 0.2s ease;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
+        }
+        .page-btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.2);
+        }
+        .page-btn:active {
+            transform: translateY(0);
+        }
+        .feature-card {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .feature-icon {
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ebf5ff;
+            color: #3b82f6;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto py-12 px-4">
+        <div class="text-center mb-10">
+            <h1 class="main-title">安全室巡捕系統</h1>
+            <p class="subtitle">優化保安巡邏管理與記錄的智能解決方案</p>
+        </div>
+        
+        <div class="prototype-container">
+            <div class="flex flex-col lg:flex-row">
+                <!-- iPhone 16 Pro Max 模擬器 -->
+                <div class="iphone-container flex-grow-0 flex-shrink-0 mx-auto mb-10 lg:mb-0 lg:mr-10">
+                    <div class="iphone-frame">
+                        <!-- 動態島 -->
+                        <div class="dynamic-island">
+                            <div class="dynamic-island-capsule">
+                                <div class="dynamic-island-camera"></div>
+                                <div class="dynamic-island-sensor"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 內容區域 -->
+                        <div class="screen-content">
+                            <iframe id="content-frame" src="login.html" frameborder="0"></iframe>
+                        </div>
+                        
+                        <!-- 底部導航欄 - iOS UITabBarController 風格 -->
+                        <div class="ios-tab-bar" id="bottom-nav">
+                            <div class="tab-item active" data-target="home.html">
+                                <i class="fas fa-route"></i>
+                                <span>巡邏</span>
+                            </div>
+                            <div class="tab-item" data-target="profile.html">
+                                <i class="fas fa-history"></i>
+                                <span>我的紀錄</span>
+                            </div>
+                            <div class="tab-item" data-target="admin.html">
+                                <i class="fas fa-user-shield"></i>
+                                <span>管理</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Home Indicator -->
+                        <div class="home-indicator"></div>
+                    </div>
+                </div>
+                
+                <!-- 功能說明與頁面導航 -->
+                <div class="flex-grow">
+                    <h2 class="text-2xl font-bold mb-6">系統功能</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">NFC/QR碼打卡</h3>
+                            <p class="text-gray-600">支援多種打卡方式，確保巡邏人員到達指定地點</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">巡邏記錄管理</h3>
+                            <p class="text-gray-600">詳細記錄每次巡邏情況，方便日後查詢和分析</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">路線規劃</h3>
+                            <p class="text-gray-600">自定義巡邏路線和檢查點，提高工作效率</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2">數據統計</h3>
+                            <p class="text-gray-600">自動生成巡邏報告，提供數據分析和圖表</p>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold mb-4">頁面導航</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button class="page-btn" data-page="login.html">
+                            <i class="fas fa-sign-in-alt mr-2"></i>登入頁面
+                        </button>
+                        <button class="page-btn" data-page="home.html">
+                            <i class="fas fa-route mr-2"></i>巡邏頁面
+                        </button>
+                        <button class="page-btn" data-page="profile.html">
+                            <i class="fas fa-history mr-2"></i>巡查紀錄
+                        </button>
+                        <button class="page-btn" data-page="admin.html">
+                            <i class="fas fa-user-shield mr-2"></i>管理頁面
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-12 text-gray-500 text-sm">
+            <p>版本 1.0.0 | 安全室巡捕系統原型示範</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.tab-item');
+            const contentFrame = document.getElementById('content-frame');
+            const bottomNav = document.getElementById('bottom-nav');
+            
+            // 初始化時隱藏底部導航欄（因為初始頁面是登入頁面）
+            bottomNav.classList.add('hidden');
+            
+            // 監聽 iframe 的加載事件
+            contentFrame.addEventListener('load', function() {
+                // 檢查當前頁面是否為登入頁面
+                const isLoginPage = contentFrame.src.includes('login.html');
+                if (isLoginPage) {
+                    bottomNav.classList.add('hidden');
+                } else {
+                    bottomNav.classList.remove('hidden');
+                }
+            });
+            
+            // 監聽來自 iframe 的訊息
+            window.addEventListener('message', function(event) {
+                console.log('Message received from iframe:', event.data);
+                
+                // 處理登入成功的訊息
+                if (event.data && event.data.type === 'login_success') {
+                    const userRole = event.data.userRole;
+                    const redirectPage = event.data.redirect || 'home.html';
+                    
+                    // 導航到指定頁面
+                    contentFrame.src = redirectPage;
+                    
+                    // 顯示底部導航欄
+                    bottomNav.classList.remove('hidden');
+                    
+                    // 如果是訪客用戶，隱藏管理選項
+                    if (userRole === 'guest') {
+                        const adminNav = bottomNav.querySelector('[data-target="admin.html"]');
+                        if (adminNav) {
+                            adminNav.style.display = 'none';
+                        }
+                    }
+                    
+                    // 更新導航欄激活狀態
+                    navItems.forEach(navItem => {
+                        if (navItem.getAttribute('data-target') === redirectPage) {
+                            navItem.classList.add('active');
+                        } else {
+                            navItem.classList.remove('active');
+                        }
+                    });
+                    
+                    console.log(`Login successful: ${userRole}, redirected to ${redirectPage}`);
+                }
+                
+                // 處理登出訊息
+                if (event.data && event.data.type === 'logout') {
+                    // 清除用戶角色
+                    localStorage.removeItem('userRole');
+                    
+                    // 導航到登入頁面
+                    contentFrame.src = 'login.html';
+                    
+                    // 隱藏底部導航欄
+                    bottomNav.classList.add('hidden');
+                    
+                    console.log('User logged out, redirected to login page');
+                }
+            });
+            
+            // 導航欄點擊事件
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    contentFrame.src = target;
+                    
+                    // 更新激活狀態
+                    navItems.forEach(navItem => navItem.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 檢視按鈕點擊事件
+            const pageBtns = document.querySelectorAll('.page-btn');
+            
+            pageBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const target = this.getAttribute('data-page');
+                    contentFrame.src = target;
+                    
+                    // 更新導航欄激活狀態
+                    navItems.forEach(navItem => {
+                        if (navItem.getAttribute('data-target') === target) {
+                            navItem.classList.add('active');
+                        } else {
+                            navItem.classList.remove('active');
+                        }
+                    });
+                    
+                    // 如果切換到登入頁面，隱藏底部導航欄
+                    if (target === 'login.html') {
+                        bottomNav.classList.add('hidden');
+                    } else {
+                        bottomNav.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

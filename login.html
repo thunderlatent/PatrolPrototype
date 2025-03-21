@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - 安全室巡捕系統</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #f5f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        /* 適配動態島的登入頁面樣式 */
+        .login-page {
+            padding: 60px 20px 20px 20px; /* 上方增加間距避開動態島 */
+            max-width: 100%;
+            box-sizing: border-box;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        /* 確保內容在 iPhone 框架內正確顯示 */
+        .login-page::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- iPhone 16 Pro Max 容器 -->
+    <div class="iphone-container">
+        <div class="iphone-frame">
+            <!-- 動態島 -->
+            <div class="dynamic-island">
+                <div class="dynamic-island-capsule">
+                    <div class="dynamic-island-camera"></div>
+                    <div class="dynamic-island-sensor"></div>
+                </div>
+            </div>
+            
+            <!-- 內容區域 -->
+            <div class="screen-content">
+                <div class="login-page">
+                    <div class="pt-10 pb-6 text-center">
+                        <div class="mx-auto w-24 h-24 rounded-2xl bg-blue-500 flex items-center justify-center mb-4">
+                            <i class="fas fa-shield-alt text-white text-4xl"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold">安全室巡捕系統</h1>
+                        <p class="text-gray-500 mt-2">請登入以繼續</p>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <!-- 登入錯誤提示 -->
+                        <div id="loginError" class="mb-4 bg-red-50 text-red-600 p-3 rounded-lg flex items-center" style="display: none;">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            <span id="errorMessage">帳號或密碼錯誤，請重新輸入</span>
+                        </div>
+                        
+                        <form id="loginForm">
+                            <div class="mb-4">
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">帳號</label>
+                                <input type="text" id="username" name="username" class="input" placeholder="請輸入您的帳號">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密碼</label>
+                                <input type="password" id="password" name="password" class="input" placeholder="請輸入您的密碼">
+                            </div>
+                            
+                            <div class="network-status bg-yellow-50 p-3 rounded-lg mb-6 flex items-center" id="offlineWarning" style="display: none;">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                <span class="text-sm text-yellow-700">您目前處於離線狀態，部分功能可能受限</span>
+                            </div>
+                            
+                            <button type="submit" id="loginBtn" class="btn w-full">
+                                <span class="mr-2">登入系統</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </form>
+                        
+                        <div class="mt-6 text-center">
+                            <button id="guestLoginBtn" class="text-blue-500 text-sm">
+                                <i class="fas fa-user mr-1"></i> 訪客模式
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Home Indicator -->
+            <div class="home-indicator"></div>
+        </div>
+    </div>
+
+    <script>
+        // 檢測是否離線
+        function checkOnlineStatus() {
+            const isOnline = navigator.onLine;
+            const offlineWarning = document.getElementById('offlineWarning');
+            
+            if (!isOnline) {
+                offlineWarning.style.display = 'flex';
+            } else {
+                offlineWarning.style.display = 'none';
+            }
+        }
+        
+        // 監聽網絡狀態變化
+        window.addEventListener('online', checkOnlineStatus);
+        window.addEventListener('offline', checkOnlineStatus);
+        
+        // 頁面加載時檢查
+        window.addEventListener('DOMContentLoaded', checkOnlineStatus);
+        
+        // 模擬登入功能
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // 簡單的驗證
+            if (username === 'admin' && password === 'admin123') {
+                // 儲存用戶角色
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('username', username);
+                
+                // 發送消息到父頁面
+                window.parent.postMessage({
+                    type: 'login_success',
+                    userRole: 'admin',
+                    redirect: 'home.html'
+                }, '*');
+                
+            } else if (username === 'guard' && password === 'guard123') {
+                // 儲存用戶角色
+                localStorage.setItem('userRole', 'guard');
+                localStorage.setItem('username', username);
+                
+                // 發送消息到父頁面
+                window.parent.postMessage({
+                    type: 'login_success',
+                    userRole: 'guard',
+                    redirect: 'home.html'
+                }, '*');
+                
+            } else {
+                // 顯示錯誤
+                const loginError = document.getElementById('loginError');
+                loginError.style.display = 'flex';
+                
+                // 5秒後隱藏錯誤
+                setTimeout(function() {
+                    loginError.style.display = 'none';
+                }, 5000);
+            }
+        });
+        
+        // 訪客登入
+        document.getElementById('guestLoginBtn').addEventListener('click', function() {
+            // 儲存用戶角色
+            localStorage.setItem('userRole', 'guest');
+            localStorage.setItem('username', '訪客');
+            
+            // 發送消息到父頁面
+            window.parent.postMessage({
+                type: 'login_success',
+                userRole: 'guest',
+                redirect: 'home.html'
+            }, '*');
+        });
+    </script>
+</body>
+</html> 

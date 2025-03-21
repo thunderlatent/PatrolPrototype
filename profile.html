@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的紀錄 - 安全室巡檢系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .page-container {
+            max-width: 430px; /* 調整為 iPhone 16 Pro Max 寬度 */
+            margin: 0 auto;
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 60px 20px 100px 20px; /* 上方增加間距避開動態島 */
+            box-sizing: border-box;
+        }
+        
+        /* 隱藏滾動條但保持功能 */
+        .page-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Calendar style fixes */
+        .calendar-overlay {
+            z-index: 50;
+        }
+        
+        /* 日曆樣式 */
+        .calendar {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-header {
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            padding: 10px;
+            text-align: center;
+            background-color: #ffffff;
+        }
+        
+        .day-name {
+            font-size: 12px;
+            color: #6b7280;
+            padding: 8px 0;
+        }
+        
+        .day {
+            padding: 12px 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .day:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .day.active {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+        }
+        
+        .day.today {
+            font-weight: bold;
+            border: 2px solid #3b82f6;
+        }
+        
+        /* 有記錄的日期添加圓點指示器 */
+        .day.has-record:after {
+            content: "";
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+        }
+        
+        .time-slots {
+            margin-top: 24px;
+        }
+        
+        .time-slot {
+            margin-bottom: 24px;
+        }
+        
+        /* 改進的時段標題樣式 */
+        .time-slot-header {
+            background-color: #f0f7ff;
+            padding: 14px 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* 選中日期顯示 */
+        #selectedDate {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding: 8px 0;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 圖片查看器 */
+        .image-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .image-viewer.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .image-viewer img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .image-viewer .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        /* 改進的檢查點卡片樣式 */
+        .checkpoint-item {
+            background-color: white;
+            border-radius: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .checkpoint-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        .checkpoint-item .border-green-200 {
+            border-left: 4px solid #10B981 !important;
+        }
+
+        .checkpoint-item .border-yellow-200 {
+            border-left: 4px solid #F59E0B !important;
+        }
+
+        .checkpoint-item .border-gray-200 {
+            border-left: 4px solid #9CA3AF !important;
+        }
+
+        /* 改進的狀態標籤樣式 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .text-green-500.font-medium {
+            color: #10B981;
+            background-color: #ECFDF5;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .text-yellow-500.font-medium {
+            color: #F59E0B;
+            background-color: #FEF3C7;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .text-gray-500.font-medium {
+            color: #6B7280;
+            background-color: #F3F4F6;
+            border: 1px solid rgba(107, 114, 128, 0.2);
+        }
+        
+        /* 空間間距類 */
+        .space-y-3 > * {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
+        }
+        
+        .space-x-3 > * {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        
+        .space-x-3 > * + * {
+            margin-left: 0.75rem;
+        }
+        
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        /* "今天"按鈕樣式優化 */
+        #todayBtn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        #todayBtn:hover {
+            background-color: #2563eb;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* 進度條美化 */
+        .bg-gray-200 {
+            background-color: #f3f4f6;
+            height: 6px;
+            border-radius: 99px;
+        }
+
+        .bg-blue-500 {
+            background-color: #3b82f6;
+            border-radius: 99px;
+            transition: width 0.5s ease;
+        }
+
+        /* 標題區域美化 */
+        .page-title-container {
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+        }
+        
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1c1c1e;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title .title-icon {
+            margin-right: 10px;
+            width: 32px;
+            height: 32px;
+            background-color: #ebf5ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+            font-size: 16px;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-subtitle .user-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            color: #4b5563;
+            font-size: 12px;
+        }
+        
+        /* 動畫效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+        
+        .calendar-item:hover {
+            background-color: #ebf5ff;
+            color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="page-container">
+        <!-- 頁面標題 -->
+        <div class="page-title-container">
+            <div class="page-title">
+                <div class="title-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div>我的巡查紀錄</div>
+            </div>
+            <div class="page-subtitle">
+                <div class="user-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div id="userInfo">警衛 #12345</div>
+            </div>
+        </div>
+        
+        <!-- 日曆區域 -->
+        <div class="calendar-section mb-6 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-lg font-semibold text-gray-800">選擇日期</h2>
+                <button id="todayBtn" class="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all flex items-center">
+                    <i class="fas fa-calendar-day mr-1.5"></i>今天
+                </button>
+            </div>
+            <div class="calendar mb-6">
+                <div class="calendar-header">
+                    <div class="flex justify-between items-center">
+                        <button id="prevMonth" class="text-white hover:bg-blue-600 p-1 rounded-full transition-all">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div id="currentMonth" class="tracking-wide">2025年3月</div>
+                        <button id="nextMonth" class="text-white hover:bg-blue-600 p-1 rounded-full transition-all">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-days" id="calendarDays">
+                    <!-- 日曆內容由 JavaScript 填充 -->
+                </div>
+            </div>
+            
+            <!-- 選中日期顯示 -->
+            <div id="selectedDate" class="text-lg font-bold flex items-center mb-4">
+                <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
+                <span>2025年3月17日（週一）</span>
+            </div>
+        </div>
+        
+        <!-- 統計卡片 -->
+        <div id="statsCard" class="stats-card mb-6 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="flex justify-between items-center mb-3">
+                <div class="text-gray-600">今日完成進度</div>
+                <div class="font-bold text-lg" id="progressPercentage">0%</div>
+            </div>
+            <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-blue-500 h-full" id="progressBar" style="width: 0%;"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 mt-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600 mb-1" id="totalCount">0</div>
+                    <div class="text-xs text-gray-500">今日總巡查</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-emerald-600 mb-1" id="completedCount">0</div>
+                    <div class="text-xs text-gray-500">已完成</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-yellow-600 mb-1" id="pendingCount">0</div>
+                    <div class="text-xs text-gray-500">未完成</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 記錄列表 -->
+        <div id="recordsList" class="fade-in-up" style="animation-delay: 0.3s;">
+            <!-- 記錄卡片由 JavaScript 產生 -->
+        </div>
+        
+        <!-- 無記錄提示 -->
+        <div id="noRecords" class="text-center py-10 text-gray-500 hidden fade-in-up" style="animation-delay: 0.3s;">
+            <i class="fas fa-clipboard-list text-4xl mb-4"></i>
+            <div class="text-lg font-medium">當日無巡查記錄</div>
+            <div class="text-sm mt-2">請選擇其他日期查看</div>
+        </div>
+    </div>
+
+    <!-- 圖片查看器 -->
+    <div class="image-viewer" id="imageViewer">
+        <div class="close-button" onclick="closeImageViewer()">
+            <i class="fas fa-times"></i>
+        </div>
+        <img id="viewerImage" src="" alt="圖片查看">
+    </div>
+
+    <script>
+        // 打卡記錄數據
+        const recordsByDate = {
+            '2025-03-17': {
+                date: '2025年3月17日（週一）',
+                stats: {
+                    completed: 6,
+                    pending: 4,
+                    rate: '60%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '09:15',
+                            route: 'A棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '無異常情況',
+                            images: ['https://via.placeholder.com/100?text=Photo1']
+                        },
+                        {
+                            time: '10:30',
+                            route: 'B棟上午巡邏路線',
+                            status: 'unable',
+                            notes: '電梯故障無法到達檢查點',
+                            images: ['https://via.placeholder.com/100?text=Photo2', 'https://via.placeholder.com/100?text=Photo3']
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '14:20',
+                            route: 'C棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '安全通道正常',
+                            images: []
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '19:45',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'pending',
+                            notes: '',
+                            images: []
+                        }
+                    ]
+                }
+            },
+            '2025-03-16': {
+                date: '2025年3月16日（週日）',
+                stats: {
+                    completed: 8,
+                    pending: 2,
+                    rate: '80%'
+                },
+                records: {
+                    '上午巡查': [
+                        {
+                            time: '09:00',
+                            route: 'A棟上午巡邏路線',
+                            status: 'completed',
+                            notes: '設備檢查正常',
+                            images: ['https://via.placeholder.com/100?text=Photo1']
+                        }
+                    ],
+                    '下午巡查': [
+                        {
+                            time: '13:30',
+                            route: 'B棟下午巡邏路線',
+                            status: 'completed',
+                            notes: '門禁系統運作正常',
+                            images: []
+                        },
+                        {
+                            time: '15:45',
+                            route: 'C棟下午巡邏路線',
+                            status: 'unable',
+                            notes: '施工中無法進入',
+                            images: ['https://via.placeholder.com/100?text=Photo2']
+                        }
+                    ],
+                    '晚間巡查': [
+                        {
+                            time: '20:15',
+                            route: 'A棟晚間巡邏路線',
+                            status: 'completed',
+                            notes: '夜間巡邏一切正常',
+                            images: []
+                        }
+                    ]
+                }
+            }
+        };
+        
+        // 當前選中日期
+        let currentDate = '2025-03-17';
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCalendar();
+            updateRecords(currentDate);
+            
+            // 更新當前登入用戶信息
+            updateUserInfo();
+            
+            // 今天按鈕點擊
+            document.getElementById('todayBtn').addEventListener('click', function() {
+                // 在實際應用中，這裡會獲取今天的日期
+                // 這裡使用預設日期作為演示
+                currentDate = '2025-03-17';
+                updateCalendar();
+                updateRecords(currentDate);
+            });
+            
+            // 月份導航
+            document.getElementById('prevMonth').addEventListener('click', function() {
+                // 模擬月份切換，實際應用中需要真實的日期處理
+                document.getElementById('currentMonth').textContent = '2025年2月';
+                
+                // 可以在這裡添加更新日曆的代碼
+                // 實際應用中需要重新生成日曆數據
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', function() {
+                // 模擬月份切換，實際應用中需要真實的日期處理
+                document.getElementById('currentMonth').textContent = '2025年4月';
+                
+                // 可以在這裡添加更新日曆的代碼
+                // 實際應用中需要重新生成日曆數據
+            });
+        });
+        
+        // 更新日曆
+        function updateCalendar() {
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+            
+            // 添加星期標頭
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekdays.forEach(day => {
+                const dayName = document.createElement('div');
+                dayName.className = 'day-name';
+                dayName.textContent = day;
+                calendarDays.appendChild(dayName);
+            });
+            
+            // 填充日期，這裡簡化為只顯示3月份（實際應用應根據真實日曆生成）
+            const daysInMonth = 31;
+            const firstDay = 6; // 3/1/2025是星期六，所以偏移是6
+            
+            // 添加空白格
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // 填充日期
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.className = 'day';
+                day.textContent = i;
+                
+                // 判斷是否為當前選中日期
+                const dateStr = `2025-03-${i.toString().padStart(2, '0')}`;
+                if (dateStr === currentDate) {
+                    day.classList.add('active');
+                }
+                
+                // 判斷是否有記錄
+                if (recordsByDate[dateStr]) {
+                    day.classList.add('has-record');
+                }
+                
+                // 添加點擊事件
+                day.addEventListener('click', function() {
+                    // 更新選中樣式
+                    document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+                    day.classList.add('active');
+                    
+                    // 更新當前日期並刷新記錄
+                    currentDate = dateStr;
+                    updateRecords(currentDate);
+                    
+                    // 添加點擊動畫效果
+                    this.classList.add('scale-105');
+                    setTimeout(() => {
+                        this.classList.remove('scale-105');
+                    }, 200);
+                });
+                
+                calendarDays.appendChild(day);
+            }
+        }
+        
+        // 更新記錄
+        function updateRecords(date) {
+            const dateKey = date.toISOString().split('T')[0];
+            const records = recordsByDate[dateKey];
+            
+            if (!records) {
+                // 無記錄時顯示空狀態
+                document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>無記錄</span>`;
+                document.getElementById('progressPercentage').textContent = '0%';
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('totalCount').textContent = '0';
+                document.getElementById('completedCount').textContent = '0';
+                document.getElementById('pendingCount').textContent = '0';
+                
+                // 顯示無記錄提示
+                document.getElementById('recordsList').innerHTML = '';
+                document.getElementById('noRecords').classList.remove('hidden');
+                return;
+            }
+            
+            // 隱藏無記錄提示
+            document.getElementById('noRecords').classList.add('hidden');
+            
+            // 更新日期和完成率
+            document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>${records.date}</span>`;
+            document.getElementById('progressPercentage').textContent = records.stats.rate;
+            document.getElementById('progressBar').style.width = records.stats.rate;
+            document.getElementById('totalCount').textContent = records.stats.completed + records.stats.pending;
+            document.getElementById('completedCount').textContent = records.stats.completed;
+            document.getElementById('pendingCount').textContent = records.stats.pending;
+            
+            // 收集當天所有記錄並按巡邏路線分組
+            const recordsByTimeSlot = records.records;
+            
+            // 生成按路線分組的 HTML
+            const recordsContainer = document.getElementById('recordsList');
+            recordsContainer.innerHTML = '';
+            
+            // 遍歷每個時段
+            for (const timeSlot in recordsByTimeSlot) {
+                const timeSlotRecords = recordsByTimeSlot[timeSlot];
+                
+                // 時段標題
+                const timeSlotHeader = document.createElement('div');
+                timeSlotHeader.className = 'time-slot-header mb-4';
+                timeSlotHeader.innerHTML = `
+                    <div class="font-medium">${timeSlot}</div>
+                    <div class="text-sm text-gray-500">${timeSlotRecords.length} 個巡邏紀錄</div>
+                `;
+                recordsContainer.appendChild(timeSlotHeader);
+                
+                // 添加每條記錄
+                timeSlotRecords.forEach(record => {
+                    const recordCard = document.createElement('div');
+                    recordCard.className = 'checkpoint-card mb-4';
+                    
+                    // 狀態樣式
+                    let statusClass = 'status-pending';
+                    let statusText = '未巡查';
+                    let statusIcon = '<i class="fas fa-clock mr-1"></i>';
+                    
+                    if (record.status === 'completed') {
+                        statusClass = 'status-completed';
+                        statusText = '已完成';
+                        statusIcon = '<i class="fas fa-check-circle mr-1"></i>';
+                    } else if (record.status === 'unable') {
+                        statusClass = 'status-unable';
+                        statusText = '無法完成';
+                        statusIcon = '<i class="fas fa-exclamation-circle mr-1"></i>';
+                    }
+                    
+                    recordCard.innerHTML = `
+                        <div class="checkpoint-header">
+                            <div>
+                                <div class="checkpoint-title">${record.route}</div>
+                                <div class="checkpoint-status ${statusClass}">
+                                    ${statusIcon}
+                                    ${statusText}
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-400">${record.time}</div>
+                        </div>
+                        <div class="checkpoint-info">
+                            ${record.notes ? `
+                                <div class="text-sm mb-2">
+                                    <span class="text-gray-600 font-medium">備註：</span>${record.notes}
+                                </div>
+                            ` : ''}
+                            ${record.images && record.images.length > 0 ? `
+                                <div class="flex flex-wrap gap-2 mt-3">
+                                    ${record.images.map(img => `
+                                        <div class="w-16 h-16 relative rounded-lg overflow-hidden" onclick="showFullScreenImage('${img}')">
+                                            <img src="${img}" class="w-full h-full object-cover" alt="照片">
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    recordsContainer.appendChild(recordCard);
+                });
+            }
+        }
+        
+        // 更新用戶信息
+        function updateUserInfo() {
+            // 從 localStorage 中獲取用戶角色
+            const userRole = localStorage.getItem('userRole') || 'guest';
+            const username = localStorage.getItem('username') || '訪客';
+            
+            // 根據用戶角色設置不同的顯示文字
+            let userRoleText = '';
+            let userName = '';
+            
+            if (userRole === 'admin') {
+                userRoleText = '管理員 A001';
+                userName = '管理員';
+            } else {
+                userRoleText = '警衛編號 G001';
+                userName = username === '訪客' ? '張小明' : username;
+            }
+            
+            // 更新界面顯示
+            document.getElementById('userInfo').textContent = userRoleText;
+        }
+        
+        function openImageViewer(imageSrc) {
+            const viewer = document.getElementById('imageViewer');
+            const viewerImage = document.getElementById('viewerImage');
+            
+            viewerImage.src = imageSrc;
+            viewer.classList.add('active');
+            
+            // 防止背景滾動
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeImageViewer() {
+            const viewer = document.getElementById('imageViewer');
+            viewer.classList.remove('active');
+            
+            // 恢復背景滾動
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 點擊圖片檢視器外部關閉
+        document.getElementById('imageViewer').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageViewer();
+            }
+        });
+        
+        // ESC 鍵關閉圖片檢視器
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('imageViewer').classList.contains('active')) {
+                closeImageViewer();
+            }
+        });
+        
+        // 顯示全螢幕圖片功能
+        function showFullScreenImage(imgSrc) {
+            const viewer = document.createElement('div');
+            viewer.className = 'form-overlay';
+            viewer.style.zIndex = '9999';
+            viewer.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            viewer.style.display = 'flex';
+            viewer.style.justifyContent = 'center';
+            viewer.style.alignItems = 'center';
+            viewer.style.flexDirection = 'column';
+            viewer.style.cursor = 'zoom-out';
+            
+            // 創建圖片元素
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.style.maxWidth = '90%';
+            img.style.maxHeight = '80vh';
+            img.style.objectFit = 'contain';
+            img.style.borderRadius = '8px';
+            img.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+            
+            // 創建關閉按鈕
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '<i class="fas fa-times"></i>';
+            closeButton.className = 'close-button';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '20px';
+            closeButton.style.right = '20px';
+            closeButton.style.background = 'rgba(0, 0, 0, 0.5)';
+            closeButton.style.color = 'white';
+            closeButton.style.border = 'none';
+            closeButton.style.borderRadius = '50%';
+            closeButton.style.width = '40px';
+            closeButton.style.height = '40px';
+            closeButton.style.fontSize = '20px';
+            closeButton.style.display = 'flex';
+            closeButton.style.alignItems = 'center';
+            closeButton.style.justifyContent = 'center';
+            closeButton.style.cursor = 'pointer';
+            
+            // 添加到視圖中
+            viewer.appendChild(img);
+            viewer.appendChild(closeButton);
+            document.body.appendChild(viewer);
+            
+            // 點擊關閉
+            viewer.addEventListener('click', function() {
+                document.body.removeChild(viewer);
+            });
+            
+            // 阻止圖片點擊事件冒泡
+            img.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // 關閉按鈕點擊事件
+            closeButton.addEventListener('click', function() {
+                document.body.removeChild(viewer);
+            });
+        }
+    </script>
+</body>
+</html> 
