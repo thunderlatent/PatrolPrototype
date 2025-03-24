@@ -237,23 +237,60 @@
             padding: 14px 16px;
         }
         
-        /* 空間間距類 */
-        .space-y-3 > * {
-            margin-top: 0;
-            margin-bottom: 0;
+        /* 新增：檢查點項目樣式 - 來自巡邏頁面 */
+        .checkpoint-item {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
-        .space-y-3 > * + * {
-            margin-top: 0.75rem;
+        .checkpoint-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
         
-        .space-x-3 > * {
-            margin-left: 0;
-            margin-right: 0;
+        /* 狀態標籤樣式 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13px;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+        
+        /* 新增：Flex 布局工具類 */
+        .flex {
+            display: flex;
+        }
+        
+        .flex-col {
+            flex-direction: column;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
         }
         
         .space-x-3 > * + * {
             margin-left: 0.75rem;
+        }
+        
+        .ml-auto {
+            margin-left: auto;
+        }
+        
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+        
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
         }
         
         .gap-2 {
@@ -460,476 +497,49 @@
     </div>
 
     <script>
-        // 打卡記錄數據
-        const recordsByDate = {
-            '2025-03-21': {
-                date: '2025年3月21日（週五）',
-                stats: {
-                    completed: 5,
-                    pending: 2,
-                    rate: '71%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '08:30',
-                            route: 'A棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常，所有門禁系統正常運作',
-                            images: ['https://via.placeholder.com/100?text=A棟照片1', 'https://via.placeholder.com/100?text=A棟照片2']
-                        },
-                        {
-                            time: '10:15',
-                            route: 'B棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '發現B2停車場有一台車未熄火，已通知管理處',
-                            images: ['https://via.placeholder.com/100?text=B棟照片']
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '13:45',
-                            route: 'C棟下午巡邏路線',
-                            status: 'unable',
-                            notes: 'C棟5樓施工中無法完成巡邏，已拍照記錄',
-                            images: ['https://via.placeholder.com/100?text=C棟施工']
-                        },
-                        {
-                            time: '15:30',
-                            route: 'D棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '一切正常',
-                            images: []
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '19:00',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '23樓有人員加班，已確認身份',
-                            images: []
-                        },
-                        {
-                            time: '20:45',
-                            route: 'B棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常，已確認所有出口安全門關閉',
-                            images: []
-                        },
-                        {
-                            time: '22:00',
-                            route: 'E棟晚間巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ]
-                }
-            },
-            '2025-03-22': {
-                date: '2025年3月22日（週六）',
-                stats: {
-                    completed: 3,
-                    pending: 4,
-                    rate: '43%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '09:00',
-                            route: 'A棟週末巡邏路線',
-                            status: 'completed',
-                            notes: '週末人員較少，巡邏順利',
-                            images: []
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '14:00',
-                            route: 'B棟週末巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        },
-                        {
-                            time: '16:30',
-                            route: 'C棟週末巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '19:30',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '特別檢查停車場和各大門',
-                            images: ['https://via.placeholder.com/100?text=停車場檢查']
-                        },
-                        {
-                            time: '21:00',
-                            route: 'D棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '22:30',
-                            route: 'E棟晚間巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ]
-                }
-            },
-            '2025-03-20': {
-                date: '2025年3月20日（週四）',
-                stats: {
-                    completed: 8,
-                    pending: 0,
-                    rate: '100%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '08:15',
-                            route: 'A棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常，所有設備運作良好',
-                            images: []
-                        },
-                        {
-                            time: '10:00',
-                            route: 'B棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '13:30',
-                            route: 'C棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '15:15',
-                            route: 'D棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '發現D棟3樓茶水間漏水，已通知維修',
-                            images: ['https://via.placeholder.com/100?text=漏水照片']
-                        },
-                        {
-                            time: '16:45',
-                            route: 'E棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '19:15',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '20:30',
-                            route: 'B棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '21:45',
-                            route: 'E棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常，所有門窗已確認鎖好',
-                            images: []
-                        }
-                    ]
-                }
-            },
-            '2025-03-19': {
-                date: '2025年3月19日（週三）',
-                stats: {
-                    completed: 6,
-                    pending: 1,
-                    rate: '86%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '08:45',
-                            route: 'A棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '10:30',
-                            route: 'B棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '有訪客參觀，協助引導',
-                            images: []
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '14:15',
-                            route: 'C棟下午巡邏路線',
-                            status: 'unable',
-                            notes: 'C棟電梯維修，無法到達部分樓層',
-                            images: ['https://via.placeholder.com/100?text=電梯維修']
-                        },
-                        {
-                            time: '15:45',
-                            route: 'D棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '18:30',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常，部分區域有加班人員',
-                            images: []
-                        },
-                        {
-                            time: '20:00',
-                            route: 'B棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '22:15',
-                            route: 'E棟晚間巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ]
-                }
-            },
-            '2025-03-18': {
-                date: '2025年3月18日（週二）',
-                stats: {
-                    completed: 7,
-                    pending: 2,
-                    rate: '78%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '08:20',
-                            route: 'A棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '發現A棟1樓走廊有垃圾未清理，已通知清潔人員',
-                            images: ['https://via.placeholder.com/100?text=垃圾照片']
-                        },
-                        {
-                            time: '09:45',
-                            route: 'B棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '13:15',
-                            route: 'C棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '14:50',
-                            route: 'D棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '16:30',
-                            route: 'E棟下午巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '18:50',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常，檢查防火門運作正常',
-                            images: []
-                        },
-                        {
-                            time: '20:15',
-                            route: 'B棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '巡邏正常',
-                            images: []
-                        },
-                        {
-                            time: '21:30',
-                            route: 'E棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '注意到E棟後門鎖有些松動，已記錄並通知維修',
-                            images: ['https://via.placeholder.com/100?text=門鎖照片']
-                        },
-                        {
-                            time: '22:45',
-                            route: 'F棟晚間巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ]
-                }
-            },
-            '2025-03-17': {
-                date: '2025年3月17日（週一）',
-                stats: {
-                    completed: 6,
-                    pending: 4,
-                    rate: '60%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '09:15',
-                            route: 'A棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '無異常情況',
-                            images: ['https://via.placeholder.com/100?text=Photo1']
-                        },
-                        {
-                            time: '10:30',
-                            route: 'B棟上午巡邏路線',
-                            status: 'unable',
-                            notes: '電梯故障無法到達檢查點',
-                            images: ['https://via.placeholder.com/100?text=Photo2', 'https://via.placeholder.com/100?text=Photo3']
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '14:20',
-                            route: 'C棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '安全通道正常',
-                            images: []
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '19:45',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'pending',
-                            notes: '',
-                            images: []
-                        }
-                    ]
-                }
-            },
-            '2025-03-16': {
-                date: '2025年3月16日（週日）',
-                stats: {
-                    completed: 8,
-                    pending: 2,
-                    rate: '80%'
-                },
-                records: {
-                    '上午巡查': [
-                        {
-                            time: '09:00',
-                            route: 'A棟上午巡邏路線',
-                            status: 'completed',
-                            notes: '設備檢查正常',
-                            images: ['https://via.placeholder.com/100?text=Photo1']
-                        }
-                    ],
-                    '下午巡查': [
-                        {
-                            time: '13:30',
-                            route: 'B棟下午巡邏路線',
-                            status: 'completed',
-                            notes: '門禁系統運作正常',
-                            images: []
-                        },
-                        {
-                            time: '15:45',
-                            route: 'C棟下午巡邏路線',
-                            status: 'unable',
-                            notes: '施工中無法進入',
-                            images: ['https://via.placeholder.com/100?text=Photo2']
-                        }
-                    ],
-                    '晚間巡查': [
-                        {
-                            time: '20:15',
-                            route: 'A棟晚間巡邏路線',
-                            status: 'completed',
-                            notes: '夜間巡邏一切正常',
-                            images: []
-                        }
-                    ]
-                }
-            }
-        };
+        // 全局變數
+        let selectedDate = new Date().toISOString().split('T')[0]; // 預設為今天 (YYYY-MM-DD)
         
-        // 當前選中日期
-        let currentDate = '2025-03-21';
-        
-        // 初始化
+        // 初始化頁面
         document.addEventListener('DOMContentLoaded', function() {
-            updateCalendar();
-            updateRecords(currentDate);
-            
             // 更新當前登入用戶信息
             updateUserInfo();
             
+            // 初始化日曆
+            updateCalendar();
+            
+            // 顯示今天的記錄（實際上是基於localStorage的路線數據）
+            updateRecords(selectedDate);
+            
             // 今天按鈕點擊
             document.getElementById('todayBtn').addEventListener('click', function() {
-                // 在實際應用中，這裡會獲取今天的日期
-                // 這裡使用預設日期作為演示
-                currentDate = '2025-03-21';  // 更新為當前模擬日期
-                updateCalendar();
-                updateRecords(currentDate);
+                selectedDate = new Date().toISOString().split('T')[0];
+                
+                // 更新日曆UI
+                document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
+                document.querySelector(`.day[data-date="${selectedDate}"]`)?.classList.add('active');
+                
+                // 更新記錄
+                updateRecords(selectedDate);
             });
             
             // 月份導航
             document.getElementById('prevMonth').addEventListener('click', function() {
-                // 模擬月份切換，實際應用中需要真實的日期處理
+                // 在實際應用中應該減少一個月
+                // 這裡僅作示範
                 document.getElementById('currentMonth').textContent = '2025年2月';
-                
-                // 可以在這裡添加更新日曆的代碼
-                // 實際應用中需要重新生成日曆數據
+                updateCalendar();
             });
             
             document.getElementById('nextMonth').addEventListener('click', function() {
-                // 模擬月份切換，實際應用中需要真實的日期處理
+                // 在實際應用中應該增加一個月
+                // 這裡僅作示範
                 document.getElementById('currentMonth').textContent = '2025年4月';
-                
-                // 可以在這裡添加更新日曆的代碼
-                // 實際應用中需要重新生成日曆數據
+                updateCalendar();
             });
         });
         
-        // 更新日曆
+        // 更新日曆 - 示範版本
         function updateCalendar() {
             const calendarDays = document.getElementById('calendarDays');
             calendarDays.innerHTML = '';
@@ -943,9 +553,13 @@
                 calendarDays.appendChild(dayName);
             });
             
-            // 填充日期，這裡簡化為只顯示3月份（實際應用應根據真實日曆生成）
+            // 從 localStorage 獲取路線數據，查找日期
+            const routeDates = getRouteRecordDates();
+            console.log('日曆中標記的日期：', routeDates); // 增加測試輸出，顯示標記日期
+            
+            // 示範用，簡化為只顯示 3 月份
             const daysInMonth = 31;
-            const firstDay = 6; // 3/1/2025是星期六，所以偏移是6
+            const firstDay = 6; // 3/1/2025 是星期六
             
             // 添加空白格
             for (let i = 0; i < firstDay; i++) {
@@ -960,14 +574,17 @@
                 day.className = 'day';
                 day.textContent = i;
                 
-                // 判斷是否為當前選中日期
+                // 生成完整日期字串 YYYY-MM-DD
                 const dateStr = `2025-03-${i.toString().padStart(2, '0')}`;
-                if (dateStr === currentDate) {
+                day.dataset.date = dateStr;
+                
+                // 判斷是否為當前選中日期
+                if (dateStr === selectedDate) {
                     day.classList.add('active');
                 }
                 
                 // 判斷是否有記錄
-                if (recordsByDate[dateStr]) {
+                if (routeDates.includes(dateStr)) {
                     day.classList.add('has-record');
                 }
                 
@@ -978,8 +595,8 @@
                     day.classList.add('active');
                     
                     // 更新當前日期並刷新記錄
-                    currentDate = dateStr;
-                    updateRecords(currentDate);
+                    selectedDate = dateStr;
+                    updateRecords(selectedDate);
                     
                     // 添加點擊動畫效果
                     this.classList.add('scale-105');
@@ -992,15 +609,84 @@
             }
         }
         
-        // 更新記錄
-        function updateRecords(date) {
-            // 修正：直接使用 date 參數作為 key，不需要調用 toISOString
-            const dateKey = date;
-            const records = recordsByDate[dateKey];
+        // 獲取路線記錄中包含的日期列表
+        function getRouteRecordDates() {
+            // 從 localStorage 中獲取路線狀態
+            const routeStatuses = getRouteStatusesFromLocalStorage();
+            // 如果沒有路線狀態資料，返回預設日期
+            if (Object.keys(routeStatuses).length === 0) {
+                return ['2025-03-24']; // 返回固定的測試日期
+            }
             
-            if (!records) {
+            // 用於儲存所有路線記錄的日期
+            const dates = new Set();
+            
+            // 遍歷所有路線狀態，提取日期
+            Object.entries(routeStatuses).forEach(([routeId, routeData]) => {
+                // 檢查是否有 createdAt 屬性，這可能包含建立日期
+                if (routeData.createdAt) {
+                    const createdDate = routeData.createdAt.split('T')[0]; // 提取 YYYY-MM-DD 部分
+                    dates.add(createdDate);
+                }
+                
+                // 也可以嘗試從路線 ID 中提取日期（如果 ID 包含日期信息）
+                // 例如: morning-a-2025-03-24 格式
+                const dateMatch = routeId.match(/\d{4}-\d{2}-\d{2}/);
+                if (dateMatch) {
+                    dates.add(dateMatch[0]);
+                }
+            });
+            
+            // 如果沒有找到任何日期，返回預設日期
+            if (dates.size === 0) {
+                return ['2025-03-24']; // 返回固定的測試日期
+            }
+            
+            return Array.from(dates);
+        }
+        
+        // 格式化日期顯示
+        function formatDateDisplay(dateStr) {
+            // 將 YYYY-MM-DD 格式轉換為顯示格式
+            // 示範版本，實際應該使用 Date 物件進行轉換
+            const dateParts = {
+                '2025-03-16': '2025年3月16日（週日）',
+                '2025-03-17': '2025年3月17日（週一）',
+                '2025-03-18': '2025年3月18日（週二）',
+                '2025-03-19': '2025年3月19日（週三）',
+                '2025-03-20': '2025年3月20日（週四）',
+                '2025-03-21': '2025年3月21日（週五）',
+                '2025-03-22': '2025年3月22日（週六）'
+            };
+            
+            return dateParts[dateStr] || '無日期顯示';
+        }
+        
+        // 從 localStorage 獲取路線狀態數據
+        function getRouteStatusesFromLocalStorage() {
+            const savedRouteStatuses = localStorage.getItem('routeStatuses');
+            
+            if (!savedRouteStatuses) {
+                console.log('未找到路線狀態數據');
+                return {};
+            }
+            
+            try {
+                return JSON.parse(savedRouteStatuses);
+            } catch (e) {
+                console.error('解析路線狀態數據時出錯:', e);
+                return {};
+            }
+        }
+        
+        // 更新記錄 - 從 localStorage 獲取路線數據
+        function updateRecords(date) {
+            // 從 localStorage 獲取路線狀態
+            const routeStatuses = getRouteStatusesFromLocalStorage();
+            
+            if (Object.keys(routeStatuses).length === 0) {
                 // 無記錄時顯示空狀態
-                document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>無記錄</span>`;
+                document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>${formatDateDisplay(date) || '無記錄'}</span>`;
                 document.getElementById('progressPercentage').textContent = '0%';
                 document.getElementById('progressBar').style.width = '0%';
                 document.getElementById('totalCount').textContent = '0';
@@ -1016,83 +702,215 @@
             // 隱藏無記錄提示
             document.getElementById('noRecords').classList.add('hidden');
             
-            // 更新日期和完成率
-            document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>${records.date}</span>`;
-            document.getElementById('progressPercentage').textContent = records.stats.rate;
-            document.getElementById('progressBar').style.width = records.stats.rate;
-            document.getElementById('totalCount').textContent = records.stats.completed + records.stats.pending;
-            document.getElementById('completedCount').textContent = records.stats.completed;
-            document.getElementById('pendingCount').textContent = records.stats.pending;
+            // 更新日期顯示
+            document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>${formatDateDisplay(date)}</span>`;
             
-            // 收集當天所有記錄並按巡邏路線分組
-            const recordsByTimeSlot = records.records;
+            // 計算總統計數據
+            let totalCheckpoints = 0;
+            let completedCheckpoints = 0;
+            let pendingCheckpoints = 0;
             
-            // 生成按路線分組的 HTML
+            // 統計每個路線的檢查點情況
+            Object.values(routeStatuses).forEach(route => {
+                if (route.checkpoints) {
+                    Object.values(route.checkpoints).forEach(checkpoint => {
+                        totalCheckpoints++;
+                        if (checkpoint.status === 'completed') {
+                            completedCheckpoints++;
+                        } else if (checkpoint.status === 'pending') {
+                            pendingCheckpoints++;
+                        }
+                    });
+                }
+            });
+            
+            // 計算完成率
+            const completionRate = totalCheckpoints > 0 ? Math.round((completedCheckpoints / totalCheckpoints) * 100) : 0;
+            
+            // 更新統計數據顯示
+            document.getElementById('progressPercentage').textContent = `${completionRate}%`;
+            document.getElementById('progressBar').style.width = `${completionRate}%`;
+            document.getElementById('totalCount').textContent = totalCheckpoints;
+            document.getElementById('completedCount').textContent = completedCheckpoints;
+            document.getElementById('pendingCount').textContent = pendingCheckpoints;
+            
+            // 生成記錄列表 HTML
             const recordsContainer = document.getElementById('recordsList');
             recordsContainer.innerHTML = '';
             
-            // 遍歷每個時段
-            for (const timeSlot in recordsByTimeSlot) {
-                const timeSlotRecords = recordsByTimeSlot[timeSlot];
+            // 按時段分類路線
+            const routesByTimeSlot = {
+                '上午巡查': [],
+                '下午巡查': [],
+                '晚間巡查': []
+            };
+            
+            // 遍歷所有路線狀態，按時段分類
+            Object.entries(routeStatuses).forEach(([routeId, routeData]) => {
+                const [timeSlot, building] = routeId.split('-');
+                
+                // 確定時段
+                let timeSlotName;
+                if (timeSlot === 'morning') {
+                    timeSlotName = '上午巡查';
+                } else if (timeSlot === 'afternoon') {
+                    timeSlotName = '下午巡查';
+                } else if (timeSlot === 'evening') {
+                    timeSlotName = '晚間巡查';
+                } else {
+                    timeSlotName = '其他時段';
+                }
+                
+                // 將路線添加到相應的時段中
+                routesByTimeSlot[timeSlotName].push({
+                    id: routeId,
+                    building: building.toUpperCase(),
+                    timeSlot: timeSlotName,
+                    status: routeData.status,
+                    checkpoints: routeData.checkpoints || {},
+                    uploaded: routeData.uploaded || false
+                });
+            });
+            
+            // 遍歷每個時段，生成路線卡片
+            for (const timeSlot in routesByTimeSlot) {
+                if (routesByTimeSlot[timeSlot].length === 0) continue; // 跳過無路線的時段
                 
                 // 時段標題
                 const timeSlotHeader = document.createElement('div');
                 timeSlotHeader.className = 'time-slot-header mb-4';
                 timeSlotHeader.innerHTML = `
+                    <i class="fas fa-clock mr-2 text-blue-500"></i>
                     <div class="font-medium">${timeSlot}</div>
-                    <div class="text-sm text-gray-500">${timeSlotRecords.length} 個巡邏紀錄</div>
+                    <div class="ml-auto text-sm text-gray-500">${routesByTimeSlot[timeSlot].length} 個巡邏路線</div>
                 `;
                 recordsContainer.appendChild(timeSlotHeader);
                 
-                // 添加每條記錄
-                timeSlotRecords.forEach(record => {
-                    const recordCard = document.createElement('div');
-                    recordCard.className = 'checkpoint-card mb-4';
+                // 生成此時段下的所有路線
+                routesByTimeSlot[timeSlot].forEach(route => {
+                    // 計算路線的檢查點完成情況
+                    const checkpointsTotal = Object.keys(route.checkpoints).length;
+                    const checkpointsCompleted = Object.values(route.checkpoints).filter(cp => cp.status === 'completed').length;
+                    const checkpointsUnable = Object.values(route.checkpoints).filter(cp => cp.status === 'unable').length;
+                    const progress = checkpointsTotal > 0 ? 
+                                    Math.round(((checkpointsCompleted + checkpointsUnable) / checkpointsTotal) * 100) : 0;
                     
-                    // 狀態樣式
-                    let statusClass = 'status-pending';
-                    let statusText = '未巡查';
-                    let statusIcon = '<i class="fas fa-clock mr-1"></i>';
-                    
-                    if (record.status === 'completed') {
-                        statusClass = 'status-completed';
-                        statusText = '已完成';
-                        statusIcon = '<i class="fas fa-check-circle mr-1"></i>';
-                    } else if (record.status === 'unable') {
-                        statusClass = 'status-unable';
-                        statusText = '無法完成';
-                        statusIcon = '<i class="fas fa-exclamation-circle mr-1"></i>';
-                    }
-                    
-                    recordCard.innerHTML = `
-                        <div class="checkpoint-header">
-                            <div>
-                                <div class="checkpoint-title">${record.route}</div>
-                                <div class="checkpoint-status ${statusClass}">
-                                    ${statusIcon}
-                                    ${statusText}
+                    // 創建路線卡片
+                const routeCard = document.createElement('div');
+                routeCard.className = 'p-4 bg-white rounded-lg shadow-sm mb-6';
+                
+                    // 路線卡片頭部 - 包含路線名稱、狀態和進度條
+                    let routeHeaderHtml = `
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="font-medium text-lg">${route.building} 棟巡邏路線</div>
+                                    <div class="text-gray-500 text-sm">${timeSlot}</div>
+                                </div>
+                                
+                                <!-- 顯示上傳狀態標籤 -->
+                                ${route.uploaded ? 
+                                    `<div class="upload-status status-uploaded ml-2">
+                                        <i class="fas fa-check-circle mr-1"></i> 已上傳
+                                    </div>` : 
+                                    progress === 100 ?
+                                    `<div class="upload-status status-not-uploaded ml-2">
+                                        <i class="fas fa-cloud-upload-alt mr-1"></i> 可上傳
+                                    </div>` : 
+                                    `<div class="upload-status status-incomplete ml-2">
+                                        <i class="fas fa-clock mr-1"></i> 未完成
+                                    </div>`
+                                }
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium ${progress === 100 ? 'text-green-500' : 'text-blue-500'}">
+                                    ${progress}%
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    已完成 ${checkpointsCompleted + checkpointsUnable}/${checkpointsTotal}
                                 </div>
                             </div>
-                            <div class="text-sm text-gray-400">${record.time}</div>
                         </div>
-                        <div class="checkpoint-info">
-                            ${record.notes ? `
-                                <div class="text-sm mb-2">
-                                    <span class="text-gray-600 font-medium">備註：</span>${record.notes}
-                                </div>
-                            ` : ''}
-                            ${record.images && record.images.length > 0 ? `
-                                <div class="flex flex-wrap gap-2 mt-3">
-                                    ${record.images.map(img => `
-                                        <div class="w-16 h-16 relative rounded-lg overflow-hidden" onclick="showFullScreenImage('${img}')">
-                                            <img src="${img}" class="w-full h-full object-cover" alt="照片">
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
+                        
+                        <div class="bg-gray-200 h-2 rounded-full overflow-hidden mb-4">
+                            <div class="h-full ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${progress}%"></div>
                         </div>
                     `;
-                    recordsContainer.appendChild(recordCard);
+                    
+                    // 生成檢查點列表 HTML
+                    let checkpointsHtml = '<div class="space-y-3">';
+                    
+                    Object.entries(route.checkpoints).forEach(([checkpointName, checkpoint]) => {
+                        // 設置狀態樣式
+                    let statusBorderClass = 'border-gray-200';
+                    let statusDotClass = 'bg-gray-300';
+                    let statusText = '未巡查';
+                    let statusBadgeClass = 'text-gray-500';
+                    let statusIcon = 'fa-clock';
+                    
+                        if (checkpoint.status === 'completed') {
+                        statusBorderClass = 'border-green-200';
+                        statusDotClass = 'bg-green-500';
+                        statusText = '已完成';
+                        statusBadgeClass = 'text-green-500';
+                        statusIcon = 'fa-check-circle';
+                        } else if (checkpoint.status === 'unable') {
+                        statusBorderClass = 'border-yellow-200';
+                        statusDotClass = 'bg-yellow-500';
+                        statusText = '無法完成';
+                        statusBadgeClass = 'text-yellow-500';
+                        statusIcon = 'fa-exclamation-circle';
+                    }
+                    
+                    checkpointsHtml += `
+                            <div class="checkpoint-item bg-gray-50 rounded-lg overflow-hidden border ${statusBorderClass} mb-3" data-checkpoint-id="${route.id}-${checkpointName}">
+                            <div class="p-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                                    <div class="flex items-center space-x-3 mb-2 sm:mb-0">
+                                        <div class="w-2 h-2 rounded-full ${statusDotClass}"></div>
+                                            <div class="font-medium text-base">${checkpointName}</div>
+                                        <div class="status-badge ml-2 ${statusBadgeClass} font-medium">
+                                            <i class="fas ${statusIcon} mr-1"></i>
+                                            ${statusText}
+                                                ${checkpoint.checkTime ? `<span class="ml-1 text-xs text-gray-500">(${checkpoint.checkTime})</span>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                    ${(checkpoint.note || checkpoint.reason || (checkpoint.images && checkpoint.images.length > 0)) ? `
+                                    <div class="mt-3 pt-3 border-t border-gray-200">
+                                            ${checkpoint.reason ? `
+                                                <div class="text-sm text-yellow-600 mb-2">
+                                                    <span class="font-medium">原因：</span>${checkpoint.reason}
+                                                </div>
+                                            ` : ''}
+                                            ${checkpoint.note ? `
+                                            <div class="text-sm text-gray-600 mb-2">
+                                                    <span class="font-medium">備註：</span>${checkpoint.note}
+                                            </div>
+                                        ` : ''}
+                                            ${checkpoint.images && checkpoint.images.length > 0 ? `
+                                            <div class="flex flex-wrap gap-2 mt-2">
+                                                    ${checkpoint.images.map(img => `
+                                                    <div class="relative w-20 h-20 cursor-pointer" onclick="showFullScreenImage('${img}')">
+                                                        <img src="${img}" alt="現場照片" class="w-full h-full object-cover rounded-lg shadow-sm">
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                    checkpointsHtml += '</div>';
+                    
+                    // 組合路線卡片完整 HTML
+                    routeCard.innerHTML = routeHeaderHtml + checkpointsHtml;
+                    
+                    // 添加到容器
+                recordsContainer.appendChild(routeCard);
                 });
             }
         }
@@ -1117,6 +935,204 @@
             
             // 更新界面顯示
             document.getElementById('userInfo').textContent = userRoleText;
+            
+            // 檢查 localStorage 是否已存在路線狀態，如果不存在才初始化
+            const existingRouteStatuses = localStorage.getItem('routeStatuses');
+            if (!existingRouteStatuses) {
+                // 設置已上傳的路線
+                const uploadedRoutes = ['morning-a', 'afternoon-d', 'evening-b'];
+                localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
+                
+                // 直接設置已上傳的路線標記
+                uploadedRoutes.forEach(route => {
+                    localStorage.setItem(`route_uploaded_${route}`, 'true');
+                });
+                
+                // 設置路線狀態 - 包含不同狀態的路線
+                const routeStatuses = {
+                    // 已完成且已上傳路線 - morning-a
+                    'morning-a': {
+                        status: 'completed',
+                        checkpoints: {
+                            '大廳': { 
+                                status: 'completed', 
+                                checkTime: '09:05', 
+                                note: '大廳環境整齊，訪客登記簿已更新',
+                                images: ['https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80']
+                            },
+                            '電梯間': { 
+                                status: 'completed', 
+                                checkTime: '09:18', 
+                                note: '電梯正常運作中，已測試緊急按鈕功能' 
+                            },
+                            '安全門': { 
+                                status: 'completed', 
+                                checkTime: '09:32', 
+                                note: '安全門警報系統正常，門鉸鏈需要上油保養',
+                                images: ['https://images.unsplash.com/photo-1558424071-7369115d0c46?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            },
+                            '後門': { 
+                                status: 'completed', 
+                                checkTime: '09:47', 
+                                note: '後門已鎖好，周圍無可疑物品' 
+                            },
+                            '頂樓': { 
+                                status: 'completed', 
+                                checkTime: '10:05', 
+                                note: '頂樓無異常狀況，水塔蓋已確認鎖緊' 
+                            }
+                        }
+                    },
+                    
+                    // 部分完成，未上傳 - morning-b
+                    'morning-b': {
+                        status: 'incomplete',
+                        checkpoints: {
+                            '前廳': { 
+                                status: 'completed', 
+                                checkTime: '09:38', 
+                                note: '前廳燈光正常運作中，地板剛清潔完畢，已放置警告標示',
+                                images: ['https://images.unsplash.com/photo-1504275107627-0c2ba7a43dba?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            },
+                            '閱覽室': { 
+                                status: 'completed', 
+                                checkTime: '09:55', 
+                                note: '閱覽室已整理完畢，書籍歸位，空調運作正常' 
+                            },
+                            '會議廳': { 
+                                status: 'unable', 
+                                checkTime: '10:12', 
+                                reason: '會議進行中', 
+                                note: '高階主管會議中，不便打擾，稍後回來檢查' 
+                            },
+                            '安全出口': { 
+                                status: 'pending' 
+                            },
+                            '中庭': { 
+                                status: 'pending' 
+                            }
+                        }
+                    },
+                    
+                    // 全部完成但未上傳 - morning-c
+                    'morning-c': {
+                        status: 'completed',
+                        checkpoints: {
+                            '入口': { 
+                                status: 'completed', 
+                                checkTime: '10:42', 
+                                note: '入口門禁系統正常，訪客識別系統運作良好' 
+                            },
+                            '樓梯': { 
+                                status: 'completed', 
+                                checkTime: '10:58', 
+                                note: '樓梯間照明正常，已檢查各樓層消防設備，2F滅火器即將到期，已報備' ,
+                                images: ['https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80']
+                            },
+                            '屋頂': { 
+                                status: 'completed', 
+                                checkTime: '11:10', 
+                                note: '屋頂無漏水現象，太陽能板已清潔',
+                                images: ['https://images.unsplash.com/photo-1520694478166-daaaaec95b69?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            }
+                        }
+                    },
+                    
+                    // 部分完成，未上傳 - afternoon-b
+                    'afternoon-b': {
+                        status: 'incomplete',
+                        checkpoints: {
+                            '正門': { 
+                                status: 'completed', 
+                                checkTime: '13:10', 
+                                note: '正門門禁系統正常，訪客識別設備已清潔' 
+                            },
+                            '側門': { 
+                                status: 'unable', 
+                                checkTime: '13:25', 
+                                reason: '施工中', 
+                                note: '因電線管線施工暫時封閉，預計下週完工',
+                                images: ['https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            },
+                            '機房': { 
+                                status: 'completed', 
+                                checkTime: '13:40', 
+                                note: '機房溫度正常 (22°C)，濕度55%，空調運作正常',
+                                images: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            },
+                            '監控室': { 
+                                status: 'pending' 
+                            }
+                        }
+                    },
+                    
+                    // 已完成且已上傳 - afternoon-d
+                    'afternoon-d': {
+                        status: 'completed',
+                        checkpoints: {
+                            '大門': { 
+                                status: 'completed', 
+                                checkTime: '15:15', 
+                                note: '大門安全鎖正常，訪客登記程序已確認' 
+                            },
+                            '倉庫': { 
+                                status: 'completed', 
+                                checkTime: '15:32', 
+                                note: '倉庫已上鎖，物品整齊排放，無違規品',
+                                images: ['https://images.unsplash.com/photo-1581092921461-39b21884e7ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            },
+                            '停車場': { 
+                                status: 'completed', 
+                                checkTime: '15:48', 
+                                note: '停車場照明正常，無可疑車輛，發現B3-127車位有漏油，已通知車主' 
+                            }
+                        }
+                    },
+                    
+                    // 部分完成，錯誤多樣化 - evening-a
+                    'evening-a': {
+                        status: 'incomplete',
+                        checkpoints: {
+                            '大廳': { 
+                                status: 'completed', 
+                                checkTime: '19:15', 
+                                note: '大廳已清潔完畢，花瓶已更換鮮花' 
+                            },
+                            '電梯間': { 
+                                status: 'unable', 
+                                checkTime: '19:35', 
+                                reason: '設備故障', 
+                                note: '3號電梯維修中，已用警示帶圍起',
+                                images: ['https://images.unsplash.com/photo-1562537560-65f8d0643864?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            },
+                            '安全門': { 
+                                status: 'pending'
+                            }
+                        }
+                    },
+                    
+                    // 已完成且已上傳 - evening-b
+                    'evening-b': {
+                        status: 'completed',
+                        checkpoints: {
+                            '正門': { 
+                                status: 'completed', 
+                                checkTime: '21:18', 
+                                note: '正門已鎖好，保全系統已啟動，監視器運作正常' 
+                            },
+                            '機房': { 
+                                status: 'completed', 
+                                checkTime: '21:45', 
+                                note: '機房設備運行正常，UPS電源正常運作，備用發電機已確認油量充足',
+                                images: ['https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'] 
+                            }
+                        }
+                    }
+                };
+                
+                // 存儲路線狀態
+                localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+            }
         }
         
         function openImageViewer(imageSrc) {
