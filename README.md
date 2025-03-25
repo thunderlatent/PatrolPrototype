@@ -2,6 +2,8 @@
 
 一個用於優化保安巡邏管理與記錄的智能解決方案，包含巡邏路線規劃、NFC/QR碼打卡、巡邏記錄管理和數據統計功能。
 
+[![部署狀態](https://github.com/thunderlatent/PatrolPrototype/actions/workflows/static.yml/badge.svg)](https://github.com/thunderlatent/PatrolPrototype/actions/workflows/static.yml)
+
 ## 線上演示
 
 此專案已部署在 GitHub Pages，您可以通過以下連結訪問線上演示：
