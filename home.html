@@ -682,6 +682,207 @@
                 opacity: 0;
             }
         }
+        
+        /* 添加路線卡片風格 - 與 profile.html 一致 */
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        
+        .bg-gray-100 {
+            background-color: #f3f4f6;
+        }
+        
+        .bg-gray-200 {
+            background-color: #e5e7eb;
+        }
+        
+        .bg-blue-100 {
+            background-color: #dbeafe;
+        }
+        
+        .bg-yellow-100 {
+            background-color: #fef3c7;
+        }
+        
+        .bg-green-100 {
+            background-color: #d1fae5;
+        }
+        
+        .bg-blue-500 {
+            background-color: #3b82f6;
+        }
+        
+        .bg-yellow-500 {
+            background-color: #f59e0b;
+        }
+        
+        .bg-green-500 {
+            background-color: #10b981;
+        }
+        
+        .text-blue-500 {
+            color: #3b82f6;
+        }
+        
+        .text-blue-700 {
+            color: #1d4ed8;
+        }
+        
+        .text-yellow-700 {
+            color: #b45309;
+        }
+        
+        .text-green-700 {
+            color: #047857;
+        }
+        
+        .text-gray-400 {
+            color: #9ca3af;
+        }
+        
+        .text-gray-500 {
+            color: #6b7280;
+        }
+        
+        .text-gray-600 {
+            color: #4b5563;
+        }
+        
+        .text-gray-700 {
+            color: #374151;
+        }
+        
+        .text-gray-800 {
+            color: #1f2937;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        
+        .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .border-t {
+            border-top-width: 1px;
+        }
+        
+        .border-gray-100 {
+            border-color: #f3f4f6;
+        }
+        
+        .border-l-4 {
+            border-left-width: 4px;
+        }
+        
+        .border-blue-500 {
+            border-color: #3b82f6;
+        }
+        
+        .border-yellow-500 {
+            border-color: #f59e0b;
+        }
+        
+        .border-green-500 {
+            border-color: #10b981;
+        }
+        
+        .border-gray-400 {
+            border-color: #9ca3af;
+        }
+        
+        .p-2 {
+            padding: 0.5rem;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        .px-2 {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+        
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        
+        .mt-3 {
+            margin-top: 0.75rem;
+        }
+        
+        .mr-3 {
+            margin-right: 0.75rem;
+        }
+        
+        .mr-1 {
+            margin-right: 0.25rem;
+        }
+        
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .h-1\.5 {
+            height: 0.375rem;
+        }
+        
+        .overflow-hidden {
+            overflow: hidden;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .text-xs {
+            font-size: 0.75rem;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .hover\:underline:hover {
+            text-decoration: underline;
+        }
+        
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        .hover\:bg-blue-600:hover {
+            background-color: #2563eb;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -1281,10 +1482,14 @@
 
         // 全局函數 - 更新打卡點狀態
         function updateCheckpointStatus(route, checkpointName, status, note = '', images = []) {
+            console.log(`更新打卡點狀態: 路線=${route}, 檢查點=${checkpointName}, 狀態=${status}`);
+            
             const routeData = getRouteCheckpoints(route);
             const checkpoint = routeData.find(cp => cp.name === checkpointName);
             
             if (checkpoint) {
+                console.log(`找到檢查點: ${checkpointName}`, checkpoint);
+                
                 // 更新內存中的數據
                 checkpoint.status = status;
                 if (note) checkpoint.note = note;
@@ -1296,16 +1501,22 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 checkpoint.checkTime = `${hours}:${minutes}`;
                 
+                console.log(`更新後的檢查點資料:`, checkpoint);
+                
                 // 更新 localStorage 中的路線狀態
                 let routeStatuses = {};
                 try {
                     const savedRouteStatuses = localStorage.getItem('routeStatuses');
                     if (savedRouteStatuses) {
                         routeStatuses = JSON.parse(savedRouteStatuses);
+                        console.log(`從 localStorage 獲取現有的路線狀態:`, routeStatuses);
+                    } else {
+                        console.log('localStorage 中尚無路線狀態');
                     }
                     
                     // 確保路線存在於狀態對象中
                     if (!routeStatuses[route]) {
+                        console.log(`為路線 ${route} 創建新狀態對象`);
                         routeStatuses[route] = {
                             status: 'incomplete',
                             checkpoints: {}
@@ -1314,6 +1525,7 @@
                     
                     // 確保檢查點存在於路線狀態中
                     if (!routeStatuses[route].checkpoints) {
+                        console.log('創建檢查點對象容器');
                         routeStatuses[route].checkpoints = {};
                     }
                     
@@ -1328,25 +1540,37 @@
                     if (status === 'unable' && note) routeStatuses[route].checkpoints[checkpointName].reason = note;
                     if (images.length > 0) routeStatuses[route].checkpoints[checkpointName].images = images;
                     
+                    console.log(`更新後的檢查點狀態:`, routeStatuses[route].checkpoints[checkpointName]);
+                    
                     // 檢查路線的完成狀態
                     const allCheckpoints = getRouteCheckpoints(route);
+                    console.log(`檢查路線 ${route} 的完成狀態，檢查點總數:`, allCheckpoints.length);
+                    
                     const isCompleted = allCheckpoints.every(cp => {
                         // 在 routeStatuses 中查找檢查點的狀態
-                        const checkpointStatus = routeStatuses[route].checkpoints[cp.name]?.status || cp.status;
+                        const checkpointInStatus = routeStatuses[route].checkpoints[cp.name];
+                        const checkpointStatus = checkpointInStatus ? checkpointInStatus.status : 'pending';
+                        
+                        console.log(`檢查點 ${cp.name} 狀態: ${checkpointStatus}`);
+                        
                         return checkpointStatus === 'completed' || checkpointStatus === 'unable';
                     });
                     
                     // 更新路線的整體狀態
                     routeStatuses[route].status = isCompleted ? 'completed' : 'incomplete';
+                    console.log(`路線 ${route} 整體狀態: ${routeStatuses[route].status}`);
                     
                     // 保存更新後的狀態
                     localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                    console.log('已將更新後的路線狀態保存到 localStorage');
                 } catch (e) {
                     console.error("更新路線狀態時出錯:", e);
                 }
                 
                 // 更新 UI
                 showPatrolPage();
+            } else {
+                console.error(`找不到檢查點: ${checkpointName}`);
             }
         }
 
@@ -1459,6 +1683,7 @@
                 try {
                     const routeStatuses = JSON.parse(savedRouteStatuses);
                     savedRouteStatus = routeStatuses[route];
+                    console.log(`Route card: 獲取路線狀態 ${route}:`, savedRouteStatus);
                 } catch (e) {
                     console.error("解析路線狀態時出錯:", e);
                 }
@@ -1469,12 +1694,27 @@
             
             if (baseCheckpoints) {
                 checkpoints = baseCheckpoints.map(cp => {
-                    const savedCp = savedRouteStatus && savedRouteStatus.checkpoints && 
-                                    savedRouteStatus.checkpoints.find(s => s.id === cp.id);
+                    // 檢查 savedRouteStatus.checkpoints 是對象還是數組
+                    let savedStatus = 'pending';
+                    
+                    if (savedRouteStatus && savedRouteStatus.checkpoints) {
+                        if (Array.isArray(savedRouteStatus.checkpoints)) {
+                            // 如果是數組
+                            const savedCp = savedRouteStatus.checkpoints.find(s => s.name === cp.name);
+                            if (savedCp) {
+                                savedStatus = savedCp.status;
+                            }
+                        } else {
+                            // 如果是對象
+                            if (savedRouteStatus.checkpoints[cp.name]) {
+                                savedStatus = savedRouteStatus.checkpoints[cp.name].status;
+                            }
+                        }
+                    }
                     
                     return {
                         ...cp,
-                        status: savedCp ? savedCp.status : 'pending'
+                        status: savedStatus
                     };
                 });
             }
@@ -1494,62 +1734,103 @@
             const buildingMap = {
                 'a': 'A 棟',
                 'b': 'B 棟',
-                'c': 'C 棟'
+                'c': 'C 棟',
+                'd': 'D 棟'
             };
             
             const buildingName = buildingMap[building] || `${building.toUpperCase()} 棟`;
             
-            // 生成檢查點列表 HTML
-            let checkpointsHtml = '';
-            checkpoints.forEach(cp => {
-                const statusIconClass = cp.status === 'completed' ? 'text-green-500 fas fa-check-circle' : 
-                                      cp.status === 'unable' ? 'text-red-500 fas fa-times-circle' : 
-                                      'text-gray-300 far fa-circle';
-                
-                checkpointsHtml += `
-                    <div class="flex items-center justify-between checkpoint-item py-1">
-                        <div class="text-sm text-gray-600 flex items-center">
-                            <i class="${statusIconClass} mr-2"></i>
-                            ${cp.name}
+            // 設置卡片和狀態風格
+            let cardBorderClass = "border-l-4 border-blue-500";
+            let statusBgClass = "bg-blue-100";
+            let statusTextClass = "text-blue-700";
+            let statusText = "進行中";
+            
+            if (isRouteCompleted) {
+                if (routeUploaded) {
+                    cardBorderClass = "border-l-4 border-green-500";
+                    statusBgClass = "bg-green-100";
+                    statusTextClass = "text-green-700";
+                    statusText = "已上傳";
+                } else {
+                    cardBorderClass = "border-l-4 border-yellow-500";
+                    statusBgClass = "bg-yellow-100";
+                    statusTextClass = "text-yellow-700";
+                    statusText = "待上傳";
+                }
+            } else if (completedCount === 0) {
+                cardBorderClass = "border-l-4 border-gray-400";
+                statusBgClass = "bg-gray-100";
+                statusTextClass = "text-gray-700";
+                statusText = "未開始";
+            }
+            
+            // 顯示檢查點預覽
+            const checkpointsPreview = checkpoints.map(cp => cp.name).join('、');
+            
+            // 構建路線卡片 - 與 profile.html 保持一致的樣式
+            let html = `
+                <div class="bg-white rounded-lg shadow-sm ${cardBorderClass} overflow-hidden" data-route-id="${route}" onclick="viewRouteDetails('${route}')">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="rounded-full bg-gray-100 p-2 mr-3">
+                                    <i class="fas fa-map-marker-alt text-gray-600"></i>
+                                </div>
+                                <h4 class="font-medium text-gray-800">${timeText} ${buildingName}</h4>
+                            </div>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusBgClass} ${statusTextClass}">
+                                ${statusText}
+                            </span>
                         </div>
-                        <div class="text-xs text-gray-500">
-                            ${cp.status === 'completed' ? '已完成' : 
-                              cp.status === 'unable' ? '無法檢查' : '待檢查'}
+                        
+                        <div class="mt-3">
+                            <div class="flex justify-between items-center text-sm">
+                                <div class="text-gray-500">
+                                    檢查點: ${completedCount}/${totalCount} (${progressPercentage}%)
+                                </div>
+                                <div class="text-xs text-gray-500">
+                                    <i class="far fa-clock mr-1"></i>${getCurrentTime()}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full ${isRouteCompleted ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${progressPercentage}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-xs text-gray-400 mt-2 truncate">
+                            <i class="fas fa-map-marker-alt mr-1"></i>${checkpointsPreview}
                         </div>
                     </div>
-                `;
-            });
-            
-            // 構建路線卡片
-            let html = `
-                <div class="route-item" data-route-id="${route}" onclick="viewRouteDetails('${route}')">
-                    <div class="flex flex-col">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="font-medium text-lg">${buildingName}巡邏路線</div>
-                            <div class="upload-status ${routeUploaded ? 'status-uploaded' : isRouteCompleted ? 'status-complete' : completedCount > 0 ? 'status-in-progress' : 'status-not-started'}">
-                                ${routeUploaded ? '已上傳' : isRouteCompleted ? '待上傳' : completedCount > 0 ? '進行中' : '未開始'}
+                    <div class="bg-gray-50 px-4 py-2 border-t border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">
+                                <a href="javascript:void(0)" onclick="viewRouteDetails('${route}')" class="text-blue-500 hover:underline">
+                                    <i class="fas fa-info-circle mr-1"></i>查看詳情
+                                </a>
                             </div>
-                        </div>
-                        <div class="text-sm text-gray-500 mb-2">
-                            ${timeText} | ${checkpoints.length} 個檢查點
-                        </div>
-                        <div class="progress-container mb-2">
-                            <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
-                                <div class="bg-blue-500 h-full" style="width: ${progressPercentage}%"></div>
-                            </div>
-                            <div class="text-right text-xs text-gray-500 mt-1">
-                                完成率: ${progressPercentage}% (${completedCount}/${totalCount})
-                            </div>
-                        </div>
-                        <div class="checkpoints-preview text-xs text-gray-400 mt-1">
-                            <i class="fas fa-map-marker-alt mr-1"></i>
-                            ${checkpoints.map(cp => cp.name).join('、')}
+                            <button id="uploadBtn-${route}" 
+                                class="${routeUploaded ? 'bg-green-500' : isRouteCompleted ? 'bg-blue-500 hover:bg-blue-600' : 'bg-yellow-500'} text-white text-xs py-1 px-2 rounded transition-all"
+                                ${!isRouteCompleted || routeUploaded ? 'disabled' : ''}
+                                onclick="event.stopPropagation(); ${isRouteCompleted && !routeUploaded ? `uploadPatrolRecord('${route}')` : ''}">
+                                <i id="uploadIcon-${route}" class="${routeUploaded ? 'fas fa-check-double' : (isRouteCompleted ? 'fas fa-cloud-upload-alt' : 'fas fa-exclamation-circle')} mr-1"></i> 
+                                <span id="uploadText-${route}">${routeUploaded ? '已上傳' : (isRouteCompleted ? '上傳數據' : `尚有 ${totalCount - completedCount} 個未完成`)}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
             
             return html;
+        }
+
+        // 獲取當前時間的輔助函數
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
         }
 
         // 計算並更新總進度
@@ -2371,7 +2652,8 @@
             const buildingMap = {
                 'a': 'A 棟',
                 'b': 'B 棟',
-                'c': 'C 棟'
+                'c': 'C 棟',
+                'd': 'D 棟'
             };
             
             const timeText = timeSlotMap[timeSlot] || timeSlot;
@@ -2382,12 +2664,70 @@
             document.getElementById('routeDetailsSubtitle').textContent = `${timeText} | ${routeId}`;
             
             // 獲取檢查點信息
-            const checkpoints = getRouteCheckpoints(routeId);
+            const baseCheckpoints = getRouteCheckpoints(routeId);
+            console.log('Base checkpoints:', baseCheckpoints);
+            
+            // 從 localStorage 獲取路線狀態
+            let checkpoints = [...baseCheckpoints]; // 創建一個副本
+            let savedRouteStatus = null;
+            
+            try {
+                const savedRouteStatuses = localStorage.getItem('routeStatuses');
+                console.log('Saved routeStatuses from localStorage:', savedRouteStatuses);
+                
+                if (savedRouteStatuses) {
+                    const routeStatuses = JSON.parse(savedRouteStatuses);
+                    savedRouteStatus = routeStatuses[routeId];
+                    console.log(`Found saved route status for ${routeId}:`, savedRouteStatus);
+                    
+                    // 合併基本檢查點信息和已保存的狀態
+                    if (savedRouteStatus && savedRouteStatus.checkpoints) {
+                        console.log('Merging checkpoint statuses...');
+                        
+                        // 檢查 checkpoints 是否是對象還是數組
+                        if (Array.isArray(savedRouteStatus.checkpoints)) {
+                            console.log('Checkpoints is an array');
+                            // 如果是數組，按名稱匹配
+                            checkpoints = baseCheckpoints.map(cp => {
+                                const savedCp = savedRouteStatus.checkpoints.find(s => s.name === cp.name);
+                                if (savedCp) {
+                                    console.log(`Found saved checkpoint for ${cp.name}:`, savedCp);
+                                    return { ...cp, ...savedCp };
+                                }
+                                return cp;
+                            });
+                        } else {
+                            console.log('Checkpoints is an object');
+                            // 如果是對象，按鍵名匹配
+                            checkpoints = baseCheckpoints.map(cp => {
+                                if (savedRouteStatus.checkpoints[cp.name]) {
+                                    console.log(`Found saved checkpoint for ${cp.name}:`, savedRouteStatus.checkpoints[cp.name]);
+                                    return { 
+                                        ...cp, 
+                                        ...savedRouteStatus.checkpoints[cp.name],
+                                        // 確保狀態正確
+                                        status: savedRouteStatus.checkpoints[cp.name].status || cp.status
+                                    };
+                                }
+                                return cp;
+                            });
+                        }
+                    }
+                } else {
+                    console.log('No saved route statuses found');
+                }
+            } catch (e) {
+                console.error('Error parsing route statuses:', e);
+            }
+            
+            console.log('Final checkpoints after merging:', checkpoints);
             
             // 計算完成進度
             const completedCount = checkpoints.filter(cp => cp.status === 'completed' || cp.status === 'unable').length;
             const totalCount = checkpoints.length;
             const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            
+            console.log(`Progress: ${completedCount}/${totalCount} (${progressPercentage}%)`);
             
             // 更新進度條
             document.getElementById('routeProgressBar').style.width = `${progressPercentage}%`;
@@ -2399,7 +2739,10 @@
             const checkpointsList = document.getElementById('checkpointsList');
             checkpointsList.innerHTML = '';
             
+            console.log('Generating checkpoint list...');
+            
             checkpoints.forEach(cp => {
+                console.log(`Processing checkpoint: ${cp.name}, status: ${cp.status}`);
                 const isCompleted = cp.status === 'completed';
                 const isUnable = cp.status === 'unable';
                 
@@ -2424,7 +2767,9 @@
                 // 為未完成的檢查點添加點擊事件
                 if (!isCompleted && !isUnable) {
                     checkpointItem.addEventListener('click', function() {
-                        showNfcSimulation(cp.id, routeId, true);
+                        console.log(`Clicked on checkpoint: ${cp.name}`);
+                        // 模擬 NFC 感應
+                        handleCheckin(routeId, cp.name);
                     });
                 }
                 
@@ -2435,6 +2780,8 @@
             const uploadArea = document.getElementById('detailsUploadArea');
             const isRouteCompleted = checkpoints.every(cp => cp.status === 'completed' || cp.status === 'unable');
             const routeUploaded = localStorage.getItem(`route_uploaded_${routeId}`) === 'true';
+            
+            console.log(`Route completed: ${isRouteCompleted}, uploaded: ${routeUploaded}`);
             
             uploadArea.innerHTML = `
                 <button 
@@ -2458,6 +2805,8 @@
             // 顯示詳情頁
             document.getElementById('patrolPage').style.display = 'none';
             document.getElementById('routeDetailsPage').style.display = 'block';
+            
+            console.log('Route details page displayed');
         }
 
         // 修改上傳巡邏紀錄函數，使其在詳情頁和列表頁都能正常工作
