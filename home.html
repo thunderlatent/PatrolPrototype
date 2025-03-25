@@ -6,7 +6,8 @@
     <title>巡邏 - 安全室巡捕系統</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/home.css">
     <style>
         /* 適配 iPhone 16 Pro Max 的內容區域樣式 */
         .page-container {
@@ -938,6 +939,34 @@
             </div>
         </div>
         
+        <!-- NFC 卡片管理 (僅管理員可見) -->
+        <div class="mb-6" id="nfcManagementCard">
+            <div class="bg-white rounded-lg shadow-sm border-l-4 border-purple-500 overflow-hidden">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="rounded-full bg-purple-100 p-2 mr-3">
+                                <i class="fas fa-id-card text-purple-600"></i>
+                            </div>
+                            <h4 class="font-medium text-gray-800">NFC 卡片管理</h4>
+                        </div>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                            管理員功能
+                        </span>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mb-3">
+                        讀取和寫入 NFC 檢查點卡片，完成巡邏點設置
+                    </p>
+                    
+                    <button id="nfcWriteButton" data-action="nfcWrite" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
+                        <i class="fas fa-pen-alt mr-2"></i>
+                        讀取/寫入 NFC 卡片
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 時段選擇區域 -->
         <div class="time-slots">
             <!-- 上午時段 -->
@@ -2001,6 +2030,16 @@
                 patrolPageUserRole.textContent = userRoleText;
             }
             
+            // 控制 NFC 管理卡片的顯示
+            const nfcManagementCard = document.getElementById('nfcManagementCard');
+            if (nfcManagementCard) {
+                if (userRole === 'admin') {
+                    nfcManagementCard.style.display = 'block';
+                } else {
+                    nfcManagementCard.style.display = 'none';
+                }
+            }
+            
             // 清除並初始化 localStorage
             const existingSelectedRoutes = localStorage.getItem('selectedRoutes');
             localStorage.removeItem('uploadedRoutes');
@@ -2914,6 +2953,24 @@
                 updateTotalProgress();
             }, 1500);
         }
+
+        function showSuccessState() {
+            // 隱藏動畫
+            clearTimeout(nfcTimeout);
+            document.getElementById('nfcAnimation').classList.remove('active');
+            
+            // 顯示成功圖示(已使用CSS預定義)
+            setTimeout(() => {
+                updateTotalProgress();
+            }, 1500);
+        }
     </script>
+    <!-- 添加必要的 JS 文件引用 -->
+    <script src="js/common.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/home/core.js"></script>
+    <script src="js/home/route.js"></script>
+    <script src="js/home/nfc.js"></script>
+    <script src="js/home/upload.js"></script>
 </body>
 </html> 

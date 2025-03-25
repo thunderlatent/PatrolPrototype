@@ -3,254 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理 - 安全室巡捕系統</title>
+    <title>NFC 卡片寫入 - 安全室巡捕系統</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/admin.css">
     <style>
-        /* 適配動態島的管理頁面樣式 */
+        /* 適配動態島的 NFC 卡片寫入頁面樣式 */
         .admin-page {
             padding: 60px 20px 20px 20px; /* 上方增加間距避開動態島 */
             max-width: 100%;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .card-writer-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 24px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+            margin-bottom: 40px;
+        }
+        
+        .card-writer-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(59, 130, 246, 0.6);
+        }
+        
+        .card-writer-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 10px 15px -5px rgba(59, 130, 246, 0.4);
+        }
+        
+        .card-writer-btn i {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .card-writer-btn span {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .description {
+            text-align: center;
+            color: #6b7280;
+            max-width: 300px;
+            line-height: 1.6;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <div class="admin-page">
-        <div class="pb-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">管理控制台</h1>
-            <div id="userRole" class="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                <span id="currentUserName">管理員</span> (<span id="currentUserRole">管理編號 A001</span>)
-            </div>
-        </div>
+        <button id="nfcWriterBtn" class="card-writer-btn">
+            <i class="fas fa-pen-to-square"></i>
+            <span>寫入 NFC 卡片</span>
+        </button>
         
-        <!-- 管理選項卡 -->
-        <div class="tab-controls flex border-b border-gray-200 mb-6">
-            <button class="tab-button py-2 px-4 border-b-2 border-blue-500 text-blue-500 font-medium">
-                即時概況
-            </button>
-            <button class="tab-button py-2 px-4 text-gray-500">
-                警衛管理
-            </button>
-            <button class="tab-button py-2 px-4 text-gray-500">
-                路線設置
-            </button>
-            <button class="tab-button py-2 px-4 text-gray-500">
-                分析報表
-            </button>
-        </div>
+        <p class="description">
+            點擊上方按鈕開始寫入 NFC 卡片資訊，用於安全巡捕系統的檢查點設置
+        </p>
         
-        <!-- 數據摘要 -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="card p-4 bg-white">
-                <div class="text-gray-500 text-sm mb-1">今日打卡總數</div>
-                <div class="text-2xl font-bold">42</div>
-                <div class="text-xs text-green-500 mt-1">
-                    <i class="fas fa-arrow-up"></i> 較昨日增加 8%
-                </div>
-            </div>
-            
-            <div class="card p-4 bg-white">
-                <div class="text-gray-500 text-sm mb-1">在線警衛</div>
-                <div class="text-2xl font-bold">5/8</div>
-                <div class="text-xs text-blue-500 mt-1">
-                    <i class="fas fa-user-check"></i> 62% 出勤率
-                </div>
-            </div>
-            
-            <div class="card p-4 bg-white">
-                <div class="text-gray-500 text-sm mb-1">待巡邏點</div>
-                <div class="text-2xl font-bold">14</div>
-                <div class="text-xs text-yellow-500 mt-1">
-                    <i class="fas fa-clock"></i> 尚未完成 35%
-                </div>
-            </div>
-            
-            <div class="card p-4 bg-white">
-                <div class="text-gray-500 text-sm mb-1">異常記錄</div>
-                <div class="text-2xl font-bold">2</div>
-                <div class="text-xs text-red-500 mt-1">
-                    <i class="fas fa-exclamation-triangle"></i> 需要關注
-                </div>
-            </div>
-        </div>
-        
-        <!-- 活躍警衛 -->
-        <div class="mb-6">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-medium">活躍警衛</h2>
-                <button class="text-blue-500 text-sm">查看全部</button>
-            </div>
-            
-            <div class="card bg-white">
-                <div class="active-guard flex items-center p-3 border-b border-gray-100">
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-3">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-medium">張小明</div>
-                        <div class="text-xs text-gray-500">最後打卡：A 棟電梯間</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-medium text-green-500">在線</div>
-                        <div class="text-xs text-gray-500">09:15</div>
-                    </div>
-                </div>
-                
-                <div class="active-guard flex items-center p-3 border-b border-gray-100">
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-3">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-medium">李小華</div>
-                        <div class="text-xs text-gray-500">最後打卡：C 棟入口</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-medium text-green-500">在線</div>
-                        <div class="text-xs text-gray-500">10:30</div>
-                    </div>
-                </div>
-                
-                <div class="active-guard flex items-center p-3 border-b border-gray-100">
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-500 mr-3">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-medium">王大同</div>
-                        <div class="text-xs text-gray-500">最後打卡：D 棟通道</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-medium text-green-500">在線</div>
-                        <div class="text-xs text-gray-500">13:10</div>
-                    </div>
-                </div>
-                
-                <div class="active-guard flex items-center p-3 border-b border-gray-100">
-                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-500 mr-3">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-medium">陳小芳</div>
-                        <div class="text-xs text-gray-500">超過 2 小時未打卡</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-medium text-red-500">異常</div>
-                        <div class="text-xs text-gray-500">11:05</div>
-                    </div>
-                </div>
-                
-                <div class="active-guard flex items-center p-3">
-                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 mr-3">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-medium">林小剛</div>
-                        <div class="text-xs text-gray-500">尚未登入系統</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-medium text-gray-500">離線</div>
-                        <div class="text-xs text-gray-500">--:--</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 路線完成狀況 -->
-        <div>
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-medium">路線完成狀況</h2>
-                <button class="text-blue-500 text-sm">導出報表</button>
-            </div>
-            
-            <div class="card bg-white">
-                <div class="route-status p-3 border-b border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-medium">A 棟巡邏路線</div>
-                        <div class="text-sm text-green-500">75% 已完成</div>
-                    </div>
-                    <div class="progress-bar bg-gray-200 h-2 rounded-full overflow-hidden">
-                        <div class="h-full bg-green-500" style="width: 75%;"></div>
-                    </div>
-                </div>
-                
-                <div class="route-status p-3 border-b border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-medium">B 棟巡邏路線</div>
-                        <div class="text-sm text-yellow-500">25% 已完成</div>
-                    </div>
-                    <div class="progress-bar bg-gray-200 h-2 rounded-full overflow-hidden">
-                        <div class="h-full bg-yellow-500" style="width: 25%;"></div>
-                    </div>
-                </div>
-                
-                <div class="route-status p-3 border-b border-gray-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-medium">C 棟巡邏路線</div>
-                        <div class="text-sm text-green-500">100% 已完成</div>
-                    </div>
-                    <div class="progress-bar bg-gray-200 h-2 rounded-full overflow-hidden">
-                        <div class="h-full bg-green-500" style="width: 100%;"></div>
-                    </div>
-                </div>
-                
-                <div class="route-status p-3">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="font-medium">D 棟巡邏路線</div>
-                        <div class="text-sm text-yellow-500">50% 已完成</div>
-                    </div>
-                    <div class="progress-bar bg-gray-200 h-2 rounded-full overflow-hidden">
-                        <div class="h-full bg-yellow-500" style="width: 50%;"></div>
-                    </div>
+        <div class="mt-8">
+            <div class="text-sm text-gray-400 mb-2">管理員專用功能</div>
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="w-8 h-8 rounded-full mr-2" alt="管理員頭像">
+                <div class="text-sm font-medium text-gray-700">
+                    <span id="adminName">王大明</span>
+                    <span class="text-xs text-white bg-blue-500 rounded-full px-2 py-0.5 ml-2">管理員</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 引入必要的 JS 文件 -->
+    <script src="js/common.js"></script>
+    <script src="js/mock-data.js"></script>
     <script>
-        // 頁面載入時更新用戶信息
         document.addEventListener('DOMContentLoaded', function() {
-            updateUserInfo();
-            
-            // 管理選項卡切換
-            const tabButtons = document.querySelectorAll('.tab-button');
-            
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    tabButtons.forEach(tab => {
-                        tab.classList.remove('border-blue-500', 'text-blue-500');
-                        tab.classList.remove('border-b-2');
-                        tab.classList.add('text-gray-500');
-                    });
-                    
-                    this.classList.remove('text-gray-500');
-                    this.classList.add('border-b-2', 'border-blue-500', 'text-blue-500');
-                });
-            });
-        });
-        
-        // 更新用戶信息
-        function updateUserInfo() {
-            // 從 localStorage 中獲取用戶角色
-            const userRole = localStorage.getItem('userRole') || 'admin';
-            const username = localStorage.getItem('username') || '管理員';
-            
-            // 根據用戶角色設置不同的顯示文字
-            let userRoleText = '';
-            let userName = '';
-            
-            if (userRole === 'admin') {
-                userRoleText = '管理編號 A001';
-                userName = username === '管理員' ? '管理員' : username;
-            } else {
-                userRoleText = '警衛編號 G001';
-                userName = username === '訪客' ? '訪客' : username;
+            // 檢查用戶角色
+            const userRole = localStorage.getItem('userRole');
+            if (userRole !== 'admin') {
+                window.location.href = 'login.html';
+                return;
             }
             
-            // 更新界面顯示
-            document.getElementById('currentUserName').textContent = userName;
-            document.getElementById('currentUserRole').textContent = userRoleText;
-        }
+            // 設置管理員信息
+            const userInfo = getFromStorage('userInfo', {});
+            if (userInfo.name) {
+                document.getElementById('adminName').textContent = userInfo.name;
+            }
+            
+            // 綁定 NFC 寫入按鈕事件
+            document.getElementById('nfcWriterBtn').addEventListener('click', function() {
+                // 調用 home/nfc.js 中的方法
+                if (typeof showNfcWriterModal === 'function') {
+                    showNfcWriterModal();
+                } else {
+                    showToast('功能錯誤', 'NFC 寫入功能尚未載入，請重新整理頁面', 'error');
+                }
+            });
+        });
     </script>
+    <script src="js/home/nfc.js"></script>
 </body>
 </html> 

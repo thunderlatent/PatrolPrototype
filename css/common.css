@@ -1,0 +1,120 @@
+/* 添加 Toast 通知樣式 */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    z-index: 9999;
+    overflow: hidden;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast.fade-out {
+    transform: translateY(-20px);
+    opacity: 0;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.toast-message {
+    font-size: 14px;
+    color: #666;
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 8px;
+    transition: color 0.2s;
+}
+
+.toast-close:hover {
+    color: #666;
+}
+
+/* Toast 類型樣式 */
+.toast-success .toast-icon {
+    color: #10b981;
+}
+
+.toast-success::before {
+    background-color: #10b981;
+}
+
+.toast-error .toast-icon {
+    color: #ef4444;
+}
+
+.toast-error::before {
+    background-color: #ef4444;
+}
+
+.toast-info .toast-icon {
+    color: #3b82f6;
+}
+
+.toast-info::before {
+    background-color: #3b82f6;
+}
+
+.toast::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+/* 多個 Toast 堆疊樣式 */
+.toast + .toast {
+    margin-top: 16px;
+}
+
+/* 適應性調整 */
+@media (max-width: 480px) {
+    .toast {
+        left: 16px;
+        right: 16px;
+        min-width: 0;
+        max-width: none;
+        width: calc(100% - 32px);
+    }
+} 
