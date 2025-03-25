@@ -1,0 +1,41 @@
+name: Deploy static content to Pages
+
+on:
+  # 在推送到 master 分支時運行
+  push:
+    branches: ["master"]
+  # 允許手動觸發此工作流
+  workflow_dispatch:
+
+# GITHUB_TOKEN 的權限設置，以允許部署到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允許一個並發部署，跳過正在運行和最新排隊的之間的運行
+# 但是不要取消正在進行的運行，因為我們希望允許這些生產部署完成
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 單一部署作業，因為我們只是部署
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 上傳整個倉庫
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
