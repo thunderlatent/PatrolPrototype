@@ -939,33 +939,7 @@
             </div>
         </div>
         
-        <!-- NFC 卡片管理 (僅管理員可見) -->
-        <div class="mb-6" id="nfcManagementCard">
-            <div class="bg-white rounded-lg shadow-sm border-l-4 border-purple-500 overflow-hidden">
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center">
-                            <div class="rounded-full bg-purple-100 p-2 mr-3">
-                                <i class="fas fa-id-card text-purple-600"></i>
-                            </div>
-                            <h4 class="font-medium text-gray-800">NFC 卡片管理</h4>
-                        </div>
-                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                            管理員功能
-                        </span>
-                    </div>
-                    
-                    <p class="text-sm text-gray-600 mb-3">
-                        讀取和寫入 NFC 檢查點卡片，完成巡邏點設置
-                    </p>
-                    
-                    <button id="nfcWriteButton" data-action="nfcWrite" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg flex items-center justify-center transition-colors">
-                        <i class="fas fa-pen-alt mr-2"></i>
-                        讀取/寫入 NFC 卡片
-                    </button>
-                </div>
-            </div>
-        </div>
+        <!-- NFC 卡片管理 (僅管理員可見) - 移除此區塊 -->
 
         <!-- 時段選擇區域 -->
         <div class="time-slots">
@@ -1154,6 +1128,19 @@
                 <div>總進度: <span id="totalProgressPercentage2">0%</span></div>
             </div>
         </div>
+        
+        <!-- NFC 測試按鈕 - 添加到巡邏頁面 -->
+        <div class="mb-4">
+            <button id="patrolPageTestNfcBtn" class="w-full bg-blue-100 text-blue-700 py-2 px-4 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors">
+                <i class="fas fa-rss mr-2"></i>
+                測試 NFC 卡片感應功能
+            </button>
+            <div class="flex justify-end mt-1">
+                <label class="text-xs text-gray-500 inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="patrolPageNfcTestFailMode" class="mr-1 h-3 w-3"> 模擬失敗情況
+                </label>
+            </div>
+        </div>
 
         <!-- 巡邏路線列表 -->
         <div id="patrolRoutes" class="space-y-4">
@@ -1229,7 +1216,7 @@
                 showNfcTestInstructions(false);
             });
             
-            // 巡邏頁面的 NFC 測試按鈕事件（當按鈕存在時）
+            // 巡邏頁面的 NFC 測試按鈕事件
             const patrolPageTestNfcBtn = document.getElementById('patrolPageTestNfcBtn');
             if (patrolPageTestNfcBtn) {
                 patrolPageTestNfcBtn.addEventListener('click', function() {
@@ -2028,16 +2015,6 @@
             if (patrolPageUserName && patrolPageUserRole) {
                 patrolPageUserName.textContent = userName;
                 patrolPageUserRole.textContent = userRoleText;
-            }
-            
-            // 控制 NFC 管理卡片的顯示
-            const nfcManagementCard = document.getElementById('nfcManagementCard');
-            if (nfcManagementCard) {
-                if (userRole === 'admin') {
-                    nfcManagementCard.style.display = 'block';
-                } else {
-                    nfcManagementCard.style.display = 'none';
-                }
             }
             
             // 清除並初始化 localStorage
