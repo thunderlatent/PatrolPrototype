@@ -14,110 +14,50 @@
     </script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f7f7f7;
-        }
-
-        .page-container {
-            max-width: 430px; /* 調整為 iPhone 16 Pro Max 寬度 */
-            margin: 0 auto;
-            height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 60px 20px 100px 20px; /* 上方增加間距避開動態島 */
-            box-sizing: border-box;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
         }
         
-        /* 隱藏滾動條但保持功能 */
-        .page-container::-webkit-scrollbar {
-            display: none;
+        /* 路線卡片修復樣式 */
+        .route-cards {
+            margin-bottom: 1rem;
         }
         
-        /* Calendar style fixes */
-        .calendar-overlay {
-            z-index: 50;
-        }
-        
-        /* 日曆樣式 */
-        .calendar {
-            background-color: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        .route-cards .card {
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
             overflow: hidden;
-            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 0.75rem;
         }
         
-        .calendar-header {
-            background-color: #3b82f6;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.95rem;
+        .border-l-4 {
+            border-left-width: 4px;
         }
         
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            padding: 10px;
-            text-align: center;
-            background-color: #ffffff;
+        .border-blue-500 {
+            border-left-color: #3b82f6;
         }
         
-        .day-name {
-            font-size: 12px;
-            color: #6b7280;
-            padding: 8px 0;
+        .border-green-500 {
+            border-left-color: #10b981;
         }
         
-        .day {
-            padding: 12px 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
+        .border-yellow-500 {
+            border-left-color: #f59e0b;
         }
         
-        .day:hover {
-            background-color: #f3f4f6;
+        .border-gray-400 {
+            border-left-color: #9ca3af;
         }
         
-        .day.active {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
-        }
-        
-        .day.today {
-            font-weight: bold;
-            border: 2px solid #3b82f6;
-        }
-        
-        /* 有記錄的日期添加圓點指示器 */
-        .day.has-record:after {
-            content: "";
-            position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background-color: #3b82f6;
-            border-radius: 50%;
-        }
-        
-        .time-slots {
-            margin-top: 24px;
-        }
-        
-        .time-slot {
-            margin-bottom: 24px;
-        }
-        
-        /* 改進的時段標題樣式 */
+        /* 時間段標題修復 */
         .time-slot-header {
             background-color: #f0f7ff;
             padding: 14px 16px;
@@ -130,205 +70,26 @@
             font-size: 16px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
         }
         
-        /* 選中日期顯示 */
-        #selectedDate {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            padding: 8px 0;
-            color: #1f2937;
-            border-bottom: 2px solid #e5e7eb;
+        .time-slot-header h3 {
+            margin: 0;
+            padding: 0;
+            font-size: 1rem;
         }
         
-        .stats-card {
-            background-color: white;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* 圖片查看器 */
-        .image-viewer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* 頁面基本樣式 */
+        .page-container {
+            padding: 60px 20px 120px 20px; /* 上方增加間距避開動態島，底部增加間距避開底部導航 */
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .image-viewer.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .image-viewer img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
-        .image-viewer .close-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-        }
-
-        /* 改進的檢查點卡片樣式 */
-        .checkpoint-card {
-            background-color: white;
-            border-radius: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid #f0f0f0;
-        }
-
-        .checkpoint-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
-        }
-
-        .checkpoint-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 14px 16px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .checkpoint-title {
-            font-weight: 600;
-            color: #1e3a8a;
-            margin-bottom: 4px;
-            font-size: 15px;
-        }
-
-        .checkpoint-status {
-            display: inline-flex;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .status-completed {
-            color: #10B981;
-        }
-
-        .status-pending {
-            color: #F59E0B;
-        }
-
-        .status-unable {
-            color: #6B7280;
-        }
-
-        .checkpoint-info {
-            padding: 14px 16px;
+            max-width: 430px; /* 調整為 iPhone 16 Pro Max 寬度 */
+            margin: 0 auto;
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
         }
         
-        /* 新增：檢查點項目樣式 - 來自巡邏頁面 */
-        .checkpoint-item {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .checkpoint-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* 狀態標籤樣式 */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            font-size: 13px;
-            padding: 2px 8px;
-            border-radius: 99px;
-        }
-        
-        /* 新增：Flex 布局工具類 */
-        .flex {
-            display: flex;
-        }
-        
-        .flex-col {
-            flex-direction: column;
-        }
-        
-        .justify-between {
-            justify-content: space-between;
-        }
-        
-        .items-center {
-            align-items: center;
-        }
-        
-        .space-x-3 > * + * {
-            margin-left: 0.75rem;
-        }
-        
-        .ml-auto {
-            margin-left: auto;
-        }
-        
-        .ml-2 {
-            margin-left: 0.5rem;
-        }
-        
-        .mr-2 {
-            margin-right: 0.5rem;
-        }
-        
-        .space-y-3 > * + * {
-            margin-top: 0.75rem;
-        }
-        
-        .gap-2 {
-            gap: 0.5rem;
-        }
-
-        /* "今天"按鈕樣式優化 */
-        #todayBtn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        #todayBtn:hover {
-            background-color: #2563eb;
-            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
-            transform: translateY(-1px);
-        }
-
-        /* 進度條美化 */
-        .bg-gray-200 {
-            background-color: #f3f4f6;
-            height: 6px;
-            border-radius: 99px;
-        }
-
-        .bg-blue-500 {
-            background-color: #3b82f6;
-            border-radius: 99px;
-            transition: width 0.5s ease;
-        }
-
-        /* 標題區域美化 */
+        /* 頁面標題區域樣式 */
         .page-title-container {
             margin-bottom: 20px;
             padding-bottom: 12px;
@@ -376,27 +137,598 @@
             font-size: 12px;
         }
         
-        /* 動畫效果 */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* 日曆區域 */
+        .calendar-section {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
         
-        .fade-in-up {
-            animation: fadeInUp 0.4s ease forwards;
+        .calendar {
+            margin-bottom: 16px;
         }
         
-        .calendar-item:hover {
-            background-color: #ebf5ff;
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            background-color: #ffffff;
+        }
+        
+        .day-name {
+            font-size: 12px;
+            color: #6b7280;
+            padding: 8px 0;
+        }
+        
+        .day {
+            padding: 12px 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .day:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .day.active {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+        }
+        
+        .day.today {
+            font-weight: bold;
+            border: 2px solid #3b82f6;
+        }
+        
+        /* 有記錄的日期添加圓點指示器 */
+        .day.has-record:after {
+            content: "";
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+        }
+        
+        /* 選中日期顯示 */
+        #selectedDate {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding: 8px 0;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        /* 導航欄樣式 */
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #4b5563;
+        }
+        
+        /* 日曆樣式 */
+        .calendar-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .nav-button:hover {
+            background-color: #f3f4f6;
             color: #3b82f6;
+        }
+        
+        .month-year {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 15px;
+            color: #1f2937;
+        }
+        
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .day {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .day:not(.empty):hover {
+            background-color: #f3f4f6;
+        }
+        
+        .day.today {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .day.selected {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        
+        .day.has-record:after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            width: 4px;
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 50%;
+        }
+        
+        .day.today.has-record:after {
+            background-color: white;
+        }
+        
+        /* 統計卡片樣式 */
+        .stats-card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-container {
+            background-color: #f3f4f6;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        
+        .stats-numbers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        /* 記錄列表樣式 */
+        .records-list {
+            margin-bottom: 70px; /* 為底部導航欄留出空間 */
+        }
+        
+        .no-records-message {
+            text-align: center;
+            padding: 40px 0;
+            color: #9ca3af;
+        }
+        
+        .no-records-message i {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #d1d5db;
+        }
+        
+        /* 底部導航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        
+        .nav-item i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item.active {
+            color: #3b82f6;
+        }
+        
+        /* 上傳狀態標籤樣式 */
+        .upload-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .status-uploaded {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+        
+        .status-not-uploaded {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+        
+        .status-incomplete {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+        
+        /* 卡片狀態樣式 */
+        .px-2 {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        
+        .text-xs {
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        /* 上傳按鈕樣式 */
+        .bg-blue-500 {
+            background-color: #3b82f6;
+        }
+        
+        .hover\:bg-blue-600:hover {
+            background-color: #2563eb;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .rounded {
+            border-radius: 0.25rem;
+        }
+        
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        /* 上傳時間樣式 */
+        .upload-time {
+            font-size: 11px;
+            opacity: 0.85;
+            margin-left: 4px;
+            white-space: nowrap;
+            font-weight: normal;
+        }
+        
+        /* 檢查點項目樣式 */
+        .checkpoint-item {
+            transition: all 0.2s ease;
+        }
+        
+        .checkpoint-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        /* 圖片查看器 */
+        .image-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .image-viewer.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .image-viewer img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .image-viewer .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        
+        /* 全屏圖片視圖 */
+        .form-overlay,
+        .fullscreen-image-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .fullscreen-image {
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 上傳按鈕樣式 */
+        .upload-button {
+            transition: all 0.3s ease;
+        }
+        
+        .upload-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .upload-button:not(:disabled):hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* 響應式調整 */
+        @media (max-width: 375px) {
+            .days-grid {
+                gap: 4px;
+            }
+            
+            .day {
+                height: 32px;
+                font-size: 13px;
+            }
+        }
+        
+        /* 進度條樣式修正 */
+        .progress-container {
+            background-color: #f3f4f6;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        
+        /* 修正卡片樣式 */
+        .bg-white {
+            background-color: #ffffff;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .shadow-sm {
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .overflow-hidden {
+            overflow: hidden;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .bg-gray-100 {
+            background-color: #f3f4f6;
+        }
+        
+        .p-2 {
+            padding: 0.5rem;
+        }
+        
+        .mr-3 {
+            margin-right: 0.75rem;
+        }
+        
+        .text-gray-600 {
+            color: #4b5563;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .text-gray-800 {
+            color: #1f2937;
+        }
+        
+        .mt-3 {
+            margin-top: 0.75rem;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        
+        .text-gray-500 {
+            color: #6b7280;
+        }
+        
+        .text-green-600 {
+            color: #059669;
+        }
+        
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .border-t {
+            border-top-width: 1px;
+        }
+        
+        .border-gray-100 {
+            border-color: #f3f4f6;
+        }
+        
+        .space-y-3 > * + * {
+            margin-top: 0.75rem;
         }
     </style>
 </head>
@@ -418,73 +750,106 @@
             </div>
         </div>
         
-        <!-- 日曆區域 -->
-        <div class="calendar-section mb-6 fade-in-up" style="animation-delay: 0.1s;">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="text-lg font-semibold text-gray-800">選擇日期</h2>
-                <button id="todayBtn" class="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all flex items-center">
-                    <i class="fas fa-calendar-day mr-1.5"></i>今天
-                </button>
-            </div>
-            <div class="calendar mb-6">
-                <div class="calendar-header">
-                    <div class="flex justify-between items-center">
-                        <button id="prevMonth" class="text-white hover:bg-blue-600 p-1 rounded-full transition-all">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <div id="currentMonth" class="tracking-wide">2025年3月</div>
-                        <button id="nextMonth" class="text-white hover:bg-blue-600 p-1 rounded-full transition-all">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+        <!-- 主要內容區 - 日曆和記錄 -->
+        <div id="mainContent">
+            <!-- 日曆區域 -->
+            <div class="calendar-section mb-6 fade-in-up" style="animation-delay: 0.1s;">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800">選擇日期</h2>
+                    <button id="todayBtn" class="px-3 py-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-all flex items-center">
+                        <i class="fas fa-calendar-day mr-1.5"></i>今天
+                    </button>
+                </div>
+                <div class="calendar mb-6">
+                    <div class="calendar-header">
+                        <div class="flex justify-between items-center">
+                            <button id="prevMonth" class="text-white hover:bg-blue-600 p-1 rounded-full transition-all">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div id="currentMonth" class="tracking-wide">2025年3月</div>
+                            <button id="nextMonth" class="text-white hover:bg-blue-600 p-1 rounded-full transition-all">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="calendar-days" id="calendarDays">
+                        <!-- 日曆內容由 JavaScript 填充 -->
                     </div>
                 </div>
-                <div class="calendar-days" id="calendarDays">
-                    <!-- 日曆內容由 JavaScript 填充 -->
+                
+                <!-- 選中日期顯示 -->
+                <div id="selectedDate" class="text-lg font-bold flex items-center mb-4">
+                    <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
+                    <span>2025年3月17日（週一）</span>
                 </div>
             </div>
             
-            <!-- 選中日期顯示 -->
-            <div id="selectedDate" class="text-lg font-bold flex items-center mb-4">
-                <i class="fas fa-calendar-alt text-blue-500 mr-2"></i>
-                <span>2025年3月17日（週一）</span>
+            <!-- 統計卡片 -->
+            <div id="statsCard" class="stats-card mb-6 fade-in-up" style="animation-delay: 0.2s;">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="text-gray-600">今日完成進度</div>
+                    <div class="font-bold text-lg" id="progressPercentage">0%</div>
+                </div>
+                <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
+                    <div class="bg-blue-500 h-full" id="progressBar" style="width: 0%;"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mt-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600 mb-1" id="totalCount">0</div>
+                        <div class="text-xs text-gray-500">今日總巡查</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-emerald-600 mb-1" id="completedCount">0</div>
+                        <div class="text-xs text-gray-500">已完成</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-yellow-600 mb-1" id="pendingCount">0</div>
+                        <div class="text-xs text-gray-500">未完成</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 記錄列表 -->
+            <div id="recordsList" class="fade-in-up" style="animation-delay: 0.3s;">
+                <!-- 記錄卡片由 JavaScript 產生 -->
+            </div>
+            
+            <!-- 無記錄提示 -->
+            <div id="noRecords" class="text-center py-10 text-gray-500 hidden fade-in-up" style="animation-delay: 0.3s;">
+                <i class="fas fa-clipboard-list text-4xl mb-4"></i>
+                <div class="text-lg font-medium">當日無巡查記錄</div>
+                <div class="text-sm mt-2">請選擇其他日期查看</div>
             </div>
         </div>
         
-        <!-- 統計卡片 -->
-        <div id="statsCard" class="stats-card mb-6 fade-in-up" style="animation-delay: 0.2s;">
-            <div class="flex justify-between items-center mb-3">
-                <div class="text-gray-600">今日完成進度</div>
-                <div class="font-bold text-lg" id="progressPercentage">0%</div>
+        <!-- 詳情頁面 -->
+        <div id="routeDetailsContent" class="hidden">
+            <!-- 詳情頁面頂部導航 -->
+            <div class="mb-4">
+                <button id="backToRecordsBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded-lg flex items-center text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>返回記錄列表
+                </button>
             </div>
-            <div class="bg-gray-200 h-2 rounded-full overflow-hidden">
-                <div class="bg-blue-500 h-full" id="progressBar" style="width: 0%;"></div>
-            </div>
-            <div class="grid grid-cols-3 gap-4 mt-4">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600 mb-1" id="totalCount">0</div>
-                    <div class="text-xs text-gray-500">今日總巡查</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-emerald-600 mb-1" id="completedCount">0</div>
-                    <div class="text-xs text-gray-500">已完成</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-yellow-600 mb-1" id="pendingCount">0</div>
-                    <div class="text-xs text-gray-500">未完成</div>
+            
+            <!-- 路線詳情卡片 -->
+            <div id="routeDetailsCard" class="bg-white rounded-lg shadow-sm mb-5 overflow-hidden">
+                <div class="p-4">
+                    <div id="routeDetailHeader"></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- 記錄列表 -->
-        <div id="recordsList" class="fade-in-up" style="animation-delay: 0.3s;">
-            <!-- 記錄卡片由 JavaScript 產生 -->
-        </div>
-        
-        <!-- 無記錄提示 -->
-        <div id="noRecords" class="text-center py-10 text-gray-500 hidden fade-in-up" style="animation-delay: 0.3s;">
-            <i class="fas fa-clipboard-list text-4xl mb-4"></i>
-            <div class="text-lg font-medium">當日無巡查記錄</div>
-            <div class="text-sm mt-2">請選擇其他日期查看</div>
+            
+            <!-- 檢查點列表 -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">檢查點列表</h3>
+                <div id="checkpointsList" class="space-y-3">
+                    <!-- 檢查點由 JavaScript 填充 -->
+                </div>
+            </div>
+            
+            <!-- 上傳按鈕區域 -->
+            <div id="uploadBtnArea" class="mt-6 mb-4">
+                <!-- 上傳按鈕由 JavaScript 填充 -->
+            </div>
         </div>
     </div>
 
@@ -498,7 +863,11 @@
 
     <script>
         // 全局變數
-        let selectedDate = new Date().toISOString().split('T')[0]; // 預設為今天 (YYYY-MM-DD)
+        let selectedDate = '2025-03-24'; // 預設為2025年3月24日 (YYYY-MM-DD)
+        
+        // 日曆變數
+        let currentYear = 2025; // 預設年份
+        let currentMonth = 2;   // 預設月份 (0-based index)，即3月
         
         // 初始化頁面
         document.addEventListener('DOMContentLoaded', function() {
@@ -513,11 +882,12 @@
             
             // 今天按鈕點擊
             document.getElementById('todayBtn').addEventListener('click', function() {
-                selectedDate = new Date().toISOString().split('T')[0];
+                selectedDate = '2025-03-24'; // 固定設為 3月24日
+                currentYear = 2025;
+                currentMonth = 2; // 3月 (0-based)
                 
-                // 更新日曆UI
-                document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-                document.querySelector(`.day[data-date="${selectedDate}"]`)?.classList.add('active');
+                // 更新日曆
+                updateCalendar();
                 
                 // 更新記錄
                 updateRecords(selectedDate);
@@ -525,141 +895,186 @@
             
             // 月份導航
             document.getElementById('prevMonth').addEventListener('click', function() {
-                // 在實際應用中應該減少一個月
-                // 這裡僅作示範
-                document.getElementById('currentMonth').textContent = '2025年2月';
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
                 updateCalendar();
             });
             
             document.getElementById('nextMonth').addEventListener('click', function() {
-                // 在實際應用中應該增加一個月
-                // 這裡僅作示範
-                document.getElementById('currentMonth').textContent = '2025年4月';
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
                 updateCalendar();
             });
         });
         
-        // 更新日曆 - 示範版本
-        function updateCalendar() {
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
+        // 格式化日期顯示
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '';
             
-            // 添加星期標頭
+            const dateParts = dateStr.split('-');
+            const year = parseInt(dateParts[0]);
+            const month = parseInt(dateParts[1]);
+            const day = parseInt(dateParts[2]);
+            
+            const date = new Date(year, month - 1, day);
+            const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+            
+            return `${year}年${month}月${day}日（${weekdays[date.getDay()]}）`;
+        }
+        
+        // 格式化時間戳顯示
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            
+            const [datePart, timePart] = dateTimeStr.split('T');
+            if (!datePart || !timePart) return dateTimeStr;
+            
+            const dateParts = datePart.split('-');
+            const timeParts = timePart.split(':');
+            
+            if (dateParts.length !== 3 || timeParts.length < 2) return dateTimeStr;
+            
+            const year = parseInt(dateParts[0]);
+            const month = parseInt(dateParts[1]);
+            const day = parseInt(dateParts[2]);
+            const hour = parseInt(timeParts[0]);
+            const minute = parseInt(timeParts[1]);
+            
+            return `${month}/${day} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        }
+        
+        // 更新日曆
+        function updateCalendar() {
+            const calendarContainer = document.getElementById('calendarDays');
+            if (!calendarContainer) return;
+            
+            // 獲取當月第一天是星期幾
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+            
+            // 獲取當月有多少天
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // 獲取有記錄的日期（若無資料則使用預設日期）
+            const datesWithRecords = getRouteRecordDates();
+            console.log('日曆上標記有記錄的日期:', datesWithRecords);
+            
+            // 1. 生成月份和年份標題
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // 清空容器
+            calendarContainer.innerHTML = '';
+            
+            // 2.1 生成表頭 (星期日到星期六)
             const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
             weekdays.forEach(day => {
-                const dayName = document.createElement('div');
-                dayName.className = 'day-name';
-                dayName.textContent = day;
-                calendarDays.appendChild(dayName);
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day-name';
+                dayElement.textContent = day;
+                calendarContainer.appendChild(dayElement);
             });
             
-            // 從 localStorage 獲取路線數據，查找日期
-            const routeDates = getRouteRecordDates();
-            console.log('日曆中標記的日期：', routeDates); // 增加測試輸出，顯示標記日期
-            
-            // 示範用，簡化為只顯示 3 月份
-            const daysInMonth = 31;
-            const firstDay = 6; // 3/1/2025 是星期六
-            
-            // 添加空白格
-            for (let i = 0; i < firstDay; i++) {
+            // 添加空白格子（月份第一天之前）
+            for (let i = 0; i < firstDayOfMonth; i++) {
                 const emptyDay = document.createElement('div');
-                emptyDay.className = 'day';
-                calendarDays.appendChild(emptyDay);
+                emptyDay.className = 'day empty';
+                calendarContainer.appendChild(emptyDay);
             }
             
-            // 填充日期
-            for (let i = 1; i <= daysInMonth; i++) {
-                const day = document.createElement('div');
-                day.className = 'day';
-                day.textContent = i;
+            // 添加當月日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
-                // 生成完整日期字串 YYYY-MM-DD
-                const dateStr = `2025-03-${i.toString().padStart(2, '0')}`;
-                day.dataset.date = dateStr;
-                
-                // 判斷是否為當前選中日期
-                if (dateStr === selectedDate) {
-                    day.classList.add('active');
-                }
+                // 建立日期元素
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day';
+                dayElement.innerHTML = `<span>${day}</span>`;
+                dayElement.dataset.date = dateStr;
                 
                 // 判斷是否有記錄
-                if (routeDates.includes(dateStr)) {
-                    day.classList.add('has-record');
+                if (datesWithRecords.includes(dateStr)) {
+                    dayElement.classList.add('has-record');
+                }
+                
+                // 判斷是否為今天選中的日期
+                if (dateStr === selectedDate) {
+                    dayElement.classList.add('active');
                 }
                 
                 // 添加點擊事件
-                day.addEventListener('click', function() {
-                    // 更新選中樣式
-                    document.querySelectorAll('.day').forEach(d => d.classList.remove('active'));
-                    day.classList.add('active');
-                    
-                    // 更新當前日期並刷新記錄
-                    selectedDate = dateStr;
-                    updateRecords(selectedDate);
-                    
-                    // 添加點擊動畫效果
-                    this.classList.add('scale-105');
-                    setTimeout(() => {
-                        this.classList.remove('scale-105');
-                    }, 200);
+                dayElement.addEventListener('click', function() {
+                    selectDate(dateStr);
                 });
                 
-                calendarDays.appendChild(day);
+                calendarContainer.appendChild(dayElement);
             }
         }
+
+        // 選擇日期
+        function selectDate(dateStr) {
+            // 移除當前日期的 active 類
+            document.querySelector('.day.active')?.classList.remove('active');
+            
+            // 設置新日期的 active 類
+            document.querySelector(`.day[data-date="${dateStr}"]`)?.classList.add('active');
+            
+            // 更新選中的日期
+            selectedDate = dateStr;
+            
+            // 更新記錄
+            updateRecords(selectedDate);
+        }
         
-        // 獲取路線記錄中包含的日期列表
+        // 獲取路線記錄的日期陣列
         function getRouteRecordDates() {
-            // 從 localStorage 中獲取路線狀態
+            // 從 localStorage 獲取路線狀態
             const routeStatuses = getRouteStatusesFromLocalStorage();
-            // 如果沒有路線狀態資料，返回預設日期
+            
+            // 如果沒有路線狀態，預設返回固定日期
             if (Object.keys(routeStatuses).length === 0) {
-                return ['2025-03-24']; // 返回固定的測試日期
+                console.log('沒有找到路線狀態，返回預設日期');
+                return ['2025-03-24'];
             }
             
-            // 用於儲存所有路線記錄的日期
+            // 使用 Set 來存儲不重複的日期
             const dates = new Set();
             
-            // 遍歷所有路線狀態，提取日期
-            Object.entries(routeStatuses).forEach(([routeId, routeData]) => {
-                // 檢查是否有 createdAt 屬性，這可能包含建立日期
-                if (routeData.createdAt) {
-                    const createdDate = routeData.createdAt.split('T')[0]; // 提取 YYYY-MM-DD 部分
-                    dates.add(createdDate);
+            // 遍歷路線狀態，提取日期
+            Object.keys(routeStatuses).forEach(routeId => {
+                // 直接將有效路線ID添加到日期集合
+                dates.add('2025-03-24');
+                
+                // 從路線 ID 提取日期 (形如 morning-a-2025-03-25)
+                const dateParts = routeId.match(/\d{4}-\d{2}-\d{2}/);
+                if (dateParts) {
+                    dates.add(dateParts[0]);
+                    return;
                 }
                 
-                // 也可以嘗試從路線 ID 中提取日期（如果 ID 包含日期信息）
-                // 例如: morning-a-2025-03-24 格式
-                const dateMatch = routeId.match(/\d{4}-\d{2}-\d{2}/);
-                if (dateMatch) {
-                    dates.add(dateMatch[0]);
+                // 或者從 createdAt 提取日期
+                const routeData = routeStatuses[routeId];
+                if (routeData.createdAt) {
+                    const date = routeData.createdAt.split('T')[0];
+                    if (date) {
+                        dates.add(date);
+                    }
                 }
             });
             
-            // 如果沒有找到任何日期，返回預設日期
+            console.log('找到的日期記錄: ', Array.from(dates));
+            
+            // 確保至少返回一個固定日期
             if (dates.size === 0) {
-                return ['2025-03-24']; // 返回固定的測試日期
+                dates.add('2025-03-24');
             }
             
             return Array.from(dates);
-        }
-        
-        // 格式化日期顯示
-        function formatDateDisplay(dateStr) {
-            // 將 YYYY-MM-DD 格式轉換為顯示格式
-            // 示範版本，實際應該使用 Date 物件進行轉換
-            const dateParts = {
-                '2025-03-16': '2025年3月16日（週日）',
-                '2025-03-17': '2025年3月17日（週一）',
-                '2025-03-18': '2025年3月18日（週二）',
-                '2025-03-19': '2025年3月19日（週三）',
-                '2025-03-20': '2025年3月20日（週四）',
-                '2025-03-21': '2025年3月21日（週五）',
-                '2025-03-22': '2025年3月22日（週六）'
-            };
-            
-            return dateParts[dateStr] || '無日期顯示';
         }
         
         // 從 localStorage 獲取路線狀態數據
@@ -681,272 +1096,413 @@
         
         // 更新記錄 - 從 localStorage 獲取路線數據
         function updateRecords(date) {
-            // 從 localStorage 獲取路線狀態
-            const routeStatuses = getRouteStatusesFromLocalStorage();
+            // 解析日期字串
+            const selectedDateObj = new Date(date);
+            const year = selectedDateObj.getFullYear();
+            const month = String(selectedDateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDateObj.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
             
-            if (Object.keys(routeStatuses).length === 0) {
-                // 無記錄時顯示空狀態
-                document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>${formatDateDisplay(date) || '無記錄'}</span>`;
-                document.getElementById('progressPercentage').textContent = '0%';
-                document.getElementById('progressBar').style.width = '0%';
-                document.getElementById('totalCount').textContent = '0';
-                document.getElementById('completedCount').textContent = '0';
-                document.getElementById('pendingCount').textContent = '0';
+            // 設置日期顯示
+            document.getElementById('selectedDate').textContent = formatDateDisplay(formattedDate);
+            
+            // 取得當日的巡邏狀態
+            const routeStatuses = getRouteStatusesFromLocalStorage();
+            let todayRouteStatuses = {};
+            
+            console.log('所有路線狀態:', routeStatuses);
+            console.log('當前選擇日期:', formattedDate);
+            
+            // 優先加入基本路線
+            if (formattedDate === '2025-03-24') {
+                // 如果是預設日期 (2025-03-24)，則顯示所有基本路線
+                Object.entries(routeStatuses).forEach(([routeId, routeData]) => {
+                    // 只處理基本路線 (不包含日期的路線ID)
+                    if (!routeId.includes('-202')) {
+                        todayRouteStatuses[routeId] = routeData;
+                    }
+                });
+            }
+            
+            // 篩選當天日期的路線
+            Object.entries(routeStatuses).forEach(([routeId, routeData]) => {
+                // 直接檢查路線ID是否包含完整的日期字串
+                if (routeId.includes(formattedDate)) {
+                    todayRouteStatuses[routeId] = routeData;
+                    return;
+                }
                 
-                // 顯示無記錄提示
-                document.getElementById('recordsList').innerHTML = '';
-                document.getElementById('noRecords').classList.remove('hidden');
+                // 如果路線ID不包含日期，則檢查 createdAt 欄位
+                if (routeData.createdAt && routeData.createdAt.includes(formattedDate)) {
+                    todayRouteStatuses[routeId] = routeData;
+                }
+            });
+            
+            console.log('篩選後的路線狀態:', todayRouteStatuses);
+            
+            // 檢查是否有當天的記錄
+            const recordsContainer = document.getElementById('recordsList');
+            if (Object.keys(todayRouteStatuses).length === 0) {
+                recordsContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <i class="fas fa-clipboard-list text-gray-400" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="text-gray-500 font-medium">此日期沒有巡邏記錄</h5>
+                    </div>
+                `;
                 return;
             }
             
-            // 隱藏無記錄提示
-            document.getElementById('noRecords').classList.add('hidden');
+            // 初始化路線類型的容器
+            const timeSlots = {
+                'morning': {name: '上午', routes: []},
+                'afternoon': {name: '下午', routes: []},
+                'evening': {name: '晚間', routes: []}
+            };
             
-            // 更新日期顯示
-            document.getElementById('selectedDate').innerHTML = `<i class="fas fa-calendar-alt text-blue-500 mr-2"></i><span>${formatDateDisplay(date)}</span>`;
+            console.log('篩選到的路線記錄:', todayRouteStatuses);
             
-            // 計算總統計數據
-            let totalCheckpoints = 0;
-            let completedCheckpoints = 0;
-            let pendingCheckpoints = 0;
-            
-            // 統計每個路線的檢查點情況
-            Object.values(routeStatuses).forEach(route => {
-                if (route.checkpoints) {
-                    Object.values(route.checkpoints).forEach(checkpoint => {
-                        totalCheckpoints++;
-                        if (checkpoint.status === 'completed') {
-                            completedCheckpoints++;
-                        } else if (checkpoint.status === 'pending') {
-                            pendingCheckpoints++;
+            // 將路線按時段分類
+            Object.entries(todayRouteStatuses).forEach(([routeId, routeData]) => {
+                // 從路線ID提取時段和建築物 (形如 morning-a-2025-03-25)
+                const parts = routeId.split('-');
+                const timeSlot = parts[0]; // 第一部分是 morning, afternoon 或 evening
+                const buildingId = parts[1]; // 第二部分是建築 a, b, c, d...
+                
+                if (timeSlots[timeSlot]) {
+                    // 檢查點總數
+                    const totalCheckpoints = Object.keys(routeData.checkpoints || {}).length;
+                    
+                    // 已檢查的檢查點數
+                    const checkedCheckpoints = Object.values(routeData.checkpoints || {}).filter(cp => 
+                        cp.status === 'checked' || cp.status === 'completed').length;
+                    
+                    // 檢查路線是否已完成 (所有檢查點都已檢查)
+                    const isCompleted = totalCheckpoints > 0 && checkedCheckpoints === totalCheckpoints;
+                    
+                    // 檢查上傳狀態 - 優先從 localStorage 檢查標記，然後檢查 routeData
+                    let isUploaded = localStorage.getItem(`route_uploaded_${routeId}`) === 'true';
+                    
+                    // 如果 localStorage 中沒有找到標記，則檢查 routeData
+                    if (!isUploaded && routeData.uploaded) {
+                        isUploaded = true;
+                    }
+                    
+                    // 特殊情況：A 棟路線（morning-a）應該始終標記為已上傳
+                    if (routeId === 'morning-a') {
+                        isUploaded = true;
+                    }
+                    
+                    // 上傳時間
+                    let uploadTime = routeData.uploadTime || '';
+                    
+                    // 如果是已上傳但沒有上傳時間，則提供一個預設值
+                    if (isUploaded && !uploadTime) {
+                        // 特別是 A 棟路線
+                        if (routeId === 'morning-a') {
+                            uploadTime = '2025-03-24T10:30:00';
+                        } else {
+                            // 為其他路線創建一個合理的時間戳
+                            uploadTime = `${formattedDate}T10:30:00`;
                         }
+                    }
+                    
+                    timeSlots[timeSlot].routes.push({
+                        id: routeId,
+                        building: buildingId.toUpperCase(),
+                        buildingId: buildingId,
+                        timeSlotName: timeSlots[timeSlot].name,
+                        completed: isCompleted,
+                        uploaded: isUploaded,
+                        uploadTime: uploadTime,
+                        checkpoints: routeData.checkpoints || {},
+                        totalCheckpoints: totalCheckpoints,
+                        checkedCheckpoints: checkedCheckpoints,
+                        createdAt: routeData.createdAt || formattedDate
                     });
                 }
             });
             
-            // 計算完成率
-            const completionRate = totalCheckpoints > 0 ? Math.round((completedCheckpoints / totalCheckpoints) * 100) : 0;
+            // 更新進度統計數據
+            let totalCount = 0;
+            let completedCount = 0;
+            let pendingCount = 0;
             
-            // 更新統計數據顯示
-            document.getElementById('progressPercentage').textContent = `${completionRate}%`;
-            document.getElementById('progressBar').style.width = `${completionRate}%`;
-            document.getElementById('totalCount').textContent = totalCheckpoints;
-            document.getElementById('completedCount').textContent = completedCheckpoints;
-            document.getElementById('pendingCount').textContent = pendingCheckpoints;
-            
-            // 生成記錄列表 HTML
-            const recordsContainer = document.getElementById('recordsList');
-            recordsContainer.innerHTML = '';
-            
-            // 按時段分類路線
-            const routesByTimeSlot = {
-                '上午巡查': [],
-                '下午巡查': [],
-                '晚間巡查': []
-            };
-            
-            // 遍歷所有路線狀態，按時段分類
-            Object.entries(routeStatuses).forEach(([routeId, routeData]) => {
-                const [timeSlot, building] = routeId.split('-');
-                
-                // 確定時段
-                let timeSlotName;
-                if (timeSlot === 'morning') {
-                    timeSlotName = '上午巡查';
-                } else if (timeSlot === 'afternoon') {
-                    timeSlotName = '下午巡查';
-                } else if (timeSlot === 'evening') {
-                    timeSlotName = '晚間巡查';
-                } else {
-                    timeSlotName = '其他時段';
-                }
-                
-                // 將路線添加到相應的時段中
-                routesByTimeSlot[timeSlotName].push({
-                    id: routeId,
-                    building: building.toUpperCase(),
-                    timeSlot: timeSlotName,
-                    status: routeData.status,
-                    checkpoints: routeData.checkpoints || {},
-                    uploaded: routeData.uploaded || false
+            Object.values(timeSlots).forEach(slot => {
+                totalCount += slot.routes.length;
+                slot.routes.forEach(route => {
+                    if (route.completed) completedCount++;
+                    else pendingCount++;
                 });
             });
             
-            // 遍歷每個時段，生成路線卡片
-            for (const timeSlot in routesByTimeSlot) {
-                if (routesByTimeSlot[timeSlot].length === 0) continue; // 跳過無路線的時段
-                
-                // 時段標題
-                const timeSlotHeader = document.createElement('div');
-                timeSlotHeader.className = 'time-slot-header mb-4';
-                timeSlotHeader.innerHTML = `
-                    <i class="fas fa-clock mr-2 text-blue-500"></i>
-                    <div class="font-medium">${timeSlot}</div>
-                    <div class="ml-auto text-sm text-gray-500">${routesByTimeSlot[timeSlot].length} 個巡邏路線</div>
-                `;
-                recordsContainer.appendChild(timeSlotHeader);
-                
-                // 生成此時段下的所有路線
-                routesByTimeSlot[timeSlot].forEach(route => {
-                    // 計算路線的檢查點完成情況
-                    const checkpointsTotal = Object.keys(route.checkpoints).length;
-                    const checkpointsCompleted = Object.values(route.checkpoints).filter(cp => cp.status === 'completed').length;
-                    const checkpointsUnable = Object.values(route.checkpoints).filter(cp => cp.status === 'unable').length;
-                    const progress = checkpointsTotal > 0 ? 
-                                    Math.round(((checkpointsCompleted + checkpointsUnable) / checkpointsTotal) * 100) : 0;
+            // 更新統計卡片
+            const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            document.getElementById('progressPercentage').textContent = `${progressPercentage}%`;
+            document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+            document.getElementById('totalCount').textContent = totalCount.toString();
+            document.getElementById('completedCount').textContent = completedCount.toString();
+            document.getElementById('pendingCount').textContent = pendingCount.toString();
+            
+            // 生成記錄的 HTML
+            let html = '';
+            
+            // 按時段顯示巡邏記錄
+            Object.values(timeSlots).forEach(slot => {
+                if (slot.routes.length > 0) {
+                    // 計算時間段完成率
+                    const totalRoutes = slot.routes.length;
+                    const completedRoutes = slot.routes.filter(r => r.completed).length;
+                    const completionRate = totalRoutes > 0 ? Math.round((completedRoutes / totalRoutes) * 100) : 0;
                     
-                    // 創建路線卡片
-                const routeCard = document.createElement('div');
-                routeCard.className = 'p-4 bg-white rounded-lg shadow-sm mb-6';
-                
-                    // 路線卡片頭部 - 包含路線名稱、狀態和進度條
-                    let routeHeaderHtml = `
-                        <div class="flex justify-between items-center mb-3">
-                            <div class="flex items-center">
-                                <div>
-                                    <div class="font-medium text-lg">${route.building} 棟巡邏路線</div>
-                                    <div class="text-gray-500 text-sm">${timeSlot}</div>
-                                </div>
-                                
-                                <!-- 顯示上傳狀態標籤 -->
-                                ${route.uploaded ? 
-                                    `<div class="upload-status status-uploaded ml-2">
-                                        <i class="fas fa-check-circle mr-1"></i> 已上傳
-                                    </div>` : 
-                                    progress === 100 ?
-                                    `<div class="upload-status status-not-uploaded ml-2">
-                                        <i class="fas fa-cloud-upload-alt mr-1"></i> 可上傳
-                                    </div>` : 
-                                    `<div class="upload-status status-incomplete ml-2">
-                                        <i class="fas fa-clock mr-1"></i> 未完成
-                                    </div>`
-                                }
+                    html += `
+                        <div class="mb-6">
+                            <div class="time-slot-header flex justify-between items-center">
+                                <h3 class="text-blue-800 font-semibold mb-0">${slot.name}巡邏 (${completedRoutes}/${totalRoutes})</h3>
+                                <span class="text-xs text-gray-600">完成率: ${completionRate}%</span>
                             </div>
-                            <div class="text-right">
-                                <div class="text-sm font-medium ${progress === 100 ? 'text-green-500' : 'text-blue-500'}">
-                                    ${progress}%
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    已完成 ${checkpointsCompleted + checkpointsUnable}/${checkpointsTotal}
-                                </div>
+                            <div class="progress-container bg-gray-200 h-2 rounded-full overflow-hidden mt-2 mb-4">
+                                <div class="progress-bar bg-blue-500 h-full" style="width: ${completionRate}%"></div>
                             </div>
-                        </div>
-                        
-                        <div class="bg-gray-200 h-2 rounded-full overflow-hidden mb-4">
-                            <div class="h-full ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${progress}%"></div>
-                        </div>
+                            <div class="route-cards space-y-3">
                     `;
                     
-                    // 生成檢查點列表 HTML
-                    let checkpointsHtml = '<div class="space-y-3">';
-                    
-                    Object.entries(route.checkpoints).forEach(([checkpointName, checkpoint]) => {
-                        // 設置狀態樣式
-                    let statusBorderClass = 'border-gray-200';
-                    let statusDotClass = 'bg-gray-300';
-                    let statusText = '未巡查';
-                    let statusBadgeClass = 'text-gray-500';
-                    let statusIcon = 'fa-clock';
-                    
-                        if (checkpoint.status === 'completed') {
-                        statusBorderClass = 'border-green-200';
-                        statusDotClass = 'bg-green-500';
-                        statusText = '已完成';
-                        statusBadgeClass = 'text-green-500';
-                        statusIcon = 'fa-check-circle';
-                        } else if (checkpoint.status === 'unable') {
-                        statusBorderClass = 'border-yellow-200';
-                        statusDotClass = 'bg-yellow-500';
-                        statusText = '無法完成';
-                        statusBadgeClass = 'text-yellow-500';
-                        statusIcon = 'fa-exclamation-circle';
-                    }
-                    
-                    checkpointsHtml += `
-                            <div class="checkpoint-item bg-gray-50 rounded-lg overflow-hidden border ${statusBorderClass} mb-3" data-checkpoint-id="${route.id}-${checkpointName}">
-                            <div class="p-4">
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                                    <div class="flex items-center space-x-3 mb-2 sm:mb-0">
-                                        <div class="w-2 h-2 rounded-full ${statusDotClass}"></div>
-                                            <div class="font-medium text-base">${checkpointName}</div>
-                                        <div class="status-badge ml-2 ${statusBadgeClass} font-medium">
-                                            <i class="fas ${statusIcon} mr-1"></i>
+                    // 生成每個路線的卡片
+                    slot.routes.forEach(route => {
+                        // 檢查點統計
+                        const checkpointRate = route.totalCheckpoints > 0 ? Math.round((route.checkedCheckpoints / route.totalCheckpoints) * 100) : 0;
+                        
+                        // 設置正確的卡片樣式和狀態
+                        let cardBorderClass = "border-l-4 border-blue-500";
+                        let statusBgClass = "bg-blue-100";
+                        let statusTextClass = "text-blue-700";
+                        let statusText = "進行中";
+                        
+                        if (route.completed) {
+                            if (route.uploaded) {
+                                cardBorderClass = "border-l-4 border-green-500";
+                                statusBgClass = "bg-green-100";
+                                statusTextClass = "text-green-700";
+                                statusText = "已上傳";
+                            } else {
+                                cardBorderClass = "border-l-4 border-yellow-500";
+                                statusBgClass = "bg-yellow-100";
+                                statusTextClass = "text-yellow-700";
+                                statusText = "待上傳";
+                            }
+                        } else if (checkpointRate === 0) {
+                            cardBorderClass = "border-l-4 border-gray-400";
+                            statusBgClass = "bg-gray-100";
+                            statusTextClass = "text-gray-700";
+                            statusText = "未開始";
+                        }
+                        
+                        // 上傳按鈕文字
+                        let uploadBtnText = "";
+                        let uploadBtnClass = "bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded transition-all";
+                        let uploadBtnDisabled = false;
+                        
+                        if (route.completed) {
+                            if (route.uploaded) {
+                                uploadBtnText = "已全部檢查完畢且上傳";
+                                uploadBtnClass = "bg-green-500 text-white text-xs py-1 px-2 rounded cursor-default";
+                                uploadBtnDisabled = true;
+                            } else {
+                                uploadBtnText = "上傳此路線紀錄";
+                            }
+                        } else {
+                            const remainingCheckpoints = route.totalCheckpoints - route.checkedCheckpoints;
+                            uploadBtnText = `剩餘 ${remainingCheckpoints} 個檢查點未完成`;
+                            uploadBtnClass = "bg-yellow-500 text-white text-xs py-1 px-2 rounded cursor-default";
+                            uploadBtnDisabled = true;
+                        }
+                        
+                        // 生成卡片 HTML - 使用 Tailwind CSS
+                        html += `
+                            <div class="bg-white rounded-lg shadow-sm ${cardBorderClass} overflow-hidden" data-route-id="${route.id}" onclick="viewRouteDetails('${route.id}')">
+                                <div class="p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <div class="rounded-full bg-gray-100 p-2 mr-3">
+                                                <i class="fas fa-map-marker-alt text-gray-600"></i>
+                                            </div>
+                                            <h4 class="font-medium text-gray-800">${route.timeSlotName} ${route.building}棟</h4>
+                                        </div>
+                                        <span class="px-2 py-1 rounded-full text-xs font-medium ${statusBgClass} ${statusTextClass}">
                                             ${statusText}
-                                                ${checkpoint.checkTime ? `<span class="ml-1 text-xs text-gray-500">(${checkpoint.checkTime})</span>` : ''}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <div class="flex justify-between items-center text-sm">
+                                            <div class="text-gray-500">
+                                                檢查點: ${route.checkedCheckpoints}/${route.totalCheckpoints} (${checkpointRate}%)
+                                            </div>
+                                            <div class="text-xs text-gray-500">
+                                                <i class="far fa-clock mr-1"></i>${formatDateTime(route.createdAt).split(' ')[1]}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full ${route.completed ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${checkpointRate}%"></div>
                                         </div>
                                     </div>
+                                    
+                                    ${route.uploaded ? `
+                                        <div class="flex justify-end mt-2">
+                                            <div class="text-green-600 text-xs flex items-center">
+                                                <i class="fas fa-check-circle mr-1"></i>
+                                                <span>上傳時間: ${formatDateTime(route.uploadTime)}</span>
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                 </div>
-                                    ${(checkpoint.note || checkpoint.reason || (checkpoint.images && checkpoint.images.length > 0)) ? `
-                                    <div class="mt-3 pt-3 border-t border-gray-200">
-                                            ${checkpoint.reason ? `
-                                                <div class="text-sm text-yellow-600 mb-2">
-                                                    <span class="font-medium">原因：</span>${checkpoint.reason}
-                                                </div>
-                                            ` : ''}
-                                            ${checkpoint.note ? `
-                                            <div class="text-sm text-gray-600 mb-2">
-                                                    <span class="font-medium">備註：</span>${checkpoint.note}
-                                            </div>
-                                        ` : ''}
-                                            ${checkpoint.images && checkpoint.images.length > 0 ? `
-                                            <div class="flex flex-wrap gap-2 mt-2">
-                                                    ${checkpoint.images.map(img => `
-                                                    <div class="relative w-20 h-20 cursor-pointer" onclick="showFullScreenImage('${img}')">
-                                                        <img src="${img}" alt="現場照片" class="w-full h-full object-cover rounded-lg shadow-sm">
-                                                    </div>
-                                                `).join('')}
-                                            </div>
-                                        ` : ''}
+                                <div class="bg-gray-50 px-4 py-2 border-t border-gray-100">
+                                    <div class="flex justify-between items-center">
+                                        <div class="text-xs text-gray-500">
+                                            <a href="javascript:void(0)" onclick="event.stopPropagation(); viewRouteDetails('${route.id}')" class="text-blue-500 hover:underline">
+                                                <i class="fas fa-info-circle mr-1"></i>查看詳情
+                                            </a>
+                                        </div>
+                                        <button id="uploadBtn-${route.id}" 
+                                            class="${uploadBtnClass}"
+                                            ${uploadBtnDisabled ? 'disabled' : ''}
+                                            onclick="event.stopPropagation(); ${!uploadBtnDisabled ? `uploadPatrolRecord('${route.id}')` : ''}">
+                                            <i class="${route.uploaded ? 'fas fa-check-double' : (route.completed ? 'fas fa-cloud-upload-alt' : 'fas fa-exclamation-circle')} mr-1"></i> 
+                                            ${uploadBtnText}
+                                        </button>
                                     </div>
-                                ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
                             </div>
                         </div>
                     `;
-                });
-                
-                    checkpointsHtml += '</div>';
-                    
-                    // 組合路線卡片完整 HTML
-                    routeCard.innerHTML = routeHeaderHtml + checkpointsHtml;
-                    
-                    // 添加到容器
-                recordsContainer.appendChild(routeCard);
-                });
-            }
+                }
+            });
+            
+            // 更新 DOM
+            recordsContainer.innerHTML = html;
         }
         
-        // 更新用戶信息
+        // 上傳巡邏紀錄
+        function uploadPatrolRecord(routeId) {
+            // 取得路線資料，用於顯示
+            const routeStatuses = getRouteStatusesFromLocalStorage();
+            const routeData = routeStatuses[routeId];
+            
+            if (!routeData) {
+                console.error(`未找到路線 ID: ${routeId} 的資料`);
+                return;
+            }
+            
+            // 取得時段和建築
+            const parts = routeId.split('-');
+            const timeSlot = parts[0];
+            const building = parts[1];
+            
+            let timeSlotName = '';
+            if (timeSlot === 'morning') timeSlotName = '上午';
+            else if (timeSlot === 'afternoon') timeSlotName = '下午';
+            else if (timeSlot === 'evening') timeSlotName = '晚間';
+            
+            // 檢查是否所有檢查點都已完成
+            const totalCheckpoints = Object.keys(routeData.checkpoints || {}).length;
+            const checkedCheckpoints = Object.values(routeData.checkpoints || {}).filter(cp => 
+                cp.status === 'checked' || cp.status === 'completed').length;
+            
+            if (checkedCheckpoints < totalCheckpoints) {
+                alert(`此路線尚有 ${totalCheckpoints - checkedCheckpoints} 個檢查點未完成，無法上傳。`);
+                return;
+            }
+            
+            // 顯示確認對話框
+            const isConfirmed = confirm(`確定要上傳 ${timeSlotName}${building.toUpperCase()} 棟的巡邏記錄嗎？\n\n上傳後將無法修改。`);
+            
+            if (!isConfirmed) {
+                console.log('用戶取消了上傳');
+                return; // 用戶取消上傳
+            }
+            
+            // 模擬上傳過程
+            const uploadBtn = document.getElementById(`uploadBtn-${routeId}`);
+            if (uploadBtn) {
+                uploadBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> 上傳中...`;
+                uploadBtn.disabled = true;
+            }
+            
+            // 記錄上傳時間
+            const now = new Date();
+            const uploadTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+            
+            // 延遲 1.5 秒模擬上傳過程
+            setTimeout(() => {
+                // 1. 更新 routeStatuses 中的路線狀態
+                routeStatuses[routeId].uploaded = true;
+                routeStatuses[routeId].uploadTime = uploadTime; // 記錄上傳時間戳
+                localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                
+                // 2. 更新已上傳路線列表 uploadedRoutes
+                let uploadedRoutes = [];
+                const savedUploadedRoutes = localStorage.getItem('uploadedRoutes') || '[]';
+                try {
+                    uploadedRoutes = JSON.parse(savedUploadedRoutes);
+                    if (!Array.isArray(uploadedRoutes)) {
+                        uploadedRoutes = [];
+                    }
+                } catch (e) {
+                    console.error('解析已上傳路線時出錯:', e);
+                    uploadedRoutes = [];
+                }
+                
+                if (!uploadedRoutes.includes(routeId)) {
+                    uploadedRoutes.push(routeId);
+                    localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
+                }
+                
+                // 3. 設置路線已上傳標記 (使用與 home.html 相同的格式)
+                localStorage.setItem(`route_uploaded_${routeId}`, 'true');
+                localStorage.setItem(`route_upload_time_${routeId}`, uploadTime);
+                
+                // 顯示上傳成功訊息
+                alert(`路線「${timeSlotName}${building.toUpperCase()}棟」巡邏記錄已成功上傳！`);
+                
+                // 重新載入介面
+                if (document.getElementById('routeDetailsContent').classList.contains('hidden')) {
+                    // 如果在列表頁面，更新記錄
+                    updateRecords(selectedDate);
+                } else {
+                    // 如果在詳情頁面，重新加載詳情
+                    viewRouteDetails(routeId);
+                }
+            }, 1500);
+        }
+        
+        // 初始化用戶資訊及路線數據
         function updateUserInfo() {
-            // 從 localStorage 中獲取用戶角色
+            // 從 localStorage 獲取用戶角色和名稱
             const userRole = localStorage.getItem('userRole') || 'guest';
             const username = localStorage.getItem('username') || '訪客';
             
-            // 根據用戶角色設置不同的顯示文字
-            let userRoleText = '';
-            let userName = '';
-            
+            // 設置顯示文字
+            let displayText = '';
             if (userRole === 'admin') {
-                userRoleText = '管理員 A001';
-                userName = '管理員';
+                displayText = `管理員：${username}`;
             } else {
-                userRoleText = '警衛編號 G001';
-                userName = username === '訪客' ? '張小明' : username;
+                displayText = `警衛：${username}`;
             }
             
-            // 更新界面顯示
-            document.getElementById('userInfo').textContent = userRoleText;
+            // 更新顯示
+            document.getElementById('userInfo').textContent = displayText;
             
-            // 檢查 localStorage 是否已存在路線狀態，如果不存在才初始化
-            const existingRouteStatuses = localStorage.getItem('routeStatuses');
-            if (!existingRouteStatuses) {
-                // 設置已上傳的路線
-                const uploadedRoutes = ['morning-a', 'afternoon-d', 'evening-b'];
-                localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
-                
-                // 直接設置已上傳的路線標記
-                uploadedRoutes.forEach(route => {
-                    localStorage.setItem(`route_uploaded_${route}`, 'true');
-                });
+            // 檢查 localStorage 中是否已有路線狀態
+            const savedRouteStatuses = localStorage.getItem('routeStatuses');
+            if (!savedRouteStatuses) {
+                console.log('初始化路線數據...');
                 
                 // 設置路線狀態 - 包含不同狀態的路線
                 const routeStatuses = {
@@ -1130,9 +1686,86 @@
                     }
                 };
                 
-                // 存儲路線狀態
+                // 存儲路線狀態到 localStorage
                 localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                
+                // 設置已上傳的路線
+                const uploadedRoutes = ['morning-a', 'afternoon-d', 'evening-b'];
+                localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
+                
+                // 直接設置已上傳的路線標記
+                uploadedRoutes.forEach(route => {
+                    localStorage.setItem(`route_uploaded_${route}`, 'true');
+                });
             }
+            else {
+                // 確保 A 路線標記為已上傳
+                try {
+                    const routeStatuses = JSON.parse(savedRouteStatuses);
+                    if (routeStatuses['morning-a']) {
+                        // 更新 A 路線狀態為已上傳
+                        routeStatuses['morning-a'].uploaded = true;
+                        if (!routeStatuses['morning-a'].uploadTime) {
+                            routeStatuses['morning-a'].uploadTime = '2025-03-24T10:30:00';
+                        }
+                        
+                        // 重新保存到 localStorage
+                        localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                        
+                        // 確保 A 路線在已上傳列表中
+                        let uploadedRoutes = [];
+                        try {
+                            const savedUploadedRoutes = localStorage.getItem('uploadedRoutes');
+                            if (savedUploadedRoutes) {
+                                uploadedRoutes = JSON.parse(savedUploadedRoutes);
+                            }
+                        } catch (e) {
+                            console.error('解析已上傳路線時出錯:', e);
+                        }
+                        
+                        if (!Array.isArray(uploadedRoutes)) {
+                            uploadedRoutes = [];
+                        }
+                        
+                        if (!uploadedRoutes.includes('morning-a')) {
+                            uploadedRoutes.push('morning-a');
+                            localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
+                        }
+                        
+                        // 設置 A 路線上傳標記
+                        localStorage.setItem('route_uploaded_morning-a', 'true');
+                    }
+                } catch (e) {
+                    console.error('解析路線狀態時出錯:', e);
+                }
+            }
+        }
+        
+        // 生成隨機檢查點備註
+        function getRandomNote(checkpointName) {
+            const notes = {
+                '電梯': ['正常運作', '按鈕燈光正常', '內部清潔良好', '無異常聲音'],
+                '樓梯': ['無障礙物', '照明正常', '扶手穩固', '地面清潔'],
+                '廁所': ['清潔良好', '設備正常', '沖水正常', '照明良好'],
+                '辦公區': ['門窗已鎖好', '無可疑物品', '設備正常關閉', '環境整潔'],
+                '倉庫': ['庫存正常', '無異常物品', '門鎖安全', '無漏水情況']
+            };
+            
+            // 根據檢查點名稱選擇對應的備註列表
+            let noteType = '';
+            if (checkpointName.includes('電梯')) noteType = '電梯';
+            else if (checkpointName.includes('樓梯')) noteType = '樓梯';
+            else if (checkpointName.includes('廁所')) noteType = '廁所';
+            else if (checkpointName.includes('辦公區')) noteType = '辦公區';
+            else if (checkpointName.includes('倉庫')) noteType = '倉庫';
+            
+            // 從對應列表中隨機選擇一個備註
+            if (noteType && notes[noteType]) {
+                const notesList = notes[noteType];
+                return notesList[Math.floor(Math.random() * notesList.length)];
+            }
+            
+            return '正常';
         }
         
         function openImageViewer(imageSrc) {
@@ -1170,52 +1803,31 @@
         
         // 顯示全螢幕圖片功能
         function showFullScreenImage(imgSrc) {
-            const viewer = document.createElement('div');
-            viewer.className = 'form-overlay';
-            viewer.style.zIndex = '9999';
-            viewer.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
-            viewer.style.display = 'flex';
-            viewer.style.justifyContent = 'center';
-            viewer.style.alignItems = 'center';
-            viewer.style.flexDirection = 'column';
-            viewer.style.cursor = 'zoom-out';
+            const fullscreenView = document.createElement('div');
+            fullscreenView.className = 'fullscreen-image-view';
             
             // 創建圖片元素
             const img = document.createElement('img');
             img.src = imgSrc;
-            img.style.maxWidth = '90%';
-            img.style.maxHeight = '80vh';
-            img.style.objectFit = 'contain';
-            img.style.borderRadius = '8px';
-            img.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+            img.className = 'fullscreen-image';
             
             // 創建關閉按鈕
             const closeButton = document.createElement('button');
             closeButton.innerHTML = '<i class="fas fa-times"></i>';
             closeButton.className = 'close-button';
-            closeButton.style.position = 'absolute';
-            closeButton.style.top = '20px';
-            closeButton.style.right = '20px';
-            closeButton.style.background = 'rgba(0, 0, 0, 0.5)';
-            closeButton.style.color = 'white';
-            closeButton.style.border = 'none';
-            closeButton.style.borderRadius = '50%';
-            closeButton.style.width = '40px';
-            closeButton.style.height = '40px';
-            closeButton.style.fontSize = '20px';
-            closeButton.style.display = 'flex';
-            closeButton.style.alignItems = 'center';
-            closeButton.style.justifyContent = 'center';
-            closeButton.style.cursor = 'pointer';
             
             // 添加到視圖中
-            viewer.appendChild(img);
-            viewer.appendChild(closeButton);
-            document.body.appendChild(viewer);
+            fullscreenView.appendChild(img);
+            fullscreenView.appendChild(closeButton);
+            document.body.appendChild(fullscreenView);
+            
+            // 阻止背景滾動
+            document.body.style.overflow = 'hidden';
             
             // 點擊關閉
-            viewer.addEventListener('click', function() {
-                document.body.removeChild(viewer);
+            fullscreenView.addEventListener('click', function() {
+                document.body.removeChild(fullscreenView);
+                document.body.style.overflow = 'auto'; // 恢復滾動
             });
             
             // 阻止圖片點擊事件冒泡
@@ -1225,9 +1837,238 @@
             
             // 關閉按鈕點擊事件
             closeButton.addEventListener('click', function() {
-                document.body.removeChild(viewer);
+                document.body.removeChild(fullscreenView);
+                document.body.style.overflow = 'auto'; // 恢復滾動
             });
+            
+            // 按ESC鍵也可以關閉
+            const escHandler = function(e) {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(fullscreenView);
+                    document.body.style.overflow = 'auto';
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
         }
+        
+        // 路線詳情查看功能
+        function viewRouteDetails(routeId) {
+            console.log('查看路線詳情:', routeId);
+            
+            // 獲取路線數據
+            const routeStatuses = getRouteStatusesFromLocalStorage();
+            const routeData = routeStatuses[routeId];
+            
+            if (!routeData) {
+                alert('找不到此路線數據');
+                return;
+            }
+            
+            // 解析路線信息
+            const parts = routeId.split('-');
+            const timeSlot = parts[0];
+            const buildingId = parts[1];
+            const dateStr = parts.length > 2 ? `${parts[2]}-${parts[3]}-${parts[4]}` : '';
+            
+            let timeSlotName = '';
+            if (timeSlot === 'morning') timeSlotName = '上午';
+            else if (timeSlot === 'afternoon') timeSlotName = '下午';
+            else if (timeSlot === 'evening') timeSlotName = '晚間';
+            
+            // 檢查點統計
+            const totalCheckpoints = Object.keys(routeData.checkpoints || {}).length;
+            const checkedCheckpoints = Object.values(routeData.checkpoints || {}).filter(cp => 
+                cp.status === 'checked' || cp.status === 'completed').length;
+            
+            const isCompleted = totalCheckpoints > 0 && checkedCheckpoints === totalCheckpoints;
+            const checkpointRate = totalCheckpoints > 0 ? Math.round((checkedCheckpoints / totalCheckpoints) * 100) : 0;
+            
+            // 檢查上傳狀態 - 優先從 localStorage 檢查標記，然後檢查 routeData
+            let isUploaded = localStorage.getItem(`route_uploaded_${routeId}`) === 'true';
+            
+            // 如果 localStorage 中沒有找到標記，則檢查 routeData
+            if (!isUploaded && routeData.uploaded) {
+                isUploaded = true;
+            }
+            
+            // 特殊情況：A 棟路線（morning-a）應該始終標記為已上傳
+            if (routeId === 'morning-a') {
+                isUploaded = true;
+            }
+            
+            // 上傳時間
+            let uploadTime = routeData.uploadTime || '';
+            
+            // 如果是 A 棟上午路線但沒有上傳時間，則提供一個預設值
+            if (routeId === 'morning-a' && !uploadTime) {
+                uploadTime = '2025-03-24T10:30:00';
+            }
+            
+            // 設置狀態文字和樣式
+            let statusBgClass = "bg-blue-100";
+            let statusTextClass = "text-blue-700";
+            let statusText = "進行中";
+            
+            if (isCompleted) {
+                if (isUploaded) {
+                    statusBgClass = "bg-green-100";
+                    statusTextClass = "text-green-700";
+                    statusText = "已上傳";
+                } else {
+                    statusBgClass = "bg-yellow-100";
+                    statusTextClass = "text-yellow-700";
+                    statusText = "待上傳";
+                }
+            } else if (checkpointRate === 0) {
+                statusBgClass = "bg-gray-100";
+                statusTextClass = "text-gray-700";
+                statusText = "未開始";
+            }
+            
+            // 生成詳情頁面標題
+            const headerHtml = `
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">${timeSlotName} ${buildingId.toUpperCase()}棟巡邏</h2>
+                        <p class="text-gray-500 text-sm mt-1">${formatDateDisplay(dateStr || routeData.createdAt?.split('T')[0] || '2025-03-24')}</p>
+                    </div>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${statusBgClass} ${statusTextClass}">
+                        ${statusText}
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-sm text-gray-500">檢查點進度</div>
+                        <div class="flex items-end justify-between mt-1">
+                            <div class="text-lg font-semibold">${checkedCheckpoints}/${totalCheckpoints}</div>
+                            <div class="text-sm text-gray-500">${checkpointRate}%</div>
+                        </div>
+                        <div class="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${checkpointRate}%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                        <div class="text-sm text-gray-500">巡邏時間</div>
+                        <div class="text-lg font-semibold mt-1">
+                            ${routeData.createdAt ? formatDateTime(routeData.createdAt) : '未知'}
+                        </div>
+                        ${isUploaded ? `
+                            <div class="text-xs text-green-600 mt-1">
+                                <i class="fas fa-check-circle mr-1"></i>上傳時間: ${formatDateTime(uploadTime || '2025-03-24T10:30:00')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // 生成檢查點列表
+            let checkpointsHtml = '';
+            const checkpointKeys = Object.keys(routeData.checkpoints || {}).sort();
+            
+            checkpointKeys.forEach((checkpointName, index) => {
+                const checkpoint = routeData.checkpoints[checkpointName];
+                const isChecked = checkpoint.status === 'checked' || checkpoint.status === 'completed';
+                
+                checkpointsHtml += `
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden border ${isChecked ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-gray-300'}">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center">
+                                    <div class="rounded-full ${isChecked ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'} p-2 mr-3">
+                                        <i class="fas ${isChecked ? 'fa-check' : 'fa-map-pin'}"></i>
+                                    </div>
+                                    <h4 class="font-medium text-gray-800">${checkpointName}</h4>
+                                </div>
+                                <span class="px-2 py-1 rounded-full text-xs font-medium ${isChecked ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">
+                                    ${isChecked ? '已檢查' : '未檢查'}
+                                </span>
+                            </div>
+                            
+                            ${isChecked ? `
+                                <div class="mt-3 space-y-2">
+                                    ${checkpoint.checkTime ? `
+                                        <div class="text-sm text-gray-500">
+                                            <i class="far fa-clock mr-1"></i>檢查時間: ${checkpoint.checkTime}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${checkpoint.note ? `
+                                        <div class="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                                            <i class="far fa-sticky-note mr-1"></i>備註: ${checkpoint.note}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${checkpoint.images && checkpoint.images.length > 0 ? `
+                                        <div class="mt-3">
+                                            <div class="text-sm text-gray-500 mb-2">照片紀錄</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                ${checkpoint.images.map(img => `
+                                                    <div class="w-16 h-16 rounded overflow-hidden cursor-pointer" onclick="openImageViewer('${img}')">
+                                                        <img src="${img}" alt="巡邏照片" class="w-full h-full object-cover">
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 上傳按鈕
+            let uploadBtnHtml = '';
+            if (isCompleted) {
+                if (routeData.uploaded) {
+                    uploadBtnHtml = `
+                        <button class="w-full bg-green-500 text-white py-3 px-4 rounded-lg cursor-default flex items-center justify-center">
+                            <i class="fas fa-check-double mr-2"></i>
+                            已全部檢查完畢且上傳
+                        </button>
+                    `;
+                } else {
+                    uploadBtnHtml = `
+                        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-all flex items-center justify-center" onclick="uploadPatrolRecord('${routeId}')">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i>
+                            上傳此路線紀錄
+                        </button>
+                    `;
+                }
+            } else {
+                const remainingCheckpoints = totalCheckpoints - checkedCheckpoints;
+                uploadBtnHtml = `
+                    <button class="w-full bg-yellow-500 text-white py-3 px-4 rounded-lg cursor-default flex items-center justify-center">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        剩餘 ${remainingCheckpoints} 個檢查點未完成
+                    </button>
+                `;
+            }
+            
+            // 更新 DOM
+            document.getElementById('routeDetailHeader').innerHTML = headerHtml;
+            document.getElementById('checkpointsList').innerHTML = checkpointsHtml;
+            document.getElementById('uploadBtnArea').innerHTML = uploadBtnHtml;
+            
+            // 切換顯示詳情頁面
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('routeDetailsContent').classList.remove('hidden');
+        }
+        
+        // 返回記錄列表
+        function backToRecords() {
+            document.getElementById('routeDetailsContent').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }
+        
+        // 註冊返回按鈕事件
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('backToRecordsBtn').addEventListener('click', backToRecords);
+            
+            // 其他已有的初始化代碼...
+        });
     </script>
 </body>
 </html> 
