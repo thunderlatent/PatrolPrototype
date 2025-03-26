@@ -1,456 +1,156 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的紀錄 - 安全室巡檢系統</title>
-    <script>
-        // 檢查是否在 iframe 內訪問
-        if (window.self === window.top) {
-            // 直接訪問時重定向到 iPhone 框架視圖並在其底部導航欄選擇「我的紀錄」
-            window.location.href = 'iphone-view.html';
-            // 註：因為無法使用查詢參數，我們將依靠用戶點擊底部的「我的紀錄」按鈕
-        }
-    </script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>我的巡查紀錄 - 安全室巡捕系統</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f9fafb;
             margin: 0;
             padding: 0;
-            color: #333;
         }
         
-        /* 路線卡片修復樣式 */
-        .route-cards {
-            margin-bottom: 1rem;
-        }
-        
-        .route-cards .card {
-            border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            margin-bottom: 0.75rem;
-        }
-        
-        .border-l-4 {
-            border-left-width: 4px;
-        }
-        
-        .border-blue-500 {
-            border-left-color: #3b82f6;
-        }
-        
-        .border-green-500 {
-            border-left-color: #10b981;
-        }
-        
-        .border-yellow-500 {
-            border-left-color: #f59e0b;
-        }
-        
-        .border-gray-400 {
-            border-left-color: #9ca3af;
-        }
-        
-        /* 時間段標題修復 */
-        .time-slot-header {
-            background-color: #f0f7ff;
-            padding: 14px 16px;
-            border-radius: 14px;
-            margin-bottom: 16px;
-            border-left: 4px solid #3b82f6;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-            font-weight: 600;
-            color: #1e40af;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .time-slot-header h3 {
-            margin: 0;
-            padding: 0;
-            font-size: 1rem;
-        }
-        
-        /* 頁面基本樣式 */
-        .page-container {
-            padding: 60px 20px 120px 20px; /* 上方增加間距避開動態島，底部增加間距避開底部導航 */
-            height: 100%;
-            max-width: 430px; /* 調整為 iPhone 16 Pro Max 寬度 */
-            margin: 0 auto;
-            -webkit-overflow-scrolling: touch;
+        /* 適配動態島的頁面樣式 */
+        .profile-page {
+            padding: 60px 20px 20px 20px; /* 上方增加間距避開動態島 */
+            max-width: 100%;
             box-sizing: border-box;
         }
         
-        /* 頁面標題區域樣式 */
-        .page-title-container {
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-        }
-        
-        .page-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: #1c1c1e;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .page-title .title-icon {
-            margin-right: 10px;
-            width: 32px;
-            height: 32px;
-            background-color: #ebf5ff;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #3b82f6;
-            font-size: 16px;
-        }
-        
-        .page-subtitle {
-            font-size: 14px;
-            color: #6b7280;
-            display: flex;
-            align-items: center;
-        }
-        
-        .page-subtitle .user-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: #f3f4f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-            color: #4b5563;
-            font-size: 12px;
-        }
-        
-        /* 日曆區域 */
-        .calendar-section {
-            background-color: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
+        /* 日曆樣式 */
         .calendar {
-            margin-bottom: 16px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
         }
         
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            background-color: #3b82f6;
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.95rem;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
         }
         
         .calendar-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            background-color: #ffffff;
+            gap: 8px;
+            padding: 15px;
         }
         
         .day-name {
+            text-align: center;
             font-size: 12px;
+            font-weight: 500;
             color: #6b7280;
-            padding: 8px 0;
+            margin-bottom: 8px;
         }
         
         .day {
-            padding: 12px 8px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             border-radius: 50%;
+            font-size: 13px;
+            margin: 2px auto;
             cursor: pointer;
-            transition: all 0.2s;
+            user-select: none;
             position: relative;
         }
         
-        .day:hover {
-            background-color: #f3f4f6;
+        .day.empty {
+            cursor: default;
         }
         
         .day.active {
             background-color: #3b82f6;
             color: white;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
         }
         
-        .day.today {
-            font-weight: bold;
-            border: 2px solid #3b82f6;
-        }
-        
-        /* 有記錄的日期添加圓點指示器 */
-        .day.has-record:after {
-            content: "";
+        .day.has-record::after {
+            content: '';
             position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 50%;
             bottom: 2px;
             left: 50%;
             transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background-color: #3b82f6;
-            border-radius: 50%;
         }
         
-        /* 選中日期顯示 */
-        #selectedDate {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            padding: 8px 0;
-            color: #1f2937;
-            border-bottom: 2px solid #e5e7eb;
+        .day.active.has-record::after {
+            background-color: white;
         }
         
-        /* 導航欄樣式 */
-        .nav-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .day:hover:not(.empty):not(.active) {
+            background-color: #f3f4f6;
+        }
+        
+        /* 巡查記錄條目樣式 */
+        .record-item {
             margin-bottom: 20px;
-        }
-        
-        .user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background-color: #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: #4b5563;
-        }
-        
-        /* 日曆樣式 */
-        .calendar-navigation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .nav-button {
-            background: none;
-            border: none;
-            color: #6b7280;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-        
-        .nav-button:hover {
-            background-color: #f3f4f6;
-            color: #3b82f6;
-        }
-        
-        .month-year {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0 15px;
-            color: #1f2937;
-        }
-        
-        .calendar-header {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            color: #6b7280;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .days-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-        }
-        
-        .day {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 14px;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .day:not(.empty):hover {
-            background-color: #f3f4f6;
-        }
-        
-        .day.today {
-            background-color: #3b82f6;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .day.selected {
-            background-color: #dbeafe;
-            color: #1e40af;
-            font-weight: 600;
-        }
-        
-        .day.has-record:after {
-            content: '';
-            position: absolute;
-            bottom: 5px;
-            width: 4px;
-            height: 4px;
-            background-color: #3b82f6;
-            border-radius: 50%;
-        }
-        
-        .day.today.has-record:after {
             background-color: white;
-        }
-        
-        /* 統計卡片樣式 */
-        .stats-card {
-            background-color: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        .progress-container {
-            background-color: #f3f4f6;
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            border-radius: 4px;
-            background-color: #3b82f6;
-            transition: width 0.3s ease;
-        }
-        
-        .stats-numbers {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-        }
-        
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .stat-value {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            color: #6b7280;
-        }
-        
-        /* 記錄列表樣式 */
-        .records-list {
-            margin-bottom: 70px; /* 為底部導航欄留出空間 */
-        }
-        
-        .no-records-message {
-            text-align: center;
-            padding: 40px 0;
-            color: #9ca3af;
-        }
-        
-        .no-records-message i {
-            font-size: 32px;
-            margin-bottom: 12px;
-            color: #d1d5db;
-        }
-        
-        /* 底部導航 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 0;
-            color: #6b7280;
-            text-decoration: none;
-            font-size: 10px;
-        }
-        
-        .nav-item i {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-        
-        .nav-item.active {
-            color: #3b82f6;
-        }
-        
-        /* 上傳狀態標籤樣式 */
-        .upload-status {
-            padding: 4px 8px;
             border-radius: 12px;
-            font-size: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .record-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        .record-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .record-content {
+            padding: 12px 16px;
+        }
+        
+        .record-stats {
+            padding: 8px 16px;
+            background-color: #f9fafb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        /* 路線狀態標籤 */
+        .status-badge {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            font-size: 11px;
             font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 12px;
         }
         
-        .status-uploaded {
+        .status-completed {
             background-color: rgba(16, 185, 129, 0.1);
-            color: #059669;
+            color: #10b981;
         }
         
-        .status-not-uploaded {
+        .status-pending {
             background-color: rgba(59, 130, 246, 0.1);
-            color: #2563eb;
+            color: #3b82f6;
         }
         
         .status-incomplete {
@@ -458,282 +158,358 @@
             color: #d97706;
         }
         
-        /* 卡片狀態樣式 */
-        .px-2 {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-        
-        .py-1 {
-            padding-top: 0.25rem;
-            padding-bottom: 0.25rem;
-        }
-        
-        .rounded-full {
-            border-radius: 9999px;
-        }
-        
-        .text-xs {
-            font-size: 0.75rem;
-            line-height: 1rem;
-        }
-        
-        .font-medium {
-            font-weight: 500;
-        }
-        
-        /* 上傳按鈕樣式 */
-        .bg-blue-500 {
-            background-color: #3b82f6;
-        }
-        
-        .hover\:bg-blue-600:hover {
-            background-color: #2563eb;
-        }
-        
-        .text-white {
-            color: white;
-        }
-        
-        .rounded {
-            border-radius: 0.25rem;
-        }
-        
-        .transition-all {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
-        }
-        
-        /* 上傳時間樣式 */
-        .upload-time {
-            font-size: 11px;
-            opacity: 0.85;
-            margin-left: 4px;
-            white-space: nowrap;
-            font-weight: normal;
-        }
-        
-        /* 檢查點項目樣式 */
-        .checkpoint-item {
-            transition: all 0.2s ease;
-        }
-        
-        .checkpoint-item:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-        
-        .status-badge {
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-        }
-        
-        /* 圖片查看器 */
-        .image-viewer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .image-viewer.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .image-viewer img {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-        }
-        .image-viewer .close-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 30px;
-            cursor: pointer;
-        }
-        
-        /* 全屏圖片視圖 */
-        .form-overlay,
-        .fullscreen-image-view {
+        /* 打卡表單樣式 */
+        .form-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 100;
+            backdrop-filter: blur(3px);
         }
         
-        .fullscreen-image {
-            max-width: 90%;
+        .form-container {
+            background-color: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
             max-height: 80vh;
-            object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
         
-        /* 上傳按鈕樣式 */
-        .upload-button {
-            transition: all 0.3s ease;
-        }
-        
-        .upload-button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .upload-button:not(:disabled):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
-        }
-        
-        /* 響應式調整 */
-        @media (max-width: 375px) {
-            .days-grid {
-                gap: 4px;
-            }
-            
-            .day {
-                height: 32px;
-                font-size: 13px;
-            }
-        }
-        
-        /* 進度條樣式修正 */
-        .progress-container {
-            background-color: #f3f4f6;
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            border-radius: 4px;
-            background-color: #3b82f6;
-            transition: width 0.3s ease;
-        }
-        
-        /* 修正卡片樣式 */
-        .bg-white {
-            background-color: #ffffff;
-        }
-        
-        .rounded-lg {
-            border-radius: 0.5rem;
-        }
-        
-        .shadow-sm {
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-        
-        .overflow-hidden {
-            overflow: hidden;
-        }
-        
-        .p-4 {
-            padding: 1rem;
-        }
-        
-        .flex {
+        .form-header {
             display: flex;
-        }
-        
-        .items-center {
-            align-items: center;
-        }
-        
-        .justify-between {
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
         
-        .bg-gray-100 {
-            background-color: #f3f4f6;
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
         }
         
-        .p-2 {
-            padding: 0.5rem;
+        .form-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #6b7280;
+            cursor: pointer;
         }
         
-        .mr-3 {
-            margin-right: 0.75rem;
+        .form-input {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 16px;
+            font-size: 14px;
         }
         
-        .text-gray-600 {
-            color: #4b5563;
+        .upload-area {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         
-        .font-medium {
-            font-weight: 500;
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.03);
         }
         
-        .text-gray-800 {
-            color: #1f2937;
+        .upload-icon {
+            font-size: 24px;
+            color: #9ca3af;
+            margin-bottom: 8px;
         }
         
-        .mt-3 {
-            margin-top: 0.75rem;
-        }
-        
-        .text-sm {
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-        }
-        
-        .text-gray-500 {
+        .upload-text {
+            font-size: 14px;
             color: #6b7280;
         }
         
-        .text-green-600 {
-            color: #059669;
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
         }
         
-        .bg-gray-50 {
-            background-color: #f9fafb;
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
         }
         
-        .px-4 {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
-        .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
+        .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            border: none;
         }
         
-        .border-t {
-            border-top-width: 1px;
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
         
-        .border-gray-100 {
-            border-color: #f3f4f6;
+        .form-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
         
-        .space-y-3 > * + * {
-            margin-top: 0.75rem;
+        .btn-cancel {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border: none;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .btn-unable {
+            background-color: #f59e0b;
+            color: white;
+            border: none;
+        }
+        
+        .btn-unable:hover {
+            background-color: #d97706;
+        }
+        
+        .btn-submit {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+        }
+        
+        .btn-submit:hover {
+            background-color: #2563eb;
+        }
+        
+        /* NFC 動畫樣式 */
+        .nfc-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .nfc-animation.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .nfc-container {
+            position: relative;
+            width: 200px;
+            height: 280px;
+        }
+        
+        .nfc-phone {
+            width: 100px;
+            height: 180px;
+            background-color: #333;
+            border-radius: 20px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nfc-card {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 10px;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.5s ease;
+        }
+        
+        .nfc-animation.active .nfc-card {
+            transform: translate(-50%, -80px);
+        }
+        
+        .nfc-waves {
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            width: 1px;
+            height: 1px;
+        }
+        
+        .nfc-wave {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            animation: none;
+        }
+        
+        .nfc-wave:nth-child(2) {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .nfc-wave:nth-child(3) {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .nfc-animation.active .nfc-wave {
+            animation: wave-animation 2s infinite;
+        }
+        
+        .nfc-wave:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .nfc-wave:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        .nfc-wave.error {
+            border-color: #ef4444;
+        }
+        
+        @keyframes wave-animation {
+            0% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
+        
+        .nfc-success {
+            position: absolute;
+            top: 140px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+        
+        .nfc-error {
+            position: absolute;
+            top: 140px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+        
+        .nfc-success.active, .nfc-error.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div class="page-container">
+<body>
+    <!-- NFC 感應動畫 -->
+    <div id="nfcAnimation" class="nfc-animation">
+        <div class="nfc-container">
+            <div class="nfc-phone"></div>
+            <div class="nfc-card"></div>
+            <div class="nfc-waves">
+                <div class="nfc-wave"></div>
+                <div class="nfc-wave"></div>
+                <div class="nfc-wave"></div>
+            </div>
+            <div id="nfcSuccess" class="nfc-success">
+                <i class="fas fa-check"></i>
+            </div>
+            <div id="nfcError" class="nfc-error">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-page">
         <!-- 頁面標題 -->
         <div class="page-title-container">
             <div class="page-title">
@@ -2102,36 +1878,153 @@
         function markAsCompleted(routeId, checkpointName) {
             console.log(`標記 ${routeId} 的檢查點 ${checkpointName} 為已完成`);
             
-            // 獲取路線數據
-            const routeStatuses = getRouteStatusesFromLocalStorage();
-            const routeData = routeStatuses[routeId];
+            // 顯示 NFC 感應動畫
+            const animation = document.getElementById('nfcAnimation');
+            const success = document.getElementById('nfcSuccess');
+            animation.classList.add('active');
             
-            if (!routeData || !routeData.checkpoints || !routeData.checkpoints[checkpointName]) {
-                alert('找不到此檢查點數據');
-                return;
-            }
-            
-            // 更新狀態
-            routeData.checkpoints[checkpointName].status = 'completed';
-            routeData.checkpoints[checkpointName].checkTime = new Date().toISOString();
-            
-            // 保存回 localStorage
-            localStorage.setItem('route_statuses', JSON.stringify(routeStatuses));
-            
-            // 重新載入詳情頁面
-            viewRouteDetails(routeId);
-            
-            // 顯示成功提示
-            showToast('已成功打卡');
+            // 延遲顯示成功狀態
+            setTimeout(() => {
+                success.classList.add('active');
+                
+                // 2秒後關閉動畫並更新狀態
+                setTimeout(() => {
+                    animation.classList.remove('active');
+                    success.classList.remove('active');
+                    
+                    // 獲取路線數據
+                    const routeStatuses = getRouteStatusesFromLocalStorage();
+                    const routeData = routeStatuses[routeId];
+                    
+                    if (!routeData || !routeData.checkpoints || !routeData.checkpoints[checkpointName]) {
+                        alert('找不到此檢查點數據');
+                        return;
+                    }
+                    
+                    // 更新狀態
+                    routeData.checkpoints[checkpointName].status = 'completed';
+                    routeData.checkpoints[checkpointName].checkTime = new Date().toISOString();
+                    
+                    // 保存回 localStorage
+                    localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                    
+                    // 重新載入詳情頁面
+                    viewRouteDetails(routeId);
+                    
+                    // 顯示成功提示
+                    showToast('打卡成功', '已成功標記檢查點為已完成');
+                }, 1500);
+            }, 2000);
         }
         
         // 標記檢查點為無法檢查
         function markAsUnable(routeId, checkpointName) {
             console.log(`標記 ${routeId} 的檢查點 ${checkpointName} 為無法檢查`);
             
-            // 顯示無法檢查表單或對話框
-            const reason = prompt('請輸入無法檢查的原因：');
-            if (reason === null) return; // 用戶取消
+            // 顯示無法打卡表單
+            const formHtml = `
+                <div class="form-overlay">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <div class="form-title">無法打卡原因</div>
+                            <button class="form-close" onclick="closeForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <textarea id="reasonInput" class="form-input" placeholder="請輸入無法打卡的原因..."></textarea>
+                        <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="upload-text">點擊上傳照片</div>
+                            <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div id="imagePreview" class="image-preview"></div>
+                        <div class="form-actions">
+                            <button class="form-btn btn-cancel" onclick="closeForm()">取消</button>
+                            <button class="form-btn btn-unable" onclick="submitUnableForm('${routeId}', '${checkpointName}')">確認</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+            setupImageUpload();
+        }
+        
+        // 添加備註
+        function addNote(routeId, checkpointName) {
+            console.log(`為 ${routeId} 的檢查點 ${checkpointName} 添加備註`);
+            
+            // 顯示備註表單
+            const formHtml = `
+                <div class="form-overlay">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <div class="form-title">添加備註</div>
+                            <button class="form-close" onclick="closeForm()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <textarea id="noteInput" class="form-input" placeholder="請輸入備註內容..."></textarea>
+                        <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="upload-text">點擊上傳照片</div>
+                            <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div id="imagePreview" class="image-preview"></div>
+                        <div class="form-actions">
+                            <button class="form-btn btn-cancel" onclick="closeForm()">取消</button>
+                            <button class="form-btn btn-submit" onclick="submitNoteForm('${routeId}', '${checkpointName}')">確認</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+            setupImageUpload();
+        }
+        
+        // 設置圖片上傳
+        function setupImageUpload() {
+            const imageInput = document.getElementById('imageInput');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            imageInput.addEventListener('change', function(e) {
+                imagePreview.innerHTML = '';
+                Array.from(e.target.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="預覽圖片">
+                            <button class="remove-btn" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        imagePreview.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+        
+        // 提交無法打卡表單
+        function submitUnableForm(routeId, checkpointName) {
+            const reason = document.getElementById('reasonInput').value;
+            if (!reason.trim()) {
+                alert('請輸入無法打卡的原因');
+                return;
+            }
+            
+            // 獲取圖片
+            const images = [];
+            document.querySelectorAll('#imagePreview img').forEach(img => {
+                images.push(img.src);
+            });
             
             // 獲取路線數據
             const routeStatuses = getRouteStatusesFromLocalStorage();
@@ -2139,6 +2032,7 @@
             
             if (!routeData || !routeData.checkpoints || !routeData.checkpoints[checkpointName]) {
                 alert('找不到此檢查點數據');
+                closeForm();
                 return;
             }
             
@@ -2147,23 +2041,37 @@
             routeData.checkpoints[checkpointName].reason = reason;
             routeData.checkpoints[checkpointName].checkTime = new Date().toISOString();
             
+            // 如果有上傳照片，則保存照片
+            if (images.length > 0) {
+                routeData.checkpoints[checkpointName].images = images;
+            }
+            
             // 保存回 localStorage
-            localStorage.setItem('route_statuses', JSON.stringify(routeStatuses));
+            localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+            
+            // 關閉表單
+            closeForm();
             
             // 重新載入詳情頁面
             viewRouteDetails(routeId);
             
             // 顯示成功提示
-            showToast('已標記為無法檢查');
+            showToast('已標記為無法打卡', '已記錄原因並標記檢查點為無法檢查');
         }
         
-        // 添加備註
-        function addNote(routeId, checkpointName) {
-            console.log(`為 ${routeId} 的檢查點 ${checkpointName} 添加備註`);
+        // 提交備註表單
+        function submitNoteForm(routeId, checkpointName) {
+            const note = document.getElementById('noteInput').value;
+            if (!note.trim()) {
+                alert('請輸入備註內容');
+                return;
+            }
             
-            // 顯示備註表單或對話框
-            const note = prompt('請輸入備註內容：');
-            if (note === null) return; // 用戶取消
+            // 獲取圖片
+            const images = [];
+            document.querySelectorAll('#imagePreview img').forEach(img => {
+                images.push(img.src);
+            });
             
             // 獲取路線數據
             const routeStatuses = getRouteStatusesFromLocalStorage();
@@ -2171,6 +2079,7 @@
             
             if (!routeData || !routeData.checkpoints || !routeData.checkpoints[checkpointName]) {
                 alert('找不到此檢查點數據');
+                closeForm();
                 return;
             }
             
@@ -2185,30 +2094,78 @@
                 routeData.checkpoints[checkpointName].checkTime = new Date().toISOString();
             }
             
+            // 如果有上傳照片，則保存照片
+            if (images.length > 0) {
+                if (!routeData.checkpoints[checkpointName].images) {
+                    routeData.checkpoints[checkpointName].images = [];
+                }
+                images.forEach(img => {
+                    routeData.checkpoints[checkpointName].images.push(img);
+                });
+            }
+            
             // 保存回 localStorage
-            localStorage.setItem('route_statuses', JSON.stringify(routeStatuses));
+            localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+            
+            // 關閉表單
+            closeForm();
             
             // 重新載入詳情頁面
             viewRouteDetails(routeId);
             
             // 顯示成功提示
-            showToast('備註已添加');
+            showToast('備註已添加', '已成功添加備註到檢查點');
+        }
+        
+        // 關閉表單
+        function closeForm() {
+            const form = document.querySelector('.form-overlay');
+            if (form) {
+                form.remove();
+            }
+        }
+        
+        // 全屏顯示圖片
+        function openImageViewer(imgSrc) {
+            const viewer = `
+                <div class="form-overlay" onclick="this.remove()">
+                    <img src="${imgSrc}" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', viewer);
         }
         
         // 顯示提示訊息
-        function showToast(message) {
+        function showToast(title, message, type = 'success') {
             const toast = document.createElement('div');
-            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded-lg z-50';
-            toast.innerText = message;
+            toast.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white py-2 px-4 rounded-lg z-50 ${type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'}`;
+            toast.style.maxWidth = '80%';
+            toast.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+            toast.style.transition = 'all 0.3s ease';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translate(-50%, 20px)';
+            
+            toast.innerHTML = `
+                <div class="font-medium mb-1">${title}</div>
+                <div class="text-sm">${message}</div>
+            `;
+            
             document.body.appendChild(toast);
             
-            // 2秒後自動移除
+            // 顯示動畫
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.style.opacity = '1';
+                toast.style.transform = 'translate(-50%, 0)';
+            }, 10);
+            
+            // 自動關閉
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 20px)';
                 setTimeout(() => {
                     document.body.removeChild(toast);
                 }, 300);
-            }, 2000);
+            }, 3000);
         }
     </script>
 </body>
