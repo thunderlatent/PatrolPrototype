@@ -9,61 +9,74 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            background-color: #f9fafb;
+            background-color: #f0f4f8; /* 稍微調整背景顏色，更柔和 */
             margin: 0;
             padding: 0;
+            color: #334155; /* 提高文字對比度 */
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
         }
         
         /* 適配動態島的頁面樣式 */
         .profile-page {
-            padding: 60px 20px 20px 20px; /* 上方增加間距避開動態島 */
+            padding: 60px 16px 20px 16px; /* 上方增加間距避開動態島 */
             max-width: 100%;
             box-sizing: border-box;
         }
         
-        /* 日曆樣式 */
+        /* 頁面標題區域優化 */
+        .page-title-container {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(203, 213, 225, 0.5);
+        }
+        
+        /* 日曆樣式優化 */
         .calendar {
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
         
         .calendar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+            padding: 16px;
+            background: #f8fafc; /* 淺色漸變背景 */
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .calendar-days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            padding: 15px;
+            gap: 10px;
+            padding: 16px;
         }
         
         .day-name {
             text-align: center;
             font-size: 12px;
-            font-weight: 500;
-            color: #6b7280;
-            margin-bottom: 8px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 10px;
         }
         
         .day {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            font-size: 13px;
+            font-size: 14px;
             margin: 2px auto;
             cursor: pointer;
             user-select: none;
             position: relative;
+            font-weight: 500;
         }
         
         .day.empty {
@@ -71,18 +84,19 @@
         }
         
         .day.active {
-            background-color: #3b82f6;
+            background-color: #2563eb; /* 更深的藍色提高對比度 */
             color: white;
+            box-shadow: 0 3px 6px rgba(37, 99, 235, 0.2);
         }
         
         .day.has-record::after {
             content: '';
             position: absolute;
-            width: 4px;
-            height: 4px;
+            width: 5px;
+            height: 5px;
             background-color: #3b82f6;
             border-radius: 50%;
-            bottom: 2px;
+            bottom: 3px;
             left: 50%;
             transform: translateX(-50%);
         }
@@ -92,96 +106,142 @@
         }
         
         .day:hover:not(.empty):not(.active) {
-            background-color: #f3f4f6;
+            background-color: #e2e8f0;
         }
         
-        /* 巡查記錄條目樣式 */
+        /* 統計卡片優化 */
+        .stats-card {
+            background: linear-gradient(to right, #f8fafc, #f1f5f9);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        /* 巡查記錄條目樣式優化 */
         .record-item {
             margin-bottom: 20px;
             background-color: white;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
         
         .record-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border-color: rgba(203, 213, 225, 1);
         }
         
         .record-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid #eee;
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: #f8fafc;
         }
         
         .record-content {
-            padding: 12px 16px;
+            padding: 16px;
         }
         
         .record-stats {
-            padding: 8px 16px;
-            background-color: #f9fafb;
+            padding: 12px 16px;
+            background-color: #f8fafc;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
-            color: #6b7280;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
         }
         
-        /* 路線狀態標籤 */
+        /* 路線狀態標籤優化 */
         .status-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
-            font-weight: 500;
-            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 10px;
             border-radius: 12px;
         }
         
         .status-completed {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: #10b981;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #065f46;
         }
         
         .status-pending {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #1e40af;
         }
         
         .status-incomplete {
-            background-color: rgba(245, 158, 11, 0.1);
-            color: #d97706;
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #b45309;
         }
         
-        /* 打卡表單樣式 */
+        /* 時間段標題優化 */
+        .time-slot-header {
+            background: linear-gradient(to right, #e0f2fe, #dbeafe);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        /* 進度條優化 */
+        .progress-container {
+            background-color: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+            transition: width 0.3s ease;
+        }
+        
+        /* 打卡表單樣式優化 */
         .form-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(15, 23, 42, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 100;
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(4px);
         }
         
         .form-container {
-            background-color: white;
-            border-radius: 16px;
+            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+            border-radius: 20px;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
             max-height: 80vh;
             overflow-y: auto;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
         
         .form-header {
@@ -189,71 +249,98 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
         }
         
         .form-title {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
+            color: #1e40af;
         }
         
         .form-close {
             background: none;
             border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 18px;
-            color: #6b7280;
-            cursor: pointer;
-        }
-        
-        .form-input {
-            width: 100%;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 12px;
-            resize: vertical;
-            min-height: 100px;
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-        
-        .upload-area {
-            border: 2px dashed #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 16px;
+            color: #64748b;
             cursor: pointer;
             transition: all 0.2s ease;
         }
         
+        .form-close:hover {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+        
+        .form-input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 14px;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) inset;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #94a3b8;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+        
         .upload-area:hover {
             border-color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.03);
+            background-color: #f0f7ff;
         }
         
         .upload-icon {
-            font-size: 24px;
-            color: #9ca3af;
-            margin-bottom: 8px;
+            font-size: 28px;
+            color: #64748b;
+            margin-bottom: 10px;
         }
         
         .upload-text {
-            font-size: 14px;
-            color: #6b7280;
+            font-size: 15px;
+            color: #334155;
+            font-weight: 500;
         }
         
         .image-preview {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
         
         .preview-item {
             position: relative;
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px solid white;
         }
         
         .preview-item img {
@@ -264,74 +351,86 @@
         
         .remove-btn {
             position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 20px;
-            height: 20px;
+            top: 6px;
+            right: 6px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 12px;
             cursor: pointer;
             border: none;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-btn:hover {
+            background-color: #ef4444;
+            transform: scale(1.1);
         }
         
         .form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
+            gap: 12px;
+            margin-top: 8px;
         }
         
         .form-btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }
         
         .btn-cancel {
-            background-color: #f3f4f6;
-            color: #4b5563;
-            border: none;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
         }
         
         .btn-cancel:hover {
-            background-color: #e5e7eb;
+            background-color: #e2e8f0;
+            color: #334155;
         }
         
         .btn-unable {
-            background-color: #f59e0b;
+            background: linear-gradient(to right, #f59e0b, #d97706);
             color: white;
             border: none;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
         }
         
         .btn-unable:hover {
-            background-color: #d97706;
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+            transform: translateY(-1px);
         }
         
         .btn-submit {
-            background-color: #3b82f6;
+            background: linear-gradient(to right, #3b82f6, #2563eb);
             color: white;
             border: none;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
         }
         
         .btn-submit:hover {
-            background-color: #2563eb;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
         }
         
-        /* NFC 動畫樣式 */
+        /* NFC 動畫樣式優化 */
         .nfc-animation {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(15, 23, 42, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -339,6 +438,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
         }
         
         .nfc-animation.active {
@@ -348,34 +448,36 @@
         
         .nfc-container {
             position: relative;
-            width: 200px;
-            height: 280px;
+            width: 220px;
+            height: 300px;
         }
         
         .nfc-phone {
-            width: 100px;
-            height: 180px;
-            background-color: #333;
-            border-radius: 20px;
+            width: 110px;
+            height: 190px;
+            background: #1e293b;
+            border-radius: 24px;
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
             z-index: 2;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 2px solid #334155;
         }
         
         .nfc-card {
-            width: 80px;
-            height: 120px;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-radius: 10px;
+            width: 85px;
+            height: 125px;
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            border-radius: 12px;
             position: absolute;
-            bottom: 10px;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             transition: transform 0.5s ease;
         }
         
@@ -385,7 +487,7 @@
         
         .nfc-waves {
             position: absolute;
-            top: 180px;
+            top: 185px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 0;
@@ -397,9 +499,9 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 40px;
-            height: 40px;
-            border: 2px solid #3b82f6;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #60a5fa;
             border-radius: 50%;
             opacity: 0;
             transform: translate(-50%, -50%);
@@ -407,13 +509,13 @@
         }
         
         .nfc-wave:nth-child(2) {
-            width: 60px;
-            height: 60px;
+            width: 75px;
+            height: 75px;
         }
         
         .nfc-wave:nth-child(3) {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
         }
         
         .nfc-animation.active .nfc-wave {
@@ -421,15 +523,15 @@
         }
         
         .nfc-wave:nth-child(2) {
-            animation-delay: 0.3s;
+            animation-delay: 0.4s;
         }
         
         .nfc-wave:nth-child(3) {
-            animation-delay: 0.6s;
+            animation-delay: 0.8s;
         }
         
         .nfc-wave.error {
-            border-color: #ef4444;
+            border-color: #f87171;
         }
         
         @keyframes wave-animation {
@@ -445,47 +547,101 @@
         
         .nfc-success {
             position: absolute;
-            top: 140px;
+            top: 145px;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background-color: #10b981;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(to right, #10b981, #059669);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 30px;
+            font-size: 34px;
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.5);
             transition: all 0.3s ease;
             z-index: 3;
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4);
         }
         
         .nfc-error {
             position: absolute;
-            top: 140px;
+            top: 145px;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background-color: #ef4444;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(to right, #ef4444, #dc2626);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 30px;
+            font-size: 34px;
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.5);
             transition: all 0.3s ease;
             z-index: 3;
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.4);
         }
         
         .nfc-success.active, .nfc-error.active {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* 圖片查看器優化 */
+        .form-overlay img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 4px solid white;
+        }
+        
+        /* 提示訊息優化 */
+        .toast-success {
+            background: linear-gradient(to right, #10b981, #059669);
+        }
+        
+        .toast-error {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+        }
+        
+        .toast-info {
+            background: linear-gradient(to right, #3b82f6, #2563eb);
+        }
+        
+        /* 按鈕樣式 */
+        .btn-primary {
+            @apply bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium py-2.5 px-4 rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center text-sm;
+        }
+        
+        .btn-primary:active {
+            @apply from-blue-600 to-blue-700 transform scale-95;
+        }
+        
+        .btn-primary-outline {
+            @apply border border-blue-200 text-blue-600 font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm bg-blue-50;
+        }
+        
+        .btn-secondary {
+            @apply bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-medium py-2.5 px-4 rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center text-sm;
+        }
+        
+        .btn-secondary:active {
+            @apply from-indigo-600 to-indigo-700 transform scale-95;
+        }
+        
+        .btn-warning {
+            @apply bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium py-2.5 px-4 rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center text-sm;
+        }
+        
+        .btn-warning:active {
+            @apply from-amber-600 to-amber-700 transform scale-95;
         }
     </style>
 </head>
@@ -617,8 +773,8 @@
             <!-- 檢查點列表 -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-800 mb-3">檢查點列表</h3>
-                <div id="checkpointsList" class="space-y-3">
-                    <!-- 檢查點由 JavaScript 填充 -->
+                <div id="checkpointsList" class="mt-6 space-y-4">
+                    <!-- 檢查點卡片將在這裡動態生成 -->
                 </div>
             </div>
             
@@ -2166,6 +2322,187 @@
                     document.body.removeChild(toast);
                 }, 300);
             }, 3000);
+        }
+
+        function generateCheckpointCard(checkpoint, routeKey, checkpointIndex) {
+            // 定義檢查點的狀態變數
+            let statusClass = 'bg-gray-100';
+            let statusBadge = '';
+            let statusText = '待打卡';
+            let statusIcon = '<i class="fas fa-clock text-blue-500"></i>';
+            let checkInTime = '';
+            let buttonGroup = '';
+            let noteSection = '';
+            let reasonSection = '';
+            let images = '';
+
+            const routeData = loadRouteStatus(routeKey);
+            
+            if (routeData && routeData.checkpoints && routeData.checkpoints[checkpointIndex]) {
+                const checkpointData = routeData.checkpoints[checkpointIndex];
+                
+                // 檢查點已完成
+                if (checkpointData.status === 'completed') {
+                    statusClass = 'bg-green-50 border-l-4 border-green-500';
+                    statusBadge = '<span class="status-badge status-completed"><i class="fas fa-check-circle mr-1"></i> 已完成</span>';
+                    statusText = '已打卡';
+                    statusIcon = '<i class="fas fa-check-circle text-green-500"></i>';
+                    
+                    if (checkpointData.timestamp) {
+                        const date = new Date(checkpointData.timestamp);
+                        checkInTime = `
+                            <div class="flex items-center text-sm text-gray-500 mt-2">
+                                <i class="fas fa-clock mr-2"></i>
+                                ${date.toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                        `;
+                    }
+                    
+                    // 處理備註
+                    if (checkpointData.note) {
+                        noteSection = `
+                            <div class="bg-blue-50 p-3 rounded-lg mt-4 border-l-4 border-blue-400">
+                                <div class="font-medium text-blue-700 mb-2"><i class="fas fa-comment-alt mr-2"></i>備註</div>
+                                <div class="text-sm text-gray-600">${checkpointData.note}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 處理圖片
+                    if (checkpointData.images && checkpointData.images.length > 0) {
+                        let imageElements = '';
+                        checkpointData.images.forEach(image => {
+                            imageElements += `
+                                <div class="relative w-16 h-16 overflow-hidden rounded-lg cursor-pointer shadow-sm border border-gray-200" onclick="showFullScreenImage('${image}')">
+                                    <img src="${image}" class="w-full h-full object-cover">
+                                </div>
+                            `;
+                        });
+                        
+                        images = `
+                            <div class="mt-4">
+                                <div class="text-sm text-gray-600 mb-2"><i class="fas fa-images mr-1"></i>照片</div>
+                                <div class="flex flex-wrap gap-2">${imageElements}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    buttonGroup = `
+                        <button class="btn-primary-outline mt-2" disabled>
+                            <i class="fas fa-check-circle mr-1"></i> 已完成
+                        </button>
+                    `;
+                    
+                } 
+                // 檢查點無法打卡
+                else if (checkpointData.status === 'unable') {
+                    statusClass = 'bg-yellow-50 border-l-4 border-yellow-500';
+                    statusBadge = '<span class="status-badge status-incomplete"><i class="fas fa-exclamation-circle mr-1"></i> 無法打卡</span>';
+                    statusText = '無法打卡';
+                    statusIcon = '<i class="fas fa-exclamation-circle text-yellow-500"></i>';
+                    
+                    if (checkpointData.timestamp) {
+                        const date = new Date(checkpointData.timestamp);
+                        checkInTime = `
+                            <div class="flex items-center text-sm text-gray-500 mt-2">
+                                <i class="fas fa-clock mr-2"></i>
+                                ${date.toLocaleTimeString('zh-TW', {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                        `;
+                    }
+                    
+                    // 處理無法打卡原因
+                    if (checkpointData.reason) {
+                        reasonSection = `
+                            <div class="bg-yellow-50 p-3 rounded-lg mt-4 border-l-4 border-yellow-400">
+                                <div class="font-medium text-yellow-700 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>無法打卡原因</div>
+                                <div class="text-sm text-gray-600">${checkpointData.reason}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    // 處理圖片
+                    if (checkpointData.images && checkpointData.images.length > 0) {
+                        let imageElements = '';
+                        checkpointData.images.forEach(image => {
+                            imageElements += `
+                                <div class="relative w-16 h-16 overflow-hidden rounded-lg cursor-pointer shadow-sm border border-gray-200" onclick="showFullScreenImage('${image}')">
+                                    <img src="${image}" class="w-full h-full object-cover">
+                                </div>
+                            `;
+                        });
+                        
+                        images = `
+                            <div class="mt-4">
+                                <div class="text-sm text-gray-600 mb-2"><i class="fas fa-images mr-1"></i>照片</div>
+                                <div class="flex flex-wrap gap-2">${imageElements}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    buttonGroup = `
+                        <button class="btn-primary-outline mt-2" disabled>
+                            <i class="fas fa-exclamation-circle mr-1"></i> 無法打卡
+                        </button>
+                    `;
+                    
+                }
+                // 如果檢查點未完成
+                else {
+                    buttonGroup = `
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <button class="btn-primary check-in-btn" onclick="handleCheckin('${routeKey}', ${checkpointIndex})">
+                                <i class="fas fa-qrcode mr-1"></i> 打卡
+                            </button>
+                            <button class="btn-warning unable-btn" onclick="showUnableForm('${routeKey}', ${checkpointIndex})">
+                                <i class="fas fa-exclamation-circle mr-1"></i> 無法打卡
+                            </button>
+                        </div>
+                        <button class="btn-secondary note-btn w-full mt-2" onclick="showNoteForm('${routeKey}', ${checkpointIndex})">
+                            <i class="fas fa-comment-alt mr-1"></i> 備註
+                        </button>
+                    `;
+                }
+            } else {
+                // 檢查點未開始
+                buttonGroup = `
+                    <div class="grid grid-cols-2 gap-2 mt-3">
+                        <button class="btn-primary check-in-btn" onclick="handleCheckin('${routeKey}', ${checkpointIndex})">
+                            <i class="fas fa-qrcode mr-1"></i> 打卡
+                        </button>
+                        <button class="btn-warning unable-btn" onclick="showUnableForm('${routeKey}', ${checkpointIndex})">
+                            <i class="fas fa-exclamation-circle mr-1"></i> 無法打卡
+                        </button>
+                    </div>
+                    <button class="btn-secondary note-btn w-full mt-2" onclick="showNoteForm('${routeKey}', ${checkpointIndex})">
+                        <i class="fas fa-comment-alt mr-1"></i> 備註
+                    </button>
+                `;
+            }
+
+            return `
+                <div class="checkpoint-card ${statusClass} rounded-xl overflow-hidden shadow-md transition-all duration-300">
+                    <div class="checkpoint-header flex items-center justify-between p-4 border-b border-gray-100 bg-white">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full mr-3">
+                                ${statusIcon}
+                            </div>
+                            <div>
+                                <h3 class="font-medium">${checkpoint.name}</h3>
+                                <p class="text-sm text-gray-500">${checkpoint.location || ''}</p>
+                            </div>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div class="p-4 bg-white">
+                        ${checkInTime}
+                        ${reasonSection}
+                        ${noteSection}
+                        ${images}
+                        ${buttonGroup}
+                    </div>
+                </div>
+            `;
         }
     </script>
 </body>
