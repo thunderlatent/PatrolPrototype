@@ -9,286 +9,335 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+            line-height: 1.5;
         }
-        .container {
-            max-width: 1200px;
+        
+        .header {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
         }
-        .main-title {
-            color: #1d1d1f;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
+        
+        .nav-link {
+            color: #334155;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
         }
-        .subtitle {
-            color: #6e6e73;
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
+        
+        .nav-link:hover {
+            background-color: #e0e7ff;
+            color: #4f46e5;
         }
-        .prototype-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 3rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        }
-        .page-btn {
-            transition: all 0.2s ease;
+        
+        .nav-link.active {
+            background-color: #e0e7ff;
+            color: #4f46e5;
             font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.75rem;
-            background-color: #3b82f6;
-            color: white;
-            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
         }
-        .page-btn:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(59, 130, 246, 0.2);
+        
+        .demo-frame {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: transform 0.3s ease;
+            background-color: #fff;
         }
-        .page-btn:active {
-            transform: translateY(0);
+        
+        .demo-frame:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
         }
-        .feature-card {
-            background-color: white;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        
+        .card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             transition: all 0.3s ease;
         }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .feature-icon {
-            width: 3rem;
-            height: 3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #ebf5ff;
-            color: #3b82f6;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            font-weight: 600;
+            padding: 0.625rem 1.25rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px -1px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            color: #475569;
+            font-weight: 600;
+            padding: 0.625rem 1.25rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-    <div class="container mx-auto py-12 px-4">
-        <div class="text-center mb-10">
-            <h1 class="main-title">安全室巡捕系統</h1>
-            <p class="subtitle">優化保安巡邏管理與記錄的智能解決方案</p>
+    <header class="header text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt text-2xl mr-3"></i>
+                <h1 class="text-xl font-bold">安全室巡捕系統</h1>
+            </div>
+            <div class="hidden md:flex space-x-1">
+                <a href="#features" class="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition">功能</a>
+                <a href="#demo" class="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition">演示</a>
+                <a href="#workflow" class="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition">工作流程</a>
+                <a href="all-pages-view.html" class="bg-white text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition">所有頁面預覽</a>
+            </div>
+            <div class="md:hidden">
+                <button class="text-white focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
-        
-        <div class="prototype-container">
-            <div class="flex flex-col lg:flex-row">
-                <!-- iPhone 16 Pro Max 模擬器 -->
-                <div class="iphone-container flex-grow-0 flex-shrink-0 mx-auto mb-10 lg:mb-0 lg:mr-10">
-                    <div class="iphone-frame">
-                        <!-- 動態島 -->
-                        <div class="dynamic-island">
-                            <div class="dynamic-island-capsule">
-                                <div class="dynamic-island-camera"></div>
-                                <div class="dynamic-island-sensor"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- 內容區域 -->
-                        <div class="screen-content">
-                            <iframe id="content-frame" src="login.html" frameborder="0"></iframe>
-                        </div>
-                        
-                        <!-- 底部導航欄 - iOS UITabBarController 風格 -->
-                        <div class="ios-tab-bar" id="bottom-nav">
-                            <div class="tab-item active" data-target="home.html">
-                                <i class="fas fa-route"></i>
-                                <span>巡邏</span>
-                            </div>
-                            <div class="tab-item" data-target="profile.html">
-                                <i class="fas fa-history"></i>
-                                <span>我的紀錄</span>
-                            </div>
-                            <div class="tab-item" data-target="admin.html">
-                                <i class="fas fa-user-shield"></i>
-                                <span>管理</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Home Indicator -->
-                        <div class="home-indicator"></div>
+    </header>
+
+    <main>
+        <!-- 英雄區塊 -->
+        <section class="py-16 bg-gradient-to-b from-blue-500 to-blue-600 text-white">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h2 class="text-4xl font-bold mb-6">安全室巡捕系統</h2>
+                    <p class="text-xl mb-8">高效的安全巡邏管理解決方案，協助確保設施安全並簡化巡邏工作流程。</p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="iphone-view.html?page=login.html" class="btn-primary text-center inline-block">
+                            <i class="fas fa-mobile-alt mr-2"></i>移動端演示
+                        </a>
+                        <a href="all-pages-view.html" class="btn-secondary text-center inline-block">
+                            <i class="fas fa-th-large mr-2"></i>所有頁面預覽
+                        </a>
                     </div>
                 </div>
-                
-                <!-- 功能說明與頁面導航 -->
-                <div class="flex-grow">
-                    <h2 class="text-2xl font-bold mb-6">系統功能</h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-qrcode"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold mb-2">NFC/QR碼打卡</h3>
-                            <p class="text-gray-600">支援多種打卡方式，確保巡邏人員到達指定地點</p>
-                        </div>
-                        
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold mb-2">巡邏記錄管理</h3>
-                            <p class="text-gray-600">詳細記錄每次巡邏情況，方便日後查詢和分析</p>
-                        </div>
-                        
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-map-marked-alt"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold mb-2">路線規劃</h3>
-                            <p class="text-gray-600">自定義巡邏路線和檢查點，提高工作效率</p>
-                        </div>
-                        
-                        <div class="feature-card">
-                            <div class="feature-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold mb-2">數據統計</h3>
-                            <p class="text-gray-600">自動生成巡邏報告，提供數據分析和圖表</p>
-                        </div>
-                    </div>
-                    
-                    <h2 class="text-2xl font-bold mb-4">頁面導航</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <button class="page-btn" data-page="login.html">
-                            <i class="fas fa-sign-in-alt mr-2"></i>登入頁面
-                        </button>
-                        <button class="page-btn" data-page="home.html">
-                            <i class="fas fa-route mr-2"></i>巡邏頁面
-                        </button>
-                        <button class="page-btn" data-page="profile.html">
-                            <i class="fas fa-history mr-2"></i>巡查紀錄
-                        </button>
-                        <button class="page-btn" data-page="admin.html">
-                            <i class="fas fa-user-shield mr-2"></i>管理頁面
-                        </button>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="demo-frame relative">
+                        <iframe src="iphone-view.html?page=home.html" class="w-full" style="height: 500px; border: none;"></iframe>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- 功能區塊 -->
+        <section id="features" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">主要功能</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card p-6">
+                        <div class="text-blue-500 text-4xl mb-4">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">巡邏路線管理</h3>
+                        <p class="text-gray-600">規劃和追蹤巡邏路線，確保所有區域都被定期檢查，維持安全標準。</p>
+                    </div>
+                    <div class="card p-6">
+                        <div class="text-blue-500 text-4xl mb-4">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">NFC 打卡系統</h3>
+                        <p class="text-gray-600">使用 NFC 技術進行打卡，確認巡邏人員已到達指定位置，提供準確的巡邏記錄。</p>
+                    </div>
+                    <div class="card p-6">
+                        <div class="text-blue-500 text-4xl mb-4">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">歷史記錄查詢</h3>
+                        <p class="text-gray-600">完整的巡邏歷史紀錄，方便追蹤、審計和改進巡邏流程，保障安全標準。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 演示區塊 -->
+        <section id="demo" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">系統演示</h2>
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-10 md:mb-0">
+                        <div class="bg-white p-4 rounded-xl shadow-lg">
+                            <ul class="flex border-b">
+                                <li class="-mb-px mr-1">
+                                    <a class="nav-link active inline-block py-2 px-4" href="#" onclick="changeDemo('login.html'); return false;">登入</a>
+                                </li>
+                                <li class="mr-1">
+                                    <a class="nav-link inline-block py-2 px-4" href="#" onclick="changeDemo('home.html'); return false;">巡邏</a>
+                                </li>
+                                <li class="mr-1">
+                                    <a class="nav-link inline-block py-2 px-4" href="#" onclick="changeDemo('profile.html'); return false;">紀錄</a>
+                                </li>
+                                <li class="mr-1">
+                                    <a class="nav-link inline-block py-2 px-4" href="#" onclick="changeDemo('admin.html'); return false;">管理</a>
+                                </li>
+                            </ul>
+                            <div class="demo-container mt-4">
+                                <iframe id="demo-frame" src="login.html" class="w-full" style="height: 500px; border: none;"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 md:pl-10">
+                        <h3 class="text-2xl font-bold mb-4">現代化的界面設計</h3>
+                        <p class="mb-4">我們的系統採用直覺式的界面設計，確保巡邏人員能夠輕鬆使用，即使在緊急情況下也能快速導航。</p>
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>簡潔明瞭的導航系統</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>即時更新的巡邏狀態</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>視覺化的巡邏進度報告</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                <span>無縫的移動端體驗</span>
+                            </li>
+                        </ul>
+                        <a href="all-pages-view.html" class="btn-primary inline-block">
+                            <i class="fas fa-th-large mr-2"></i>查看所有頁面
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 工作流程區塊 -->
+        <section id="workflow" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">巡邏工作流程</h2>
+                <div class="relative">
+                    <!-- 工作流程線 -->
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-blue-200 transform -translate-y-1/2 z-0"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mb-4">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">1. 簽到</h3>
+                            <p class="text-center text-gray-600">巡邏人員登入系統確認當天的巡邏任務。</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mb-4">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">2. 規劃路線</h3>
+                            <p class="text-center text-gray-600">查看指定巡邏路線和檢查點位置。</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mb-4">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">3. NFC 打卡</h3>
+                            <p class="text-center text-gray-600">到達檢查點後使用 NFC 進行打卡確認。</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-blue-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl mb-4">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">4. 完成報告</h3>
+                            <p class="text-center text-gray-600">巡邏結束後提交報告，記錄任何異常情況。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-blue-900 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-shield-alt text-2xl mr-3"></i>
+                        <h2 class="text-xl font-bold">安全室巡捕系統</h2>
+                    </div>
+                    <p class="text-blue-200 max-w-md">高效的安全巡邏管理解決方案，為設施提供全面的安全保障。</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">快速導航</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-blue-200 hover:text-white transition">主頁</a></li>
+                            <li><a href="#features" class="text-blue-200 hover:text-white transition">功能</a></li>
+                            <li><a href="#demo" class="text-blue-200 hover:text-white transition">演示</a></li>
+                            <li><a href="#workflow" class="text-blue-200 hover:text-white transition">工作流程</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">演示頁面</h3>
+                        <ul class="space-y-2">
+                            <li><a href="iphone-view.html?page=login.html" class="text-blue-200 hover:text-white transition">登入頁面</a></li>
+                            <li><a href="iphone-view.html?page=home.html" class="text-blue-200 hover:text-white transition">巡邏頁面</a></li>
+                            <li><a href="iphone-view.html?page=profile.html" class="text-blue-200 hover:text-white transition">紀錄頁面</a></li>
+                            <li><a href="iphone-view.html?page=admin.html" class="text-blue-200 hover:text-white transition">管理頁面</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                        <h3 class="text-lg font-bold mb-4">整合視圖</h3>
+                        <ul class="space-y-2">
+                            <li><a href="all-pages-view.html" class="text-blue-200 hover:text-white transition">所有頁面預覽</a></li>
+                            <li><a href="iphone-view.html" class="text-blue-200 hover:text-white transition">移動端視圖</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-blue-800 mt-8 pt-8 text-center text-blue-300">
+                <p>&copy; 2023 安全室巡捕系統 - 所有權利保留。</p>
+            </div>
         </div>
-        
-        <div class="text-center mt-12 text-gray-500 text-sm">
-            <p>版本 1.0.0 | 安全室巡捕系統原型示範</p>
-        </div>
-    </div>
+    </footer>
 
     <script>
+        function changeDemo(page) {
+            document.getElementById('demo-frame').src = page;
+            
+            // 更新活動標籤
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(page)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // 預設載入所有頁面視圖
         document.addEventListener('DOMContentLoaded', function() {
-            const navItems = document.querySelectorAll('.tab-item');
-            const contentFrame = document.getElementById('content-frame');
-            const bottomNav = document.getElementById('bottom-nav');
+            // 檢查是否有URL參數指定了特定頁面
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page');
             
-            // 初始化時隱藏底部導航欄（因為初始頁面是登入頁面）
-            bottomNav.classList.add('hidden');
-            
-            // 監聽 iframe 的加載事件
-            contentFrame.addEventListener('load', function() {
-                // 檢查當前頁面是否為登入頁面
-                const isLoginPage = contentFrame.src.includes('login.html');
-                if (isLoginPage) {
-                    bottomNav.classList.add('hidden');
-                } else {
-                    bottomNav.classList.remove('hidden');
-                }
-            });
-            
-            // 監聽來自 iframe 的訊息
-            window.addEventListener('message', function(event) {
-                console.log('Message received from iframe:', event.data);
-                
-                // 處理登入成功的訊息
-                if (event.data && event.data.type === 'login_success') {
-                    const userRole = event.data.userRole;
-                    const redirectPage = event.data.redirect || 'home.html';
-                    
-                    // 導航到指定頁面
-                    contentFrame.src = redirectPage;
-                    
-                    // 顯示底部導航欄
-                    bottomNav.classList.remove('hidden');
-                    
-                    // 如果是訪客用戶，隱藏管理選項
-                    if (userRole === 'guest') {
-                        const adminNav = bottomNav.querySelector('[data-target="admin.html"]');
-                        if (adminNav) {
-                            adminNav.style.display = 'none';
-                        }
-                    }
-                    
-                    // 更新導航欄激活狀態
-                    navItems.forEach(navItem => {
-                        if (navItem.getAttribute('data-target') === redirectPage) {
-                            navItem.classList.add('active');
-                        } else {
-                            navItem.classList.remove('active');
-                        }
-                    });
-                    
-                    console.log(`Login successful: ${userRole}, redirected to ${redirectPage}`);
-                }
-                
-                // 處理登出訊息
-                if (event.data && event.data.type === 'logout') {
-                    // 清除用戶角色
-                    localStorage.removeItem('userRole');
-                    
-                    // 導航到登入頁面
-                    contentFrame.src = 'login.html';
-                    
-                    // 隱藏底部導航欄
-                    bottomNav.classList.add('hidden');
-                    
-                    console.log('User logged out, redirected to login page');
-                }
-            });
-            
-            // 導航欄點擊事件
-            navItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const target = this.getAttribute('data-target');
-                    contentFrame.src = target;
-                    
-                    // 更新激活狀態
-                    navItems.forEach(navItem => navItem.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-            
-            // 檢視按鈕點擊事件
-            const pageBtns = document.querySelectorAll('.page-btn');
-            
-            pageBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const target = this.getAttribute('data-page');
-                    contentFrame.src = target;
-                    
-                    // 更新導航欄激活狀態
-                    navItems.forEach(navItem => {
-                        if (navItem.getAttribute('data-target') === target) {
-                            navItem.classList.add('active');
-                        } else {
-                            navItem.classList.remove('active');
-                        }
-                    });
-                    
-                    // 如果切換到登入頁面，隱藏底部導航欄
-                    if (target === 'login.html') {
-                        bottomNav.classList.add('hidden');
-                    } else {
-                        bottomNav.classList.remove('hidden');
-                    }
-                });
-            });
+            if (!page && !window.location.hash) {
+                // 如果沒有指定頁面且沒有哈希標記，則自動重定向到所有頁面視圖
+                setTimeout(() => {
+                    window.location.href = 'all-pages-view.html';
+                }, 1000);
+            }
         });
     </script>
 </body>

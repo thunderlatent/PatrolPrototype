@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全室巡捕系統 - 所有頁面視圖</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+            color: #000;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f7;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            justify-content: center;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .page-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* iPhone 16 Pro Max 樣式 */
+        .iphone-frame {
+            width: 300px; /* 縮小的 iPhone 寬度 */
+            height: 650px; /* 固定高度以允許滾動 */
+            background-color: #f5f5f7;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.3);
+            border: 10px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .iphone-frame:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.35);
+        }
+
+        /* 展開模式的樣式 */
+        .expanded-mode .iphone-frame {
+            height: auto;
+            min-height: 650px;
+        }
+
+        /* 動態島樣式 */
+        .dynamic-island {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 25px;
+            background-color: #000;
+            border-radius: 15px;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dynamic-island-capsule {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 65px;
+        }
+
+        .dynamic-island-camera {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #222;
+            border: 2px solid #333;
+        }
+
+        .dynamic-island-sensor {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #444;
+        }
+
+        /* 內容區域 */
+        .screen-content {
+            flex: 1;
+            overflow: auto; /* 允許滾動 */
+            background-color: #ffffff;
+            margin-top: 40px; /* 為動態島留出空間 */
+            position: relative;
+            -webkit-overflow-scrolling: touch; /* 增強移動設備上的滾動體驗 */
+        }
+
+        .screen-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Home Indicator */
+        .home-indicator {
+            height: 3px;
+            background-color: #000;
+            width: 90px;
+            border-radius: 2px;
+            margin: 6px auto;
+            opacity: 0.3;
+        }
+
+        /* 操作按鈕 */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        .control-button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        .control-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+        }
+
+        .control-button i {
+            margin-right: 6px;
+        }
+
+        /* 高度切換按鈕樣式 */
+        .toggle-height-btn {
+            background-color: #10b981;
+        }
+
+        .toggle-height-btn:hover {
+            background-color: #059669;
+        }
+        
+        /* 頁面操作說明 */
+        .operation-hint {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4b5563;
+            font-size: 14px;
+            background-color: #fffbeb;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 4px solid #fbbf24;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="page-title">安全室巡捕系統 - 所有頁面預覽</h1>
+    
+    <div class="operation-hint">
+        <i class="fas fa-info-circle text-yellow-500 mr-2"></i>
+        <span>您現在可以直接操作每個頁面。預設為可滾動模式，點擊「展開頁面高度」可以查看完整頁面。</span>
+    </div>
+    
+    <div class="controls">
+        <button class="control-button" id="refresh-all">
+            <i class="fas fa-sync-alt"></i> 重新載入所有頁面
+        </button>
+        <button class="control-button" id="open-new-window">
+            <i class="fas fa-external-link-alt"></i> 在新視窗開啟所有頁面
+        </button>
+        <button class="control-button toggle-height-btn" id="toggle-height">
+            <i class="fas fa-expand-alt"></i> 展開頁面高度
+        </button>
+    </div>
+    
+    <div class="grid-container">
+        <!-- 登入頁面 -->
+        <div class="page-container">
+            <div class="page-label">
+                <i class="fas fa-sign-in-alt"></i> 登入頁面
+            </div>
+            <div class="iphone-frame">
+                <div class="dynamic-island">
+                    <div class="dynamic-island-capsule">
+                        <div class="dynamic-island-camera"></div>
+                        <div class="dynamic-island-sensor"></div>
+                    </div>
+                </div>
+                <div class="screen-content">
+                    <iframe src="login.html" frameborder="0" class="page-iframe"></iframe>
+                </div>
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+        
+        <!-- 巡邏頁面 -->
+        <div class="page-container">
+            <div class="page-label">
+                <i class="fas fa-route"></i> 巡邏頁面
+            </div>
+            <div class="iphone-frame">
+                <div class="dynamic-island">
+                    <div class="dynamic-island-capsule">
+                        <div class="dynamic-island-camera"></div>
+                        <div class="dynamic-island-sensor"></div>
+                    </div>
+                </div>
+                <div class="screen-content">
+                    <iframe src="home.html" frameborder="0" class="page-iframe"></iframe>
+                </div>
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+        
+        <!-- 紀錄頁面 -->
+        <div class="page-container">
+            <div class="page-label">
+                <i class="fas fa-history"></i> 我的紀錄頁面
+            </div>
+            <div class="iphone-frame">
+                <div class="dynamic-island">
+                    <div class="dynamic-island-capsule">
+                        <div class="dynamic-island-camera"></div>
+                        <div class="dynamic-island-sensor"></div>
+                    </div>
+                </div>
+                <div class="screen-content">
+                    <iframe src="profile.html" frameborder="0" class="page-iframe"></iframe>
+                </div>
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+        
+        <!-- 管理頁面 -->
+        <div class="page-container">
+            <div class="page-label">
+                <i class="fas fa-user-shield"></i> 管理頁面
+            </div>
+            <div class="iphone-frame">
+                <div class="dynamic-island">
+                    <div class="dynamic-island-capsule">
+                        <div class="dynamic-island-camera"></div>
+                        <div class="dynamic-island-sensor"></div>
+                    </div>
+                </div>
+                <div class="screen-content">
+                    <iframe src="admin.html" frameborder="0" class="page-iframe"></iframe>
+                </div>
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 切換高度模式按鈕
+            let isExpanded = false;
+            const toggleBtn = document.getElementById('toggle-height');
+            
+            toggleBtn.addEventListener('click', function() {
+                document.body.classList.toggle('expanded-mode');
+                isExpanded = !isExpanded;
+                
+                if (isExpanded) {
+                    toggleBtn.innerHTML = '<i class="fas fa-compress-alt"></i> 恢復滾動模式';
+                    // 展開模式下，調整 iframe 高度為內容高度
+                    setTimeout(resizeAllIframes, 200);
+                } else {
+                    toggleBtn.innerHTML = '<i class="fas fa-expand-alt"></i> 展開頁面高度';
+                }
+            });
+            
+            // 重新載入所有頁面按鈕
+            document.getElementById('refresh-all').addEventListener('click', function() {
+                const iframes = document.querySelectorAll('iframe');
+                iframes.forEach(iframe => {
+                    iframe.src = iframe.src;
+                });
+                
+                // 如果是展開模式，重新調整 iframe 高度
+                if (isExpanded) {
+                    setTimeout(resizeAllIframes, 1000);
+                }
+            });
+            
+            // 在新視窗開啟所有頁面按鈕
+            document.getElementById('open-new-window').addEventListener('click', function() {
+                window.open('iphone-view.html?page=login.html', 'login_window', 'width=500,height=1000');
+                window.open('iphone-view.html?page=home.html', 'home_window', 'width=500,height=1000');
+                window.open('iphone-view.html?page=profile.html', 'profile_window', 'width=500,height=1000');
+                window.open('iphone-view.html?page=admin.html', 'admin_window', 'width=500,height=1000');
+            });
+            
+            // 監聽 iframe 加載完成事件（用於展開模式）
+            const iframes = document.querySelectorAll('.page-iframe');
+            iframes.forEach(iframe => {
+                iframe.addEventListener('load', function() {
+                    if (isExpanded) {
+                        resizeIframe(this);
+                    }
+                });
+            });
+            
+            // 調整 iframe 高度以適應內容（僅在展開模式使用）
+            function resizeIframe(iframe) {
+                try {
+                    // 獲取 iframe 內部文檔的高度
+                    const doc = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
+                    const body = doc.body;
+                    const html = doc.documentElement;
+                    
+                    // 獲取實際內容高度
+                    const height = Math.max(
+                        body.scrollHeight, body.offsetHeight,
+                        html.clientHeight, html.scrollHeight, html.offsetHeight
+                    );
+                    
+                    // 為 iframe 設置高度
+                    iframe.style.height = height + 'px';
+                    
+                } catch (e) {
+                    console.error("無法調整 iframe 高度:", e);
+                }
+            }
+            
+            // 調整所有 iframe 的高度（僅在展開模式使用）
+            function resizeAllIframes() {
+                if (!isExpanded) return;
+                
+                const iframes = document.querySelectorAll('.page-iframe');
+                iframes.forEach(iframe => {
+                    resizeIframe(iframe);
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
