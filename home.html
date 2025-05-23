@@ -884,6 +884,23 @@
         .hover\:bg-blue-600:hover {
             background-color: #2563eb;
         }
+
+        /* 持續打卡按鈕動畫 */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        #quickCheckInBtn {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -941,153 +958,72 @@
         
         <!-- NFC 卡片管理 (僅管理員可見) - 移除此區塊 -->
 
-        <!-- 時段選擇區域 -->
-        <div class="time-slots">
-            <!-- 上午時段 -->
-            <div class="time-slot mb-6">
-                <div class="time-slot-header bg-blue-50 p-3 rounded-lg mb-3">
-                    <div class="font-medium">上午巡邏路線 (09:00-12:00)</div>
-                    <div class="text-sm text-gray-500">可選擇多條路線</div>
-                </div>
-                
-                <div class="route-cards">
-                    <!-- A 棟路線 -->
-                    <div class="route-card" data-route-id="morning-a" data-time-slot="morning">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">A 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">09:00-10:00 | 5 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    大廳、電梯間、安全門、後門、頂樓
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
+        <!-- 路線選擇區域 -->
+        <div class="route-cards space-y-4">
+            <!-- A 棟路線 -->
+            <div class="route-card" data-route-id="morning-a">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="font-medium">A 棟巡邏路線</div>
+                        <div class="text-sm text-gray-500 mt-1">5 個打卡點</div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            大廳、電梯間、安全門、後門、頂樓
                         </div>
                     </div>
-                    
-                    <!-- B 棟路線 -->
-                    <div class="route-card" data-route-id="morning-b" data-time-slot="morning">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">B 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">09:30-10:45 | 5 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    前廳、閱覽室、會議廳、安全出口、中庭
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- C 棟路線 -->
-                    <div class="route-card" data-route-id="morning-c" data-time-slot="morning">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">C 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">10:30-11:30 | 3 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    入口、樓梯、屋頂
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
-                        </div>
+                    <div class="checkbox ml-4">
+                        <i class="fas fa-check text-sm"></i>
                     </div>
                 </div>
             </div>
             
-            <!-- 下午時段 -->
-            <div class="time-slot mb-6">
-                <div class="time-slot-header bg-blue-50 p-3 rounded-lg mb-3">
-                    <div class="font-medium">下午巡邏路線 (13:00-17:00)</div>
-                    <div class="text-sm text-gray-500">可選擇多條路線</div>
-                </div>
-                
-                <div class="route-cards">
-                    <!-- B 棟路線 -->
-                    <div class="route-card" data-route-id="afternoon-b" data-time-slot="afternoon">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">B 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">13:00-14:00 | 4 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    正門、側門、機房、監控室
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
+            <!-- B 棟路線 -->
+            <div class="route-card" data-route-id="morning-b">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="font-medium">B 棟巡邏路線</div>
+                        <div class="text-sm text-gray-500 mt-1">5 個打卡點</div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            前廳、閱覽室、會議廳、安全出口、中庭
                         </div>
                     </div>
-                    
-                    <!-- D 棟路線 -->
-                    <div class="route-card" data-route-id="afternoon-d" data-time-slot="afternoon">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">D 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">15:00-16:00 | 3 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    大門、倉庫、停車場
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
-                        </div>
+                    <div class="checkbox ml-4">
+                        <i class="fas fa-check text-sm"></i>
                     </div>
                 </div>
             </div>
             
-            <!-- 晚間時段 -->
-            <div class="time-slot">
-                <div class="time-slot-header bg-blue-50 p-3 rounded-lg mb-3">
-                    <div class="font-medium">晚間巡邏路線 (19:00-22:00)</div>
-                    <div class="text-sm text-gray-500">可選擇多條路線</div>
-                </div>
-                
-                <div class="route-cards">
-                    <!-- A 棟路線 -->
-                    <div class="route-card" data-route-id="evening-a" data-time-slot="evening">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">A 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">19:00-20:00 | 3 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    大廳、電梯間、安全門
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
+            <!-- C 棟路線 -->
+            <div class="route-card" data-route-id="morning-c">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="font-medium">C 棟巡邏路線</div>
+                        <div class="text-sm text-gray-500 mt-1">3 個打卡點</div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            入口、樓梯、屋頂
                         </div>
                     </div>
-                    
-                    <!-- B 棟路線 -->
-                    <div class="route-card" data-route-id="evening-b" data-time-slot="evening">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="font-medium">B 棟巡邏路線</div>
-                                <div class="text-sm text-gray-500 mt-1">21:00-22:00 | 2 個打卡點</div>
-                                <div class="text-xs text-gray-400 mt-2">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    正門、機房
-                                </div>
-                            </div>
-                            <div class="checkbox ml-4">
-                                <i class="fas fa-check text-sm"></i>
-                            </div>
+                    <div class="checkbox ml-4">
+                        <i class="fas fa-check text-sm"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- D 棟路線 -->
+            <div class="route-card" data-route-id="afternoon-d">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="font-medium">D 棟巡邏路線</div>
+                        <div class="text-sm text-gray-500 mt-1">3 個打卡點</div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            大門、倉庫、停車場
                         </div>
+                    </div>
+                    <div class="checkbox ml-4">
+                        <i class="fas fa-check text-sm"></i>
                     </div>
                 </div>
             </div>
@@ -1095,7 +1031,7 @@
         
         <!-- 確認按鈕 -->
         <button id="confirmRoutes" class="confirm-button" disabled>
-            確認選擇 (0/7)
+            確認選擇 (0/4)
         </button>
     </div>
 
@@ -1155,7 +1091,7 @@
             <div>
                 <div class="text-lg font-semibold mb-1" id="routeDetailsTitle">路線詳情</div>
                 <div class="text-sm text-gray-500" id="routeDetailsSubtitle">
-                    上午 | A 棟巡邏路線
+                    任務編號：<span id="taskNumber"></span>
                 </div>
             </div>
             <button id="backToPatrolList" class="back-button">
@@ -1188,6 +1124,13 @@
         <!-- 上傳按鈕區域 -->
         <div class="upload-area" id="detailsUploadArea">
             <!-- 上傳按鈕由 JavaScript 動態生成 -->
+        </div>
+
+        <!-- 持續打卡按鈕 -->
+        <div class="fixed bottom-6 right-6">
+            <button id="quickCheckInBtn" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg transition-all">
+                <i class="fas fa-qrcode text-2xl"></i>
+            </button>
         </div>
     </div>
 
@@ -1422,12 +1365,6 @@
                     { name: '樓梯', time: '10:45-11:00', status: 'pending' },
                     { name: '屋頂', time: '11:00-11:15', status: 'pending' }
                 ],
-                'afternoon-b': [
-                    { name: '正門', time: '13:00-13:15', status: 'pending' },
-                    { name: '側門', time: '13:15-13:30', status: 'pending' },
-                    { name: '機房', time: '13:30-13:45', status: 'pending' },
-                    { name: '監控室', time: '13:45-14:00', status: 'pending' }
-                ],
                 'afternoon-d': [
                     { name: '大門', time: '15:00-15:20', status: 'pending' },
                     { name: '倉庫', time: '15:20-15:40', status: 'pending' },
@@ -1442,7 +1379,7 @@
                     { name: '正門', time: '21:00-21:30', status: 'pending' },
                     { name: '機房', time: '21:30-22:00', status: 'pending' }
                 ]
-                // 移除 evening-c 路線，因為HTML中沒有這個路線的實際元素
+                // 移除 afternoon-b 路線
             };
             
             return checkpointsMap[route] || [];
@@ -1490,7 +1427,7 @@
                     '正門': '21:00-21:30',
                     '機房': '21:30-22:00'
                 }
-                // 移除 evening-c 路線
+                // 移除 afternoon-b 路線
             };
             
             return (timeMap[route] && timeMap[route][name]) ? timeMap[route][name] : '未指定時間';
@@ -1680,15 +1617,6 @@
 
         // 全局函數 - 生成巡邏路線卡片
         function generatePatrolRouteCard(route) {
-            const timeSlotMap = {
-                'morning': '上午',
-                'afternoon': '下午',
-                'evening': '晚間'
-            };
-            
-            const [timeSlot, building] = route.split('-');
-            const timeText = timeSlotMap[timeSlot];
-            
             // 獲取路線的基本打卡點信息
             const baseCheckpoints = getRouteCheckpoints(route);
             
@@ -1705,23 +1633,46 @@
                 }
             }
             
+            // 生成或獲取任務編號
+            let taskNumber = '';
+            if (savedRouteStatus && savedRouteStatus.taskNumber) {
+                taskNumber = savedRouteStatus.taskNumber;
+            } else {
+                // 如果沒有任務編號，生成一個新的
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                const building = route.split('-')[1].toUpperCase();
+                taskNumber = `${dateStr}-${building}-${randomNum}`;
+                
+                // 保存任務編號到路線狀態
+                if (!savedRouteStatus) {
+                    savedRouteStatus = {};
+                }
+                savedRouteStatus.taskNumber = taskNumber;
+                const routeStatuses = JSON.parse(savedRouteStatuses || '{}');
+                routeStatuses[route] = savedRouteStatus;
+                localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+            }
+            
+            // 獲取路線的中文名稱
+            const building = route.split('-')[1].toUpperCase();
+            const routeName = `${building} 棟巡邏路線`;
+            
             // 合併基本檢查點信息和已保存的狀態
             let checkpoints = [];
             
             if (baseCheckpoints) {
                 checkpoints = baseCheckpoints.map(cp => {
-                    // 檢查 savedRouteStatus.checkpoints 是對象還是數組
                     let savedStatus = 'pending';
                     
                     if (savedRouteStatus && savedRouteStatus.checkpoints) {
                         if (Array.isArray(savedRouteStatus.checkpoints)) {
-                            // 如果是數組
                             const savedCp = savedRouteStatus.checkpoints.find(s => s.name === cp.name);
                             if (savedCp) {
                                 savedStatus = savedCp.status;
                             }
                         } else {
-                            // 如果是對象
                             if (savedRouteStatus.checkpoints[cp.name]) {
                                 savedStatus = savedRouteStatus.checkpoints[cp.name].status;
                             }
@@ -1745,16 +1696,6 @@
             
             // 檢查是否所有檢查點都已完成
             const isRouteCompleted = checkpoints.every(cp => cp.status === 'completed' || cp.status === 'unable');
-            
-            // 獲取大樓名稱
-            const buildingMap = {
-                'a': 'A 棟',
-                'b': 'B 棟',
-                'c': 'C 棟',
-                'd': 'D 棟'
-            };
-            
-            const buildingName = buildingMap[building] || `${building.toUpperCase()} 棟`;
             
             // 設置卡片和狀態風格
             let cardBorderClass = "border-l-4 border-blue-500";
@@ -1784,7 +1725,7 @@
             // 顯示檢查點預覽
             const checkpointsPreview = checkpoints.map(cp => cp.name).join('、');
             
-            // 構建路線卡片 - 與 profile.html 保持一致的樣式
+            // 構建路線卡片
             let html = `
                 <div class="bg-white rounded-lg shadow-sm ${cardBorderClass} overflow-hidden" data-route-id="${route}" onclick="viewRouteDetails('${route}')">
                     <div class="p-4">
@@ -1793,7 +1734,10 @@
                                 <div class="rounded-full bg-gray-100 p-2 mr-3">
                                     <i class="fas fa-map-marker-alt text-gray-600"></i>
                                 </div>
-                                <h4 class="font-medium text-gray-800">${timeText} ${buildingName}</h4>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">${routeName}</h4>
+                                    <div class="text-sm text-gray-500">任務編號：${taskNumber}</div>
+                                </div>
                             </div>
                             <span class="px-2 py-1 rounded-full text-xs font-medium ${statusBgClass} ${statusTextClass}">
                                 ${statusText}
@@ -1906,7 +1850,7 @@
 
             // 更新確認按鈕狀態
             function updateConfirmButton() {
-                const totalRoutes = 7; // 固定為 7 條路線，與 HTML 中的實際路線數量一致
+                const totalRoutes = 4; // 固定為 4 條路線，與 HTML 中的實際路線數量一致
                 const selectedCount = selectedRoutes.size;
                 confirmButton.textContent = `確認選擇 (${selectedCount}/${totalRoutes})`;
                 confirmButton.disabled = selectedCount === 0;
@@ -2395,19 +2339,13 @@
             document.body.appendChild(instructionDialog);
         }
 
-        // 上傳巡邏紀錄
+        // 修改上傳巡邏紀錄函數
         function uploadPatrolRecord(route) {
             console.log(`準備上傳路線 ${route} 的打卡紀錄`);
             
-            // 檢查路線是否完全完成
-            const checkpoints = getRouteCheckpoints(route);
-            const isRouteCompleted = checkpoints.every(cp => cp.status === 'completed' || cp.status === 'unable');
-            
-            if (!isRouteCompleted) {
-                console.error(`路線 ${route} 未完成，無法上傳`);
-                showToast('無法上傳', '請先完成所有打卡點', 'error');
-                return;
-            }
+            // 從 localStorage 獲取路線狀態
+            const routeStatuses = JSON.parse(localStorage.getItem('routeStatuses') || '{}');
+            const routeData = routeStatuses[route] || {};
             
             // 檢查路線是否已上傳
             const isRouteUploaded = localStorage.getItem(`route_uploaded_${route}`) === 'true';
@@ -2415,6 +2353,22 @@
                 console.log(`路線 ${route} 已上傳過，無需重複上傳`);
                 showToast('已上傳', '此路線已上傳過，無需重複上傳', 'info');
                 return;
+            }
+            
+            // 檢查是否有未完成的檢查點
+            const checkpoints = getRouteCheckpoints(route);
+            const totalCheckpoints = checkpoints.length;
+            const completedCheckpoints = checkpoints.filter(cp => 
+                cp.status === 'completed' || cp.status === 'unable'
+            ).length;
+            
+            // 如果有未完成的檢查點，顯示提醒
+            if (completedCheckpoints < totalCheckpoints) {
+                const remainingCount = totalCheckpoints - completedCheckpoints;
+                const isConfirmed = confirm(`注意：還有 ${remainingCount} 個檢查點未完成，確定要上傳嗎？`);
+                if (!isConfirmed) {
+                    return;
+                }
             }
             
             // 更新上傳狀態文字和圖標
@@ -2426,41 +2380,48 @@
                 uploadText.textContent = '上傳中...';
             }
             
+            // 更新詳情頁面的上傳按鈕
+            const detailsUploadIcon = document.getElementById(`detailsUploadIcon-${route}`);
+            const detailsUploadText = document.getElementById(`detailsUploadText-${route}`);
+            
+            if (detailsUploadIcon && detailsUploadText) {
+                detailsUploadIcon.className = 'fas fa-spinner fa-spin mr-2';
+                detailsUploadText.textContent = '上傳中...';
+            }
+            
             // 模擬上傳過程
             setTimeout(() => {
-                // 獲取已上傳的路線
+                // 記錄上傳時間
+                const now = new Date();
+                const uploadTime = now.toISOString();
+                
+                // 更新路線狀態
+                routeData.uploaded = true;
+                routeData.uploadTime = uploadTime;
+                routeStatuses[route] = routeData;
+                localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+                
+                // 更新已上傳路線列表
                 let uploadedRoutes = [];
-                const savedUploadedRoutes = localStorage.getItem('uploadedRoutes');
-                if (savedUploadedRoutes) {
-                    try {
-                        uploadedRoutes = JSON.parse(savedUploadedRoutes);
-                        if (!Array.isArray(uploadedRoutes)) {
-                            // 如果不是數組，將對象轉換為數組
-                            uploadedRoutes = Object.keys(uploadedRoutes).filter(key => uploadedRoutes[key]);
-                        }
-                    } catch (e) {
-                        console.error("解析已上傳路線時出錯:", e);
+                try {
+                    uploadedRoutes = JSON.parse(localStorage.getItem('uploadedRoutes') || '[]');
+                    if (!Array.isArray(uploadedRoutes)) {
                         uploadedRoutes = [];
                     }
+                } catch (e) {
+                    console.error('解析已上傳路線時出錯:', e);
+                    uploadedRoutes = [];
                 }
                 
-                // 添加路線到已上傳列表
                 if (!uploadedRoutes.includes(route)) {
                     uploadedRoutes.push(route);
                     localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
                 }
                 
-                // 直接設置路線已上傳標記
+                // 設置路線已上傳標記
                 localStorage.setItem(`route_uploaded_${route}`, 'true');
                 
-                // 更新路線狀態中的上傳狀態
-                const routeStatuses = JSON.parse(localStorage.getItem('routeStatuses') || '{}');
-                if (routeStatuses[route]) {
-                    routeStatuses[route].uploaded = true;
-                    localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
-                }
-                
-                // 更新界面
+                // 更新界面 - 巡邏列表頁面
                 const uploadButton = document.getElementById(`uploadBtn-${route}`);
                 const uploadStatus = document.querySelector(`[data-route-id="${route}"] .upload-status`);
                 
@@ -2468,22 +2429,57 @@
                     uploadButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> 已上傳`;
                     uploadButton.classList.add('uploaded');
                     uploadButton.disabled = true;
-                    uploadButton.title = '已上傳';
                 }
                 
                 if (uploadStatus) {
                     uploadStatus.className = 'upload-status status-uploaded';
-                    uploadStatus.innerHTML = `<i class="fas fa-check-circle mr-1"></i> 已上傳`;
+                    uploadStatus.textContent = '已上傳';
                 }
                 
-                console.log(`路線 ${route} 上傳成功`);
+                // 更新界面 - 詳情頁面
+                const detailsUploadButton = document.getElementById(`detailsUploadBtn-${route}`);
+                
+                if (detailsUploadButton) {
+                    detailsUploadButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> 已上傳`;
+                    detailsUploadButton.classList.add('uploaded');
+                    detailsUploadButton.disabled = true;
+                }
                 
                 // 顯示成功提示
-                showToast('上傳成功', `${route.split('-')[1].toUpperCase()} 棟巡邏紀錄已成功上傳`);
+                showToast('上傳成功', `${route.split('-')[1].toUpperCase()} 棟巡邏記錄已成功上傳`);
                 
                 // 更新總進度
                 updateTotalProgress();
             }, 1500);
+        }
+
+        // 修改生成上傳按鈕的部分
+        function generateUploadButton(route, isCompleted, isUploaded) {
+            if (isUploaded) {
+                return `
+                    <button class="w-full bg-green-500 text-white py-3 px-4 rounded-lg cursor-default flex items-center justify-center">
+                        <i class="fas fa-check-double mr-2"></i>
+                        已上傳
+                    </button>
+                `;
+            }
+            
+            const checkpoints = getRouteCheckpoints(route);
+            const totalCheckpoints = checkpoints.length;
+            const completedCheckpoints = checkpoints.filter(cp => 
+                cp.status === 'completed' || cp.status === 'unable'
+            ).length;
+            
+            const remainingCheckpoints = totalCheckpoints - completedCheckpoints;
+            
+            return `
+                <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg transition-all flex items-center justify-center" 
+                        onclick="uploadPatrolRecord('${route}')"
+                        title="${remainingCheckpoints > 0 ? `還有 ${remainingCheckpoints} 個檢查點未完成` : '點擊上傳打卡紀錄'}">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>
+                    上傳巡邏記錄 ${remainingCheckpoints > 0 ? `(尚有 ${remainingCheckpoints} 個未完成)` : ''}
+                </button>
+            `;
         }
         
         // 顯示提示訊息
@@ -2660,11 +2656,6 @@
             
             // 獲取路線信息
             const [timeSlot, building] = routeId.split('-');
-            const timeSlotMap = {
-                'morning': '上午',
-                'afternoon': '下午',
-                'evening': '晚間'
-            };
             const buildingMap = {
                 'a': 'A 棟',
                 'b': 'B 棟',
@@ -2672,12 +2663,30 @@
                 'd': 'D 棟'
             };
             
-            const timeText = timeSlotMap[timeSlot] || timeSlot;
             const buildingName = buildingMap[building] || `${building.toUpperCase()} 棟`;
+            
+            // 從 localStorage 獲取路線狀態
+            const routeStatuses = JSON.parse(localStorage.getItem('routeStatuses') || '{}');
+            const routeData = routeStatuses[routeId] || {};
+            
+            // 生成或獲取任務編號
+            let taskNumber = routeData.taskNumber;
+            if (!taskNumber) {
+                // 如果沒有任務編號，生成一個新的
+                const today = new Date();
+                const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+                const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                taskNumber = `${dateStr}-${building.toUpperCase()}-${randomNum}`;
+                
+                // 保存任務編號
+                routeData.taskNumber = taskNumber;
+                routeStatuses[routeId] = routeData;
+                localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
+            }
             
             // 更新詳情頁標題
             document.getElementById('routeDetailsTitle').textContent = `${buildingName}巡邏路線`;
-            document.getElementById('routeDetailsSubtitle').textContent = `${timeText} | ${routeId}`;
+            document.getElementById('taskNumber').textContent = taskNumber;
             
             // 獲取檢查點信息
             const baseCheckpoints = getRouteCheckpoints(routeId);
@@ -2874,112 +2883,6 @@
             console.log('Route details page displayed');
         }
 
-        // 修改上傳巡邏紀錄函數，使其在詳情頁和列表頁都能正常工作
-        function uploadPatrolRecord(route) {
-            console.log(`準備上傳路線 ${route} 的打卡紀錄`);
-            
-            // 檢查路線是否完全完成
-            const checkpoints = getRouteCheckpoints(route);
-            const isRouteCompleted = checkpoints.every(cp => cp.status === 'completed' || cp.status === 'unable');
-            
-            if (!isRouteCompleted) {
-                console.error(`路線 ${route} 未完成，無法上傳`);
-                showToast('無法上傳', '請先完成所有打卡點', 'error');
-                return;
-            }
-            
-            // 檢查路線是否已上傳
-            const isRouteUploaded = localStorage.getItem(`route_uploaded_${route}`) === 'true';
-            if (isRouteUploaded) {
-                console.log(`路線 ${route} 已上傳過，無需重複上傳`);
-                showToast('已上傳', '此路線已上傳過，無需重複上傳', 'info');
-                return;
-            }
-            
-            // 更新上傳狀態文字和圖標 - 巡邏列表頁面
-            const uploadIcon = document.getElementById(`uploadIcon-${route}`);
-            const uploadText = document.getElementById(`uploadText-${route}`);
-            
-            if (uploadIcon && uploadText) {
-                uploadIcon.className = 'fas fa-spinner fa-spin mr-2';
-                uploadText.textContent = '上傳中...';
-            }
-            
-            // 更新上傳狀態文字和圖標 - 詳情頁面
-            const detailsUploadIcon = document.getElementById(`detailsUploadIcon-${route}`);
-            const detailsUploadText = document.getElementById(`detailsUploadText-${route}`);
-            
-            if (detailsUploadIcon && detailsUploadText) {
-                detailsUploadIcon.className = 'fas fa-spinner fa-spin mr-2';
-                detailsUploadText.textContent = '上傳中...';
-            }
-            
-            // 模擬上傳過程
-            setTimeout(() => {
-                // 獲取已上傳的路線
-                let uploadedRoutes = [];
-                const savedUploadedRoutes = localStorage.getItem('uploadedRoutes');
-                if (savedUploadedRoutes) {
-                    try {
-                        uploadedRoutes = JSON.parse(savedUploadedRoutes);
-                        if (!Array.isArray(uploadedRoutes)) {
-                            // 如果不是數組，將對象轉換為數組
-                            uploadedRoutes = Object.keys(uploadedRoutes).filter(key => uploadedRoutes[key]);
-                        }
-                    } catch (e) {
-                        console.error("解析已上傳路線時出錯:", e);
-                        uploadedRoutes = [];
-                    }
-                }
-                
-                // 添加路線到已上傳列表
-                if (!uploadedRoutes.includes(route)) {
-                    uploadedRoutes.push(route);
-                    localStorage.setItem('uploadedRoutes', JSON.stringify(uploadedRoutes));
-                }
-                
-                // 直接設置路線已上傳標記
-                localStorage.setItem(`route_uploaded_${route}`, 'true');
-                
-                // 更新路線狀態中的上傳狀態
-                const routeStatuses = JSON.parse(localStorage.getItem('routeStatuses') || '{}');
-                if (routeStatuses[route]) {
-                    routeStatuses[route].uploaded = true;
-                    localStorage.setItem('routeStatuses', JSON.stringify(routeStatuses));
-                }
-                
-                // 更新界面 - 巡邏列表頁面
-                const uploadButton = document.getElementById(`uploadBtn-${route}`);
-                const uploadStatus = document.querySelector(`[data-route-id="${route}"] .upload-status`);
-                
-                if (uploadButton) {
-                    uploadButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> 已上傳`;
-                    uploadButton.classList.add('uploaded');
-                    uploadButton.disabled = true;
-                }
-                
-                if (uploadStatus) {
-                    uploadStatus.className = 'upload-status status-uploaded';
-                    uploadStatus.textContent = '已上傳';
-                }
-                
-                // 更新界面 - 詳情頁面
-                const detailsUploadButton = document.getElementById(`detailsUploadBtn-${route}`);
-                
-                if (detailsUploadButton) {
-                    detailsUploadButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> 已上傳`;
-                    detailsUploadButton.classList.add('uploaded');
-                    detailsUploadButton.disabled = true;
-                }
-                
-                // 顯示成功提示
-                showToast('上傳成功', `${route.split('-')[1].toUpperCase()} 棟巡邏記錄已成功上傳`);
-                
-                // 更新總進度
-                updateTotalProgress();
-            }, 1500);
-        }
-
         function showSuccessState() {
             // 隱藏動畫
             clearTimeout(nfcTimeout);
@@ -2990,6 +2893,32 @@
                 updateTotalProgress();
             }, 1500);
         }
+
+        // 添加持續打卡按鈕事件處理
+        document.getElementById('quickCheckInBtn').addEventListener('click', function() {
+            // 獲取當前路線ID
+            const routeId = document.getElementById('routeDetailsSubtitle').dataset.routeId;
+            if (!routeId) return;
+            
+            // 獲取下一個未完成的檢查點
+            const checkpoints = document.querySelectorAll('#checkpointsList .checkpoint-item');
+            let nextCheckpoint = null;
+            
+            for (const checkpoint of checkpoints) {
+                if (!checkpoint.classList.contains('completed') && !checkpoint.classList.contains('unable')) {
+                    nextCheckpoint = checkpoint;
+                    break;
+                }
+            }
+            
+            if (nextCheckpoint) {
+                // 觸發該檢查點的打卡功能
+                const checkpointName = nextCheckpoint.dataset.name;
+                handleCheckin(routeId, checkpointName);
+            } else {
+                showToast('提示', '所有檢查點已完成', 'info');
+            }
+        });
     </script>
     <!-- 添加必要的 JS 文件引用 -->
     <script src="js/common.js"></script>
